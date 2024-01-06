@@ -9,7 +9,7 @@ import {
   MessageOutlined,
 } from '@ant-design/icons'
 import style from './style/login.module.scss'
-import http from '../utils/request'
+import http from '@/utils/request'
 type FieldType = {
   email?: string
   password?: string
@@ -194,7 +194,7 @@ const LoginView = (props: any) => {
             className="bg-btn-primary w-[100%]"
             htmlType="submit"
           >
-            登录
+            {opType === 0 ? '注册' : opType === 1 ? '登录' : '重置密码'}
           </Button>
         </Form>
       </div>

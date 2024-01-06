@@ -1,28 +1,32 @@
-.loginBox {
-  @apply w-[400px]  p-4 rounded-lg shadow-[0_3px_6px_#ccc] fixed right-[150px] top-[50%] bg-[#fff] translate-y-[-50%];
-  .title {
-    @apply text-[24px] mb-5 text-cyan-300 text-center;
-    span {
-      @apply text-[15px] text-gray-950 mr-4;
+.loginWraper {
+  @apply w-[100%] h-[100%] bg-login-warpper;
+
+  .loginBox {
+    @apply w-[400px]  p-4 rounded-lg shadow-[0_3px_6px_#ccc] fixed right-[150px] top-[50%] bg-[#fff] translate-y-[-50%];
+    .title {
+      @apply text-[24px] mb-5 text-cyan-300 text-center;
+      span {
+        @apply text-[15px] text-gray-950 mr-4;
+      }
     }
-  }
-  .user {
-    @apply flex items-center justify-between;
-  }
-  .codeFlex {
-    :global(.ant-form-item) {
-      &:nth-child(1) {
-        margin: 0;
-        :global(.ant-col) {
-          @apply flex flex-row justify-between;
-          img {
-            @apply cursor-pointer;
+    .user {
+      @apply flex items-center justify-between;
+    }
+    .codeFlex {
+      :global(.ant-form-item) {
+        &:nth-child(1) {
+          margin: 0;
+          :global(.ant-col) {
+            @apply flex flex-row justify-between;
+            img {
+              @apply cursor-pointer;
+            }
           }
         }
       }
     }
-  }
-  :global(.ant-form-item) {
-    margin-bottom: 20px;
+    :global(.ant-form-item) {
+      margin-bottom: 20px;
+    }
   }
 }

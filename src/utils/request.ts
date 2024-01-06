@@ -5,7 +5,7 @@ import axios from 'axios'
 import { useDispatch } from 'react-redux'
 import ReactDOM from 'react-dom/client'
 import { hideLoading, showLoading } from '../store/reducer/globalLoading'
-import store from '../store'
+import store from '@/store'
 const http = axios.create({
   baseURL: '/api',
   timeout: 2000,
