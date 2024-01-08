@@ -1,4 +1,4 @@
-import { Button, Checkbox, Form, Input } from 'antd'
+import { Button, Checkbox, Form, Input, message } from 'antd'
 import React, { useEffect, useState } from 'react'
 import {
   UserOutlined,
@@ -10,7 +10,9 @@ import {
 } from '@ant-design/icons'
 import style from './style/login.module.scss'
 import http from '@/utils/request'
-type FieldType = {
+import GlobalModel, { ModelProps } from '@/components/GlobalModel'
+import { FormInstance } from 'antd/lib/form'
+type userFormType = {
   email?: string
   password?: string
   code?: string
@@ -19,13 +21,62 @@ type FieldType = {
   nickName?: string
   compliedPassword?: string
 }
+type emailFormType = {
+  email: string
+  code: string
+}
 const LoginView = (props: any) => {
   const api = {
     checkCode: '/api/checkCode',
   }
+  let timer: any = null,
+    num = 30
+  const [modelConfig, setModelConfig] = useState<ModelProps>({
+    show: false,
+    title: '获取邮箱验证码',
+    width: 500,
+    buttons: [
+      {
+        type: 'primary',
+        text: '发送邮箱验证码',
+        click: async () => {
+          try {
+            await (emailForm as any).validateFields(['code'])
+            timer = setInterval(() => {
+              if (num === 0) {
+                clearTimeout(timer as number)
+                setSendEmailText('发送邮箱验证码')
+                setDisabled(false)
+                return
+              }
+              setDisabled(true)
+              setSendEmailText(`${num}秒后重试`)
+              num--
+            }, 1000)
+            setModelConfig({
+              ...modelConfig,
+              show: false,
+            })
+            setChdeckCodeUrl2(
+              `${api.checkCode}?type=1&time=${new Date().getTime()}`
+            )
+            ;(emailForm as any).resetFields()
+          } catch (error) {}
+        },
+      },
+    ],
+    cancelBtn: false,
+  })
   // 操作类型 0:注册 1:登录 2：重置密码
   const [opType, setOpType] = useState<number>(1)
   const [checkCodeUrl, setCheckCodeUrl] = useState<string>(api.checkCode)
+  const [checkCodeUrl2, setChdeckCodeUrl2] = useState<string>(
+    api.checkCode + '?type=' + 1 + '&time=' + new Date().getTime()
+  )
+  const [userForm] = Form.useForm<FormInstance>()
+  const [emailForm] = Form.useForm<FormInstance>()
+  const [sendEmailText, setSendEmailText] = useState('获取邮箱验证码')
+  const [disabled, setDisabled] = useState(false)
   useEffect(() => {
     ;(async function () {
       try {
@@ -37,10 +88,30 @@ const LoginView = (props: any) => {
       api.checkCode + '?type=' + type + '&time=' + new Date().getTime()
     )
   }
+
+  const handleEmailCode = async () => {
+    try {
+      await (userForm as any).validateFields(['email'])
+      setModelConfig({
+        ...modelConfig,
+        show: true,
+      })
+    } catch (error) {
+      message.error('邮箱不能为空')
+    }
+  }
+  // 自定义校验规则
+  const customValidate = (_: any, value: string) => {
+    const password = (userForm as any).getFieldValue(['password'])
+    if (password && value !== password) {
+      return Promise.reject('密码不一致')
+    }
+    return Promise.resolve()
+  }
   const RegisterBox = () => {
     return opType === 0 || opType === 2 ? (
       <div className={style.codeFlex}>
-        <Form.Item<FieldType>
+        <Form.Item<userFormType>
           name="emailCode"
           rules={[
             {
@@ -49,8 +120,13 @@ const LoginView = (props: any) => {
             },
           ]}
           extra={
-            <Button type="primary" className="bg-btn-primary">
-              获取邮箱验证码
+            <Button
+              type="primary"
+              onClick={() => handleEmailCode()}
+              className="bg-btn-primary"
+              disabled={disabled}
+            >
+              {sendEmailText}
             </Button>
           }
         >
@@ -61,7 +137,7 @@ const LoginView = (props: any) => {
         </Form.Item>
         <Button type="link">未收到邮箱验证码？</Button>
         {opType === 0 ? (
-          <Form.Item<FieldType>
+          <Form.Item<userFormType>
             name="nickName"
             rules={[
               {
@@ -77,7 +153,7 @@ const LoginView = (props: any) => {
           </Form.Item>
         ) : null}
 
-        <Form.Item<FieldType>
+        <Form.Item<userFormType>
           name="password"
           rules={[
             {
@@ -91,13 +167,14 @@ const LoginView = (props: any) => {
             placeholder="请输入密码"
           ></Input.Password>
         </Form.Item>
-        <Form.Item<FieldType>
+        <Form.Item<userFormType>
           name="compliedPassword"
           rules={[
             {
               required: true,
               message: '密码必须输入',
             },
+            { validator: customValidate },
           ]}
         >
           <Input.Password
@@ -117,7 +194,8 @@ const LoginView = (props: any) => {
           </h2>
         </div>
         <Form
-          name="basic"
+          name="user"
+          form={userForm}
           labelCol={{ span: 1 }}
           wrapperCol={{ span: 30 }}
           style={{ maxWidth: 400 }}
@@ -125,7 +203,7 @@ const LoginView = (props: any) => {
           autoComplete="off"
           labelAlign="left"
         >
-          <Form.Item<FieldType>
+          <Form.Item<userFormType>
             name="email"
             rules={[{ required: true, message: '邮箱不能为空!' }]}
           >
@@ -136,7 +214,7 @@ const LoginView = (props: any) => {
             />
           </Form.Item>
           {opType === 1 ? (
-            <Form.Item<FieldType>
+            <Form.Item<userFormType>
               name="password"
               rules={[{ required: true, message: '密码不能为空!' }]}
             >
@@ -149,7 +227,7 @@ const LoginView = (props: any) => {
 
           {<RegisterBox />}
           <div className={style.codeFlex}>
-            <Form.Item<FieldType>
+            <Form.Item<userFormType>
               name="code"
               rules={[{ required: true, message: '验证码不能为空!' }]}
               extra={
@@ -166,24 +244,45 @@ const LoginView = (props: any) => {
             </Form.Item>
           </div>
           {opType === 1 ? (
-            <Form.Item<FieldType> name="remmberme" valuePropName="checked">
+            <Form.Item<userFormType> name="remmberme" valuePropName="checked">
               <Checkbox>记住我</Checkbox>
             </Form.Item>
           ) : null}
 
           <div className={style.user}>
             {opType === 1 ? (
-              <Button type="link" onClick={() => setOpType(2)}>
+              <Button
+                type="link"
+                onClick={() => {
+                  ;(userForm as any).resetFields()
+                  loadCheckCode(0)
+                  setOpType(2)
+                }}
+              >
                 忘记密码？
               </Button>
             ) : (
-              <Button type="link" onClick={() => setOpType(1)}>
+              <Button
+                type="link"
+                onClick={() => {
+                  ;(userForm as any).resetFields()
+                  loadCheckCode(0)
+                  setOpType(1)
+                }}
+              >
                 已有账号?
               </Button>
             )}
             {opType === 1 || opType === 2 ? (
               <>
-                <Button type="link" onClick={() => setOpType(0)}>
+                <Button
+                  type="link"
+                  onClick={() => {
+                    ;(userForm as any).resetFields()
+                    loadCheckCode(0)
+                    setOpType(0)
+                  }}
+                >
                   没有账号？
                 </Button>
               </>
@@ -198,6 +297,57 @@ const LoginView = (props: any) => {
           </Button>
         </Form>
       </div>
+      <GlobalModel
+        width={modelConfig.width}
+        title={modelConfig.title}
+        show={modelConfig.show}
+        cancelBtn={modelConfig.cancelBtn}
+        buttons={modelConfig.buttons}
+        close={() => {
+          ;(emailForm as any).resetFields()
+          setModelConfig({
+            ...modelConfig,
+            show: false,
+          })
+          setChdeckCodeUrl2(
+            `${api.checkCode}?type=1&time=${new Date().getTime()}`
+          )
+        }}
+      >
+        <Form
+          name="email"
+          form={emailForm}
+          labelCol={{ span: 1 }}
+          wrapperCol={{ span: 40 }}
+          style={{ maxWidth: 400 }}
+          initialValues={{ email: (userForm as any).getFieldValue(['email']) }}
+          autoComplete="off"
+          labelAlign="left"
+        >
+          <Form.Item<emailFormType> name="email">
+            <Input disabled prefix={<MessageOutlined />}></Input>
+          </Form.Item>
+          <div className={style.codeFlex}>
+            <Form.Item<emailFormType>
+              name="code"
+              rules={[{ required: true, message: '验证码不能为空!' }]}
+              extra={
+                <img
+                  src={checkCodeUrl2}
+                  alt=""
+                  onClick={() => {
+                    setChdeckCodeUrl2(
+                      `${api.checkCode}?type=1&time=${new Date().getTime()}`
+                    )
+                  }}
+                />
+              }
+            >
+              <Input prefix={<CodepenOutlined />} placeholder="请输入验证码" />
+            </Form.Item>
+          </div>
+        </Form>
+      </GlobalModel>
     </div>
   )
 }

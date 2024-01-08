@@ -30,3 +30,18 @@
     }
   }
 }
+:global(.ant-modal-body) {
+  .codeFlex {
+    :global(.ant-form-item) {
+      &:nth-child(1) {
+        margin: 0;
+        :global(.ant-col) {
+          @apply flex flex-row justify-between;
+          img {
+            @apply cursor-pointer;
+          }
+        }
+      }
+    }
+  }
+}
