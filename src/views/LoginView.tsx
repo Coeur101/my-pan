@@ -226,25 +226,45 @@ const LoginView = (props: any) => {
           ) : null}
 
           {<RegisterBox />}
-          <div className={style.codeFlex}>
+          {/* <div className={style.codeFlex}> */}
+          <Form.Item style={{ marginBottom: 0 }}>
             <Form.Item<userFormType>
               name="code"
+              style={{
+                display: 'inline-block',
+                width: 'calc(60% - 8px)',
+                margin: '2px 0',
+              }}
               rules={[{ required: true, message: '验证码不能为空!' }]}
-              extra={
-                <img
-                  src={checkCodeUrl}
-                  alt=""
-                  onClick={() => {
-                    loadCheckCode(0)
-                  }}
-                />
-              }
+              // extra={
+
+              // }
             >
               <Input prefix={<CodepenOutlined />} placeholder="请输入验证码" />
             </Form.Item>
-          </div>
+            {/* </div> */}
+            <Form.Item
+              style={{
+                display: 'inline-block',
+                width: 'calc(40% - 8px)',
+                margin: '0 8px',
+              }}
+            >
+              <img
+                src={checkCodeUrl}
+                alt=""
+                onClick={() => {
+                  loadCheckCode(0)
+                }}
+              />
+            </Form.Item>
+          </Form.Item>
           {opType === 1 ? (
-            <Form.Item<userFormType> name="remmberme" valuePropName="checked">
+            <Form.Item<userFormType>
+              name="remmberme"
+              valuePropName="checked"
+              style={{ marginBottom: 0 }}
+            >
               <Checkbox>记住我</Checkbox>
             </Form.Item>
           ) : null}
@@ -327,25 +347,36 @@ const LoginView = (props: any) => {
           <Form.Item<emailFormType> name="email">
             <Input disabled prefix={<MessageOutlined />}></Input>
           </Form.Item>
-          <div className={style.codeFlex}>
+          <Form.Item style={{ marginBottom: 0 }}>
             <Form.Item<emailFormType>
               name="code"
               rules={[{ required: true, message: '验证码不能为空!' }]}
-              extra={
-                <img
-                  src={checkCodeUrl2}
-                  alt=""
-                  onClick={() => {
-                    setChdeckCodeUrl2(
-                      `${api.checkCode}?type=1&time=${new Date().getTime()}`
-                    )
-                  }}
-                />
-              }
+              style={{
+                display: 'inline-block',
+                width: 'calc(71% - 8px)',
+                marginBottom: 0,
+              }}
             >
               <Input prefix={<CodepenOutlined />} placeholder="请输入验证码" />
             </Form.Item>
-          </div>
+            <Form.Item
+              style={{
+                display: 'inline-block',
+                width: 'calc(29% - 8px)',
+                margin: '0 8px',
+              }}
+            >
+              <img
+                src={checkCodeUrl2}
+                alt=""
+                onClick={() => {
+                  setChdeckCodeUrl2(
+                    `${api.checkCode}?type=1&time=${new Date().getTime()}`
+                  )
+                }}
+              />
+            </Form.Item>
+          </Form.Item>
         </Form>
       </GlobalModel>
     </div>
