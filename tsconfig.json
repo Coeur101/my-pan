@@ -21,5 +21,10 @@
       "*": ["node_modules/*"]
     }
   },
-  "include": ["src/**/*.tsx", "scr/**/*.ts", "src/**/*.d.ts"]
+  "include": [
+    "src/**/*.tsx",
+    "scr/**/*.ts",
+    "src/**/*.d.ts",
+    "src/utils/request.ts"
+  ]
 }

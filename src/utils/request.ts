@@ -1,77 +1,122 @@
-import { Spin } from 'antd'
-import { SpinProps } from 'antd'
-import { message } from 'antd'
+import { RequestType } from './types'
+import message from './message'
 import axios from 'axios'
-import { useDispatch } from 'react-redux'
-import ReactDOM from 'react-dom/client'
 import { hideLoading, showLoading } from '../store/reducer/globalLoading'
 import store from '@/store'
-const http = axios.create({
-  baseURL: '/api',
-  timeout: 2000,
-})
-http.defaults.headers.post['Content-Type'] =
-  'application/x-www-form-urlencoded;charset=UTF-8'
-// 当前请求的数量
-// let requestCount = 0
-// const SpinElemt: React.FC = () => {
-//   return <Spin tip="加载中" size="large" />
-// }
-// function showLoading() {
-//   if (requestCount === 0) {
-//     const dom = document.createElement('div')
-//     dom.setAttribute('id', 'loading')
-//     document.body.appendChild(dom)
-//     ReactDOM.createRoot(<SpinElemt />, dom)
-//   }
-//   requestCount++
-// }
-// function hideLoading() {
-//   requestCount--
-//   if (requestCount === 0) {
-//     document.body.removeChild(document.getElementById('loading')!)
-//   }
-// }
+import {
+  LoaderFunction,
+  Location,
+  NavigateFunction,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom'
+const contentTypeForm = 'application/x-www-form-urlencoded;charset=UTF-8'
+const contentTypeJson = 'application/json'
+const responseTypeJson = 'json'
+const navigate: NavigateFunction | unknown = null
+const location: Location | null = null
+export const getRouterOp = (navigate: NavigateFunction, location: Location) => {
+  navigate = navigate
+  location = location
+}
+const CreateAxiosInstance = () => {
+  const http = axios.create({
+    baseURL: '/api',
+    timeout: 10 * 1000,
+  })
 
-http.interceptors.request.use(
-  (config) => {
-    store.dispatch(showLoading(null))
-    return config
-  },
-  (error) => {
-    message.open({
-      type: 'error',
-      content: '请求超时',
+  http.interceptors.request.use(
+    (config: any) => {
+      if (config.showLoading) {
+        store.dispatch(showLoading(null))
+      }
+      return config
+    },
+    (error) => {
+      message.error('请求失败')
+      store.dispatch(hideLoading(null))
+      return Promise.reject('请求发送失败')
+    }
+  )
+  http.interceptors.response.use(
+    (response: any) => {
+      const {
+        showLoading,
+        errorCallback,
+        showError = true,
+        responseType,
+      } = response.config
+      if (showLoading) {
+        store.dispatch(hideLoading(null))
+      }
+      const data = response.data
+      if (responseType === 'arraybuffer' || responseType === 'blob') {
+        return data
+      }
+      if (data.code === 200) {
+        return data
+      } else if (data.code === 901) {
+        ;(navigate as NavigateFunction)(
+          '/login?redirectUrl=' + encodeURI(location!.pathname)
+        )
+        return Promise.reject({ showError: false, msg: '登录超时' })
+      } else {
+        if (errorCallback) {
+          errorCallback(data.info)
+        }
+        return Promise.reject({ showError: showError, msg: data.info })
+      }
+    },
+    (error) => {
+      if (error.config.showLoading) {
+        store.dispatch(hideLoading(null))
+      }
+
+      return Promise.reject({ showError: true, msg: '网络异常，请稍后重试' })
+    }
+  )
+  return http
+}
+const request = (config: RequestType) => {
+  const {
+    url,
+    params,
+    dataType,
+    showLoading = true,
+    responseType = responseTypeJson,
+  } = config
+  let contentType = contentTypeForm
+  let formData = new FormData()
+  for (let key in params) {
+    formData.append(key, params[key] === undefined ? '' : params[key])
+  }
+  if (dataType !== null && dataType === 'json') {
+    contentType = contentTypeJson
+  }
+  let headers = {
+    'Content-Type': contentType,
+    'X-Requestted-With': 'XMLHttpRequest',
+  }
+  const http = CreateAxiosInstance()
+  try {
+    return http.post(url, formData, {
+      onUploadProgress: (event_1: any) => {
+        if (config.uploadProgressCallback) {
+          config.uploadProgressCallback(event_1)
+        }
+      },
+      responseType: responseType,
+      headers: headers,
+      // @ts-ignore
+      showLoading: showLoading,
+      errorCallback: config.errorCallback,
+      showError: config.showError,
     })
-    store.dispatch(hideLoading(null))
-    return Promise.reject(error)
-  }
-)
-http.interceptors.response.use(
-  (response) => {
-    const data = response.data
-    // if (data.code !== 200) {
-    //   message.open({
-    //     type: 'error',
-    //     content: '请求失败',
-    //   })
-    // }
-    store.dispatch(hideLoading(null))
-    return data
-  },
-  (error) => {
-    if (error.message === 'Network Error') {
-      message.warning('网络连接异常！')
+  } catch (error: any) {
+    if (error.showError) {
+      message.error(error.msg)
     }
-    if (error.code === 'ECONNABORTED') {
-      message.warning('请求超时，请重试')
-    }
-    store.dispatch(hideLoading(null))
-    return Promise.reject(
-      (error.response && error.response.data && error.response.data.message) ||
-        error.message ||
-        error.toString()
-    )
+    return null
   }
-)
-export default http
+}
+export default request

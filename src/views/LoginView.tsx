@@ -1,5 +1,5 @@
-import { Button, Checkbox, Form, Input, message } from 'antd'
-import React, { useEffect, useState } from 'react'
+import { Button, Checkbox, Form, Input } from 'antd'
+import React, { useEffect, useRef, useState } from 'react'
 import {
   UserOutlined,
   LockOutlined,
@@ -9,9 +9,12 @@ import {
   MessageOutlined,
 } from '@ant-design/icons'
 import style from './style/login.module.scss'
-import http from '@/utils/request'
 import GlobalModel, { ModelProps } from '@/components/GlobalModel'
 import { FormInstance } from 'antd/lib/form'
+import { sendEmailApi } from '@/api/index'
+import message from '@/utils/message'
+import { ResType } from './type'
+import { useLocation, useNavigate } from 'react-router-dom'
 type userFormType = {
   email?: string
   password?: string
@@ -39,29 +42,8 @@ const LoginView = (props: any) => {
       {
         type: 'primary',
         text: '发送邮箱验证码',
-        click: async () => {
-          try {
-            await (emailForm as any).validateFields(['code'])
-            timer = setInterval(() => {
-              if (num === 0) {
-                clearTimeout(timer as number)
-                setSendEmailText('发送邮箱验证码')
-                setDisabled(false)
-                return
-              }
-              setDisabled(true)
-              setSendEmailText(`${num}秒后重试`)
-              num--
-            }, 1000)
-            setModelConfig({
-              ...modelConfig,
-              show: false,
-            })
-            setChdeckCodeUrl2(
-              `${api.checkCode}?type=1&time=${new Date().getTime()}`
-            )
-            ;(emailForm as any).resetFields()
-          } catch (error) {}
+        click: () => {
+          sendEmailCode()
         },
       },
     ],
@@ -73,9 +55,11 @@ const LoginView = (props: any) => {
   const [checkCodeUrl2, setChdeckCodeUrl2] = useState<string>(
     api.checkCode + '?type=' + 1 + '&time=' + new Date().getTime()
   )
+  const navigate = useNavigate()
+  const location = useLocation()
   const [userForm] = Form.useForm<FormInstance>()
   const [emailForm] = Form.useForm<FormInstance>()
-  const [sendEmailText, setSendEmailText] = useState('获取邮箱验证码')
+  const sendEmailButtonRef = useRef<HTMLElement>(null)
   const [disabled, setDisabled] = useState(false)
   useEffect(() => {
     ;(async function () {
@@ -88,18 +72,74 @@ const LoginView = (props: any) => {
       api.checkCode + '?type=' + type + '&time=' + new Date().getTime()
     )
   }
+  const countDown = () => {
+    if (num === 0) {
+      clearTimeout(timer as number)
+      setDisabled(false)
+      sendEmailButtonRef.current!.innerText = `发送邮箱验证码`
+      return
+    }
+    sendEmailButtonRef.current!.innerText = `${num}秒后重试`
+    num--
+  }
+  const sendEmailCode = async () => {
+    try {
+      await (emailForm as any).validateFields(['code'])
 
-  const handleEmailCode = async () => {
+      const type = opType === 0 ? '0' : '1'
+      const params = (emailForm as any).getFieldsValue()
+      const res = await sendEmailApi(
+        type,
+        params.email,
+        params.code,
+        (info) => {
+          message.error(info)
+          setChdeckCodeUrl2(
+            `${api.checkCode}?type=1&time=${new Date().getTime()}`
+          )
+        }
+      )
+      if ((res as any)?.code !== 200) {
+        return
+      }
+      message.success('验证码发送成功')
+      setModelConfig({
+        ...modelConfig,
+        show: false,
+      })
+      setDisabled(true)
+      countDown()
+      if (!timer) timer = setInterval(countDown, 1000)
+      ;(emailForm as any).resetFields()
+    } catch (error) {}
+  }
+  const gainEmailCode = async () => {
     try {
       await (userForm as any).validateFields(['email'])
       setModelConfig({
         ...modelConfig,
         show: true,
       })
-    } catch (error) {
-      message.error('邮箱不能为空')
-    }
+    } catch (error) {}
   }
+  const SendEmailCodeButton = React.memo((props: any) => {
+    const { sendEmailCode } = props
+    return (
+      <div className="inline-block mt-[2px] ml-[6px]">
+        <Button
+          type="primary"
+          className="bg-btn-primary"
+          ref={sendEmailButtonRef}
+          onClick={() => {
+            sendEmailCode()
+          }}
+          disabled={disabled}
+        >
+          获取验证码
+        </Button>
+      </div>
+    )
+  })
   // 自定义校验规则
   const customValidate = (_: any, value: string) => {
     const password = (userForm as any).getFieldValue(['password'])
@@ -110,30 +150,24 @@ const LoginView = (props: any) => {
   }
   const RegisterBox = () => {
     return opType === 0 || opType === 2 ? (
-      <div className={style.codeFlex}>
-        <Form.Item<userFormType>
-          name="emailCode"
-          rules={[
-            {
-              required: true,
-              message: '邮箱验证码必须输入',
-            },
-          ]}
-          extra={
-            <Button
-              type="primary"
-              onClick={() => handleEmailCode()}
-              className="bg-btn-primary"
-              disabled={disabled}
-            >
-              {sendEmailText}
-            </Button>
-          }
-        >
-          <Input
-            placeholder="输入邮箱验证码"
-            prefix={<CodepenOutlined />}
-          ></Input>
+      <div>
+        <Form.Item style={{ marginBottom: 0 }}>
+          <Form.Item<userFormType>
+            name="emailCode"
+            style={{
+              display: 'inline-block',
+              width: 'calc(60% - 8px)',
+              margin: '2px 0',
+            }}
+            rules={[{ required: true, message: '邮箱验证码!' }]}
+            // extra={
+
+            // }
+          >
+            <Input prefix={<CodepenOutlined />} placeholder="请输入验证码" />
+          </Form.Item>
+          {/* </div> */}
+          <SendEmailCodeButton sendEmailCode={gainEmailCode} />
         </Form.Item>
         <Button type="link">未收到邮箱验证码？</Button>
         {opType === 0 ? (
@@ -184,6 +218,14 @@ const LoginView = (props: any) => {
         </Form.Item>
       </div>
     ) : null
+  }
+  // 登录 & 注册 & 重置密码的操作
+  const submitClick = async () => {
+    try {
+      await (userForm as any).validateFields()
+    } catch (error) {
+      console.log('不通过')
+    }
   }
   return (
     <div className={style.loginWraper}>
@@ -312,6 +354,9 @@ const LoginView = (props: any) => {
             type="primary"
             className="bg-btn-primary w-[100%]"
             htmlType="submit"
+            onClick={() => {
+              submitClick()
+            }}
           >
             {opType === 0 ? '注册' : opType === 1 ? '登录' : '重置密码'}
           </Button>
