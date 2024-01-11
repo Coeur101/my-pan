@@ -7,7 +7,7 @@ const AdminLazy: LazyExoticComponent<any> = lazy(
   () => import('../views/admin/AdminView')
 )
 const baseRouter = [
-  { path: '/', element: <LoginLazy /> },
-  { path: '/admin/*', element: <AdminLazy /> },
+  { path: '/', element: <AdminLazy /> },
+  { path: '/login', element: <LoginLazy /> },
 ]
 export default baseRouter

@@ -1,6 +1,6 @@
 import { RequestType } from './types'
 import message from './message'
-import axios from 'axios'
+import axios, { AxiosInstance, AxiosResponse } from 'axios'
 import { hideLoading, showLoading } from '../store/reducer/globalLoading'
 import store from '@/store'
 import {
@@ -19,7 +19,7 @@ export const getRouterOp = (navigate: NavigateFunction, location: Location) => {
   navigate = navigate
   location = location
 }
-const CreateAxiosInstance = () => {
+const CreateAxiosInstance = (): AxiosInstance => {
   const http = axios.create({
     baseURL: '/api',
     timeout: 10 * 1000,
@@ -39,13 +39,23 @@ const CreateAxiosInstance = () => {
     }
   )
   http.interceptors.response.use(
-    (response: any) => {
+    (
+      response: any
+    ): Promise<
+      AxiosResponse<{
+        code: string
+        data: any
+        status: string
+        info: string
+      }>
+    > => {
       const {
         showLoading,
         errorCallback,
         showError = true,
         responseType,
       } = response.config
+
       if (showLoading) {
         store.dispatch(hideLoading(null))
       }
@@ -77,7 +87,16 @@ const CreateAxiosInstance = () => {
   )
   return http
 }
-const request = (config: RequestType) => {
+const request = (
+  config: RequestType
+):
+  | Promise<{
+      code: string
+      data: any
+      status: string
+      info: string
+    }>
+  | undefined => {
   const {
     url,
     params,
@@ -116,7 +135,6 @@ const request = (config: RequestType) => {
     if (error.showError) {
       message.error(error.msg)
     }
-    return null
   }
 }
 export default request

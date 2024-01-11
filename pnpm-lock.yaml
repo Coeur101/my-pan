@@ -116,6 +116,9 @@ dependencies:
   jest-watch-typeahead:
     specifier: ^1.0.0
     version: 1.1.0(jest@27.5.1)
+  js-md5:
+    specifier: ^0.8.3
+    version: 0.8.3
   mini-css-extract-plugin:
     specifier: ^2.4.5
     version: 2.7.6(webpack@5.89.0)
@@ -149,6 +152,9 @@ dependencies:
   react-app-polyfill:
     specifier: ^3.0.0
     version: 3.0.0
+  react-cookie:
+    specifier: ^7.0.1
+    version: 7.0.1(react@18.2.0)
   react-dev-utils:
     specifier: ^12.0.1
     version: 12.0.1(eslint@8.56.0)(typescript@4.9.5)(webpack@5.89.0)
@@ -2846,6 +2852,10 @@ packages:
       '@types/node': 16.18.69
     dev: false
 
+  /@types/cookie@0.6.0:
+    resolution: {integrity: sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==, tarball: https://registry.npmmirror.com/@types/cookie/-/cookie-0.6.0.tgz}
+    dev: false
+
   /@types/eslint-scope@3.7.7:
     resolution: {integrity: sha512-MzMFlSLBqNF2gcHWO0G1vP/YQyfvrxZ0bF+u7mzUdZ1/xK4A4sru+nraZz5i3iEIk1l1uyicaDVTB4QbbEkAYg==, tarball: https://registry.npmmirror.com/@types/eslint-scope/-/eslint-scope-3.7.7.tgz}
     dependencies:
@@ -2890,6 +2900,13 @@ packages:
     resolution: {integrity: sha512-olP3sd1qOEe5dXTSaFvQG+02VdRXcdytWLAZsAq1PecU8uqQAhkrnbli7DagjtXKW/Bl7YJbUsa8MPcuc8LHEQ==, tarball: https://registry.npmmirror.com/@types/graceful-fs/-/graceful-fs-4.1.9.tgz}
     dependencies:
       '@types/node': 16.18.69
+    dev: false
+
+  /@types/hoist-non-react-statics@3.3.5:
+    resolution: {integrity: sha512-SbcrWzkKBw2cdwRTwQAswfpB9g9LJWfjtUeW/jvNwbhC8cpmmNYVePa+ncbUe0rGTQ7G3Ff6mYUN2VMfLVr+Sg==, tarball: https://registry.npmmirror.com/@types/hoist-non-react-statics/-/hoist-non-react-statics-3.3.5.tgz}
+    dependencies:
+      '@types/react': 18.2.46
+      hoist-non-react-statics: 3.3.2
     dev: false
 
   /@types/html-minifier-terser@6.1.0:
@@ -4468,6 +4485,11 @@ packages:
 
   /cookie@0.5.0:
     resolution: {integrity: sha512-YZ3GUyn/o8gfKJlnlX7g7xq4gyO6OSuhGPKaaGssGB2qgDUS0gPgtTvoyZLTt9Ab6dC4hfc9dV5arkvc/OCmrw==, tarball: https://registry.npmmirror.com/cookie/-/cookie-0.5.0.tgz}
+    engines: {node: '>= 0.6'}
+    dev: false
+
+  /cookie@0.6.0:
+    resolution: {integrity: sha512-U71cyTamuh1CRNCfpGY6to28lxvNwPG4Guz/EVjgf3Jmzv0vlDp1atT9eS5dDjMYHucpHbWns6Lwf3BKz6svdw==, tarball: https://registry.npmmirror.com/cookie/-/cookie-0.6.0.tgz}
     engines: {node: '>= 0.6'}
     dev: false
 
@@ -6301,6 +6323,12 @@ packages:
     hasBin: true
     dev: false
 
+  /hoist-non-react-statics@3.3.2:
+    resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==, tarball: https://registry.npmmirror.com/hoist-non-react-statics/-/hoist-non-react-statics-3.3.2.tgz}
+    dependencies:
+      react-is: 16.13.1
+    dev: false
+
   /hoopy@0.1.4:
     resolution: {integrity: sha512-HRcs+2mr52W0K+x8RzcLzuPPmVIKMSv97RGHy0Ea9y/mpcaK+xTrjICA04KAHi4GRzxliNqNJEFYWHghy3rSfQ==, tarball: https://registry.npmmirror.com/hoopy/-/hoopy-0.1.4.tgz}
     engines: {node: '>= 6.0.0'}
@@ -7475,6 +7503,10 @@ packages:
 
   /js-base64@2.6.4:
     resolution: {integrity: sha512-pZe//GGmwJndub7ZghVHz7vjb2LgC1m8B07Au3eYqeqv9emhESByMXxaEgkUkEqJe87oBbSniGYoQNIBklc7IQ==, tarball: https://registry.npmmirror.com/js-base64/-/js-base64-2.6.4.tgz}
+
+  /js-md5@0.8.3:
+    resolution: {integrity: sha512-qR0HB5uP6wCuRMrWPTrkMaev7MJZwJuuw4fnwAzRgP4J4/F8RwtodOKpGp4XpqsLBFzzgqIO42efFAyz2Et6KQ==, tarball: https://registry.npmmirror.com/js-md5/-/js-md5-0.8.3.tgz}
+    dev: false
 
   /js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==, tarball: https://registry.npmmirror.com/js-tokens/-/js-tokens-4.0.0.tgz}
@@ -10072,6 +10104,17 @@ packages:
       whatwg-fetch: 3.6.20
     dev: false
 
+  /react-cookie@7.0.1(react@18.2.0):
+    resolution: {integrity: sha512-SmDjy2TFp+vS6BGOqW7HyaWKyJzVmIH74uP3mxq6kswlwLJEBtIbhkrioozdvQL9r81yprHYFQkSmcO4HiXPdA==, tarball: https://registry.npmmirror.com/react-cookie/-/react-cookie-7.0.1.tgz}
+    peerDependencies:
+      react: '>= 16.3.0'
+    dependencies:
+      '@types/hoist-non-react-statics': 3.3.5
+      hoist-non-react-statics: 3.3.2
+      react: 18.2.0
+      universal-cookie: 7.0.1
+    dev: false
+
   /react-dev-utils@12.0.1(eslint@8.56.0)(typescript@4.9.5)(webpack@5.89.0):
     resolution: {integrity: sha512-84Ivxmr17KjUupyqzFode6xKhjwuEJDROWKJy/BthkL7Wn6NJ8h4WE6k/exAv6ImS+0oZLRRW5j/aINMHyeGeQ==, tarball: https://registry.npmmirror.com/react-dev-utils/-/react-dev-utils-12.0.1.tgz}
     engines: {node: '>=14'}
@@ -11668,6 +11711,13 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       crypto-random-string: 2.0.0
+    dev: false
+
+  /universal-cookie@7.0.1:
+    resolution: {integrity: sha512-6OuX9xELF6dsVJeADJAYNDOxQf/NR3Na5bGCRd+hkysMDkSt79jJ4tdv5OBe+ZgAks3ExHBdCXkD2SjqLyK59w==, tarball: https://registry.npmmirror.com/universal-cookie/-/universal-cookie-7.0.1.tgz}
+    dependencies:
+      '@types/cookie': 0.6.0
+      cookie: 0.6.0
     dev: false
 
   /universalify@0.2.0:

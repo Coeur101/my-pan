@@ -1,20 +1,26 @@
 import { Button, Checkbox, Form, Input } from 'antd'
-import React, { useEffect, useRef, useState } from 'react'
+import React, {
+  RefObject,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 import {
-  UserOutlined,
   LockOutlined,
   CodepenOutlined,
   AntDesignOutlined,
-  MessageFilled,
   MessageOutlined,
 } from '@ant-design/icons'
 import style from './style/login.module.scss'
 import GlobalModel, { ModelProps } from '@/components/GlobalModel'
 import { FormInstance } from 'antd/lib/form'
-import { sendEmailApi } from '@/api/index'
+import { login, register, resetPassword, sendEmailApi } from '@/api/index'
 import message from '@/utils/message'
-import { ResType } from './type'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { getRouterOp } from '@/utils/request'
+import { useCookies } from 'react-cookie'
+import { md5, Message } from 'js-md5'
 type userFormType = {
   email?: string
   password?: string
@@ -31,8 +37,10 @@ type emailFormType = {
 const LoginView = (props: any) => {
   const api = {
     checkCode: '/api/checkCode',
+    emailCheckCode:
+      '/api/checkCode' + '?type=' + 1 + '&time=' + new Date().getTime(),
   }
-  let timer: any = null,
+  let timer = useRef<number | null>(null),
     num = 30
   const [modelConfig, setModelConfig] = useState<ModelProps>({
     show: false,
@@ -49,24 +57,53 @@ const LoginView = (props: any) => {
     ],
     cancelBtn: false,
   })
+
   // 操作类型 0:注册 1:登录 2：重置密码
   const [opType, setOpType] = useState<number>(1)
   const [checkCodeUrl, setCheckCodeUrl] = useState<string>(api.checkCode)
   const [checkCodeUrl2, setChdeckCodeUrl2] = useState<string>(
-    api.checkCode + '?type=' + 1 + '&time=' + new Date().getTime()
+    api.emailCheckCode
   )
   const navigate = useNavigate()
   const location = useLocation()
-  const [userForm] = Form.useForm<FormInstance>()
-  const [emailForm] = Form.useForm<FormInstance>()
-  const sendEmailButtonRef = useRef<HTMLElement>(null)
+  // 封装的axios传入路由操作存储路由操作函数
+  getRouterOp(navigate, location)
+  const [userForm] = Form.useForm<userFormType>()
+  const [emailForm] = Form.useForm<emailFormType>()
+  let sendEmailButtonRef: RefObject<HTMLElement> | null =
+    useRef<HTMLElement>(null)
   const [disabled, setDisabled] = useState(false)
+  const [cookies, setCookie, removeCookie] = useCookies([
+    'loginInfo',
+    'userInfo',
+  ])
   useEffect(() => {
-    ;(async function () {
-      try {
-      } catch (error) {}
-    })()
-  }, [])
+    const cookieLoginInfo = cookies.loginInfo
+    if (cookieLoginInfo) {
+      setTimeout(() => {
+        ;(userForm as any).setFields([
+          {
+            name: 'email',
+            value: cookieLoginInfo.email,
+          },
+          {
+            name: 'password',
+            value: cookieLoginInfo.password,
+          },
+          {
+            name: 'remmberme',
+            value: cookieLoginInfo.remmberme,
+          },
+        ])
+      }, 0)
+    }
+  }, [userForm, cookies.loginInfo])
+  useEffect(() => {
+    ;(userForm as any).resetFields()
+    return () => {
+      clearInterval(timer.current as number)
+    }
+  }, [opType])
   const loadCheckCode = (type: string | number) => {
     setCheckCodeUrl(
       api.checkCode + '?type=' + type + '&time=' + new Date().getTime()
@@ -74,12 +111,15 @@ const LoginView = (props: any) => {
   }
   const countDown = () => {
     if (num === 0) {
-      clearTimeout(timer as number)
+      clearInterval(timer.current as number)
       setDisabled(false)
-      sendEmailButtonRef.current!.innerText = `发送邮箱验证码`
+      sendEmailButtonRef!.current!.innerText = `发送邮箱验证码`
+      clearInterval(timer.current as number)
       return
     }
-    sendEmailButtonRef.current!.innerText = `${num}秒后重试`
+
+    sendEmailButtonRef!.current!.innerText = `${num}秒后重试`
+
     num--
   }
   const sendEmailCode = async () => {
@@ -109,7 +149,7 @@ const LoginView = (props: any) => {
       })
       setDisabled(true)
       countDown()
-      if (!timer) timer = setInterval(countDown, 1000)
+      if (!timer.current) timer.current = setInterval(countDown, 1000) as any
       ;(emailForm as any).resetFields()
     } catch (error) {}
   }
@@ -223,9 +263,95 @@ const LoginView = (props: any) => {
   const submitClick = async () => {
     try {
       await (userForm as any).validateFields()
-    } catch (error) {
-      console.log('不通过')
-    }
+      let params: userFormType = {
+        emailCode: (userForm as any).getFieldsValue(['emailCode']).emailCode,
+        password: (userForm as any).getFieldsValue(['password']).password,
+        nickName: (userForm as any).getFieldsValue(['nickName']).nickName,
+        email: (userForm as any).getFieldsValue(['email']).email,
+        code: (userForm as any).getFieldsValue(['code']).code,
+      }
+      const errorCallback = (info: any) => {
+        message.error(info)
+        loadCheckCode('0')
+      }
+      let res = null
+      // 注册
+      if (opType === 0) {
+        res = await register(
+          params.email as string,
+          params.nickName as string,
+          params.password as string,
+          params.code as string,
+          params.emailCode as string,
+          errorCallback
+        )
+      } else if (opType === 1) {
+        console.log('登录')
+
+        let cookie = cookies.loginInfo
+        let cookiePassword = cookie && cookie.password
+        if (cookiePassword !== params.password) {
+          params.password = md5(params.password as Message)
+        }
+        // 登录
+        res = await login(
+          params.email as string,
+          params.password as string,
+          params.code as string,
+          errorCallback
+        )
+      } else {
+        // 找回密码
+        res = await resetPassword(
+          params.email as string,
+          params.password as string,
+          params.code as string,
+          params.emailCode as string,
+          errorCallback
+        )
+      }
+
+      if ((res as any).code !== 200) {
+        return
+      }
+      // 注册返回
+      if (opType === 0) {
+        message.success('注册成功，回到登录页')
+        clearInterval(timer.current as number)
+        setTimeout(() => {
+          setOpType(1)
+        }, 500)
+      } else if (opType === 1) {
+        // 路由跳转 记住密码
+        if ((userForm as any).getFieldsValue(['remmberme']).remmberme) {
+          const loginInfo = {
+            email: params.email,
+            password: params.password,
+            remmberme: (userForm as any).getFieldsValue(['remmberme'])
+              .remmberme,
+          }
+          const expirationDate = new Date()
+          expirationDate.setDate(expirationDate.getDate() + 7) // 设置过期时间为7天后
+          setCookie('loginInfo', loginInfo, {
+            expires: expirationDate,
+          })
+        } else {
+          console.log('123', cookies.loginInfo)
+          removeCookie('loginInfo')
+        }
+        message.success('登录成功') // 存储登录信息cookie
+        setCookie('userInfo', res?.data)
+        const redirectUrl =
+          new URLSearchParams(location.search).get('redirectUrl') || '/'
+        navigate(`${redirectUrl}`)
+      } else if (opType === 2) {
+        // 重置密码
+        message.success('重置密码成功，回到登录页')
+        setTimeout(() => {
+          setOpType(1)
+        }, 500)
+      }
+    } catch (error: any) {}
   }
   return (
     <div className={style.loginWraper}>
@@ -241,7 +367,6 @@ const LoginView = (props: any) => {
           labelCol={{ span: 1 }}
           wrapperCol={{ span: 30 }}
           style={{ maxWidth: 400 }}
-          initialValues={{ remmberme: true }}
           autoComplete="off"
           labelAlign="left"
         >
@@ -316,7 +441,6 @@ const LoginView = (props: any) => {
               <Button
                 type="link"
                 onClick={() => {
-                  ;(userForm as any).resetFields()
                   loadCheckCode(0)
                   setOpType(2)
                 }}
@@ -327,7 +451,6 @@ const LoginView = (props: any) => {
               <Button
                 type="link"
                 onClick={() => {
-                  ;(userForm as any).resetFields()
                   loadCheckCode(0)
                   setOpType(1)
                 }}
@@ -340,7 +463,6 @@ const LoginView = (props: any) => {
                 <Button
                   type="link"
                   onClick={() => {
-                    ;(userForm as any).resetFields()
                     loadCheckCode(0)
                     setOpType(0)
                   }}
