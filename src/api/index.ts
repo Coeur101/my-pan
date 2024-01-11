@@ -101,14 +101,7 @@ export const resetPassword = (
   checkCode: string,
   emailCode: string,
   errorcallback?: (info: any) => void
-):
-  | Promise<{
-      code: string
-      data: any
-      status: string
-      info: string
-    }>
-  | undefined => {
+) => {
   try {
     return request({
       url: '/resetPwd',
@@ -120,6 +113,42 @@ export const resetPassword = (
       },
       showLoading: true,
       errorCallback: errorcallback,
+    })
+  } catch (error) {}
+}
+/**
+ * qq登录
+ * @param callbackUrl qq登录成功后要返回的页面地址
+ * @param errorCallback 错误回调
+ * @returns
+ */
+export const qqLogin = (
+  callbackUrl: string,
+  errorCallback?: (info: any) => void
+) => {
+  try {
+    return request({
+      url: '/qqlogin',
+      params: {
+        callbackUrl,
+      },
+      errorCallback,
+    })
+  } catch (error) {}
+}
+export const qqloginCallback = (
+  code: string,
+  state: string,
+  errorCallback?: (info: any) => void
+) => {
+  try {
+    return request({
+      url: '/qqlogin/callback',
+      params: {
+        code,
+        state,
+      },
+      errorCallback,
     })
   } catch (error) {}
 }

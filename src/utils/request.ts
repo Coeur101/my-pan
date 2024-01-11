@@ -43,7 +43,7 @@ const CreateAxiosInstance = (): AxiosInstance => {
       response: any
     ): Promise<
       AxiosResponse<{
-        code: string
+        code: number
         data: any
         status: string
         info: string
@@ -91,7 +91,7 @@ const request = (
   config: RequestType
 ):
   | Promise<{
-      code: string
+      code: number
       data: any
       status: string
       info: string

@@ -15,7 +15,13 @@ import {
 import style from './style/login.module.scss'
 import GlobalModel, { ModelProps } from '@/components/GlobalModel'
 import { FormInstance } from 'antd/lib/form'
-import { login, register, resetPassword, sendEmailApi } from '@/api/index'
+import {
+  login,
+  qqLogin,
+  register,
+  resetPassword,
+  sendEmailApi,
+} from '@/api/index'
 import message from '@/utils/message'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { getRouterOp } from '@/utils/request'
@@ -259,6 +265,10 @@ const LoginView = (props: any) => {
       </div>
     ) : null
   }
+  const errorCallback = (info: any) => {
+    message.error(info)
+    loadCheckCode('0')
+  }
   // 登录 & 注册 & 重置密码的操作
   const submitClick = async () => {
     try {
@@ -270,10 +280,7 @@ const LoginView = (props: any) => {
         email: (userForm as any).getFieldsValue(['email']).email,
         code: (userForm as any).getFieldsValue(['code']).code,
       }
-      const errorCallback = (info: any) => {
-        message.error(info)
-        loadCheckCode('0')
-      }
+
       let res = null
       // 注册
       if (opType === 0) {
@@ -311,7 +318,7 @@ const LoginView = (props: any) => {
         )
       }
 
-      if ((res as any).code !== 200) {
+      if (res?.code !== 200) {
         return
       }
       // 注册返回
@@ -352,6 +359,20 @@ const LoginView = (props: any) => {
         }, 500)
       }
     } catch (error: any) {}
+  }
+  // qq登录
+  const handleQQLogin = async () => {
+    try {
+      const res = await qqLogin(
+        new URLSearchParams(location.search).get('redirectUrl') || '/',
+        errorCallback
+      )
+      if (res?.code !== 200) {
+        return
+      }
+      removeCookie('userInfo')
+      document.location.href = res.data
+    } catch (error) {}
   }
   return (
     <div className={style.loginWraper}>
@@ -482,6 +503,23 @@ const LoginView = (props: any) => {
           >
             {opType === 0 ? '注册' : opType === 1 ? '登录' : '重置密码'}
           </Button>
+          {opType === 1 ? (
+            <div className=" text-center flex justify-center mx-auto mt-[20px]">
+              <Button
+                type="link"
+                className="flex"
+                onClick={() => {
+                  handleQQLogin()
+                }}
+              >
+                快捷登录
+                <img
+                  src={require('@/assets/easypan静态资源/icon-image/qq.png')}
+                  className="w-[20px] ml-[10px]"
+                />
+              </Button>
+            </div>
+          ) : null}
         </Form>
       </div>
       <GlobalModel

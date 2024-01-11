@@ -1,13 +1,17 @@
 import React, { LazyExoticComponent, lazy } from 'react'
 // 定义懒加载路由组件的porps类型
 const LoginLazy: LazyExoticComponent<any> = lazy(
-  () => import('../views/LoginView')
+  () => import('@/views/LoginView')
 )
-const AdminLazy: LazyExoticComponent<any> = lazy(
-  () => import('../views/admin/AdminView')
+const LayoutLazy: LazyExoticComponent<any> = lazy(
+  () => import('@/views/layout/LayoutView')
+)
+const QqView: LazyExoticComponent<any> = lazy(
+  () => import('@/views/qqLoginCallbackView/QqLoginCallbackView')
 )
 const baseRouter = [
-  { path: '/', element: <AdminLazy /> },
+  { path: '/', element: <LayoutLazy /> },
   { path: '/login', element: <LoginLazy /> },
+  { path: '/qqlogincallback', element: <QqView /> },
 ]
 export default baseRouter
