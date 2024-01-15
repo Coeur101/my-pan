@@ -153,23 +153,30 @@ export const qqloginCallback = (
     })
   } catch (error) {}
 }
-export const avatarUpload = (
-  avatar: Blob,
-  errorCallback?: (info: any) => void,
-  navigate?: NavigateFunction,
-  Location?: Location
-) => {
+/**
+ * 上传头像
+ * @param avatar 头像文件
+ * @param errorCallback 请求错误回调函数
+ * @returns
+ */
+export const avatarUpload = (avatar: Blob) => {
   try {
-    return request(
-      {
-        url: '/updateUserAvatar',
-        params: {
-          avatar,
-        },
-        errorCallback,
+    return request({
+      url: '/updateUserAvatar',
+      params: {
+        avatar,
       },
-      navigate,
-      Location as any
-    )
+    })
+  } catch (error) {}
+}
+
+export const passwordUpload = (password: string) => {
+  try {
+    return request({
+      url: '/updatePassword',
+      params: {
+        password,
+      },
+    })
   } catch (error) {}
 }

@@ -28,12 +28,9 @@ const UpdateAvatar: React.FC<{
     customRequest: async ({ file, onSuccess, onError }) => {
       try {
         const res = await avatarUpload(
-          file as Blob,
-          (info) => {
-            message.error(info)
-          },
-          navigate,
-          location as any
+          file as Blob
+          // navigate,
+          // location as any
         )
         if (res?.code !== 200) {
           onError!(new Error(res?.info), file)

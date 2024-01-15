@@ -1,13 +1,24 @@
-import { Button, Dropdown, Popover } from 'antd'
-import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Button, Dropdown, FormInstance, Popover, message } from 'antd'
+import {
+  Navigate,
+  NavigateFunction,
+  Outlet,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom'
 import '@/views/style/Feame.scss'
-import { startTransition, useEffect, useState } from 'react'
+import { startTransition, useEffect, useRef, useState } from 'react'
 import { MenuProps } from 'antd/lib'
 import { useCookies } from 'react-cookie'
 import RouterContent from '@/utils/RouterContent'
 import Avatar from '@/components/Avatar'
 import UpdateAvatar from '../UpdateAvatar'
 import { ModelProps } from '@/components/GlobalModel'
+import UpdatePassword from '../UpdatePassword'
+import { PasswordProps } from 'antd/es/input'
+import store from '@/store'
+import { useSelector } from 'react-redux'
+import { passwordUpload } from '@/api'
 
 type MenuItems = {
   icon?: string
@@ -121,7 +132,7 @@ const FreameWork = () => {
       ],
     },
   ]
-  const [modelConfig, setModelConfig] = useState<ModelProps>({
+  const [avatarModelConfig, setAvatarModelConfig] = useState<ModelProps>({
     show: false,
     title: '上传头像',
     buttons: [
@@ -129,32 +140,70 @@ const FreameWork = () => {
         type: 'primary',
         text: '确定',
         click: () => {
-          setModelConfig({
-            ...modelConfig,
+          setAvatarModelConfig({
+            ...avatarModelConfig,
             show: false,
           })
         },
       },
     ],
     close() {
-      setModelConfig({
-        ...modelConfig,
+      setAvatarModelConfig({
+        ...avatarModelConfig,
         show: false,
       })
     },
     cancelBtn: false,
   })
+
   const location = useLocation()
   const navigate = useNavigate()
   let [popoverVisible, setPopoverVisible] = useState(false)
-  let [cookie, setCookie, removeCookie] = useCookies(['userInfo'])
+  let [cookie, setCookie, removeCookie] = useCookies(['userInfo', 'loginInfo'])
   let [subList, setSublist] = useState<MenuItems[]>(
     menuItems[0].children as MenuItems[]
   )
+  let passwordModelRef = useRef<FormInstance | null>()
+  const [passwordModelConfig, setPasswordModelConfig] = useState<ModelProps>({
+    show: false,
+    title: '修改密码',
+    buttons: [
+      {
+        type: 'primary',
+        text: '确定',
+        click: async () => {
+          try {
+            if (passwordModelRef.current) {
+              await (passwordModelRef as any).current.validateFields()
+              const password = (passwordModelRef as any).current.getFieldsValue(
+                ['newPass']
+              ).newPass
+              const res = await passwordUpload(password)
+              if (res?.code !== 200) {
+                return
+              }
+              message.success('修改密码成功，需要重新登录')
+              ;(navigate as NavigateFunction)(
+                '/login?redirectUrl=' + encodeURI(location!.pathname)
+              )
+              removeCookie('loginInfo')
+            }
+            return
+          } catch (error) {}
+        },
+      },
+    ],
+    close() {
+      setPasswordModelConfig({
+        ...passwordModelConfig,
+        show: false,
+      })
+    },
+    cancelBtn: false,
+  })
   const popoverShow = () => {
     setPopoverVisible(!popoverVisible)
   }
-
   const activeClass = 'text-[#06a7ff]'
   const subListActiveClass = 'bg-[#eef9fe] text-[#05a1f5]'
   const content = <div>上传区域</div>
@@ -174,7 +223,11 @@ const FreameWork = () => {
     {
       key: '2',
       label: (
-        <a target="_blank" rel="noopener noreferrer">
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => updatePassword()}
+        >
           修改密码
         </a>
       ),
@@ -188,9 +241,19 @@ const FreameWork = () => {
       ),
     },
   ]
+  const loginState = useSelector((state: any) => {
+    return state.globalLoading.loginState
+  })
   useEffect(() => {
     navigate('/main/all', { replace: true })
   }, [])
+  useEffect(() => {
+    if (loginState === 1) {
+      ;(navigate as NavigateFunction)(
+        '/login?redirectUrl=' + encodeURI(location!.pathname)
+      )
+    }
+  }, [loginState])
   const routerActive = (path: string, children?: MenuItems[]) => {
     if (children) {
       setSublist(children as MenuItems[])
@@ -200,8 +263,8 @@ const FreameWork = () => {
     })
   }
   const uploadAvatar = () => {
-    setModelConfig({
-      ...modelConfig,
+    setAvatarModelConfig({
+      ...avatarModelConfig,
       show: true,
     })
   }
@@ -210,6 +273,18 @@ const FreameWork = () => {
     startTransition(() => {
       navigate('/login')
     })
+  }
+  const updatePassword = () => {
+    if (passwordModelRef.current) {
+      ;(passwordModelRef as any).current.resetFields()
+    }
+    setPasswordModelConfig({
+      ...passwordModelConfig,
+      show: true,
+    })
+  }
+  const handleFormInstance = (form: FormInstance) => {
+    passwordModelRef.current = form
   }
   return (
     <div>
@@ -328,9 +403,13 @@ const FreameWork = () => {
         </RouterContent.Provider>
       </section>
       <UpdateAvatar
-        modelConfig={modelConfig}
+        modelConfig={avatarModelConfig}
         userInfo={cookie.userInfo}
       ></UpdateAvatar>
+      <UpdatePassword
+        onFormInstance={handleFormInstance}
+        modelConfig={passwordModelConfig}
+      ></UpdatePassword>
     </div>
   )
 }

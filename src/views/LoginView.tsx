@@ -290,8 +290,6 @@ const LoginView = (props: any) => {
           errorCallback
         )
       } else if (opType === 1) {
-        console.log('登录')
-
         let cookie = cookies.loginInfo
         let cookiePassword = cookie && cookie.password
         if (cookiePassword !== params.password) {

@@ -1,17 +1,20 @@
 import { RequestType } from './types'
 import message from './message'
 import axios, { AxiosInstance, AxiosResponse } from 'axios'
-import { hideLoading, showLoading } from '../store/reducer/globalLoading'
+import {
+  hideLoading,
+  setLoginState,
+  showLoading,
+} from '../store/reducer/globalLoading'
 import store from '@/store'
 import { Location, NavigateFunction } from 'react-router-dom'
 import { Cookies, useCookies } from 'react-cookie'
 const contentTypeForm = 'application/x-www-form-urlencoded;charset=UTF-8'
 const contentTypeJson = 'application/json'
 const responseTypeJson = 'json'
-const CreateAxiosInstance = (
-  navigate?: NavigateFunction,
-  location?: Location
-): AxiosInstance => {
+const CreateAxiosInstance = (): // navigate?: NavigateFunction,
+// location?: Location
+AxiosInstance => {
   const http = axios.create({
     baseURL: '/api',
     timeout: 10 * 1000,
@@ -61,9 +64,10 @@ const CreateAxiosInstance = (
         // removeCookie('userInfo')
         const cookie = new Cookies()
         cookie.remove('userInfo')
-        ;(navigate as NavigateFunction)(
-          '/login?redirectUrl=' + encodeURI(location!.pathname)
-        )
+        // ;(navigate as NavigateFunction)(
+        //   '/login?redirectUrl=' + encodeURI(location!.pathname)
+        // )
+        store.dispatch(setLoginState(1))
         return Promise.reject({ showError: false, msg: '登录超时' })
       } else {
         if (errorCallback) {
@@ -113,7 +117,7 @@ const request = (
     'Content-Type': contentType,
     'X-Requestted-With': 'XMLHttpRequest',
   }
-  const http = CreateAxiosInstance(navigate, location)
+  const http = CreateAxiosInstance()
   try {
     return http.post(url, formData, {
       onUploadProgress: (event_1: any) => {
