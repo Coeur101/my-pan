@@ -180,3 +180,32 @@ export const passwordUpload = (password: string) => {
     })
   } catch (error) {}
 }
+/**
+ * 获取文件列表
+ * @param cateGory 文件分类
+ * @param pageNo 页码
+ * @param pageSize 分页大小
+ * @param fileNameFuzzy 文件名称
+ * @param filePid 文件父ID
+ * @returns
+ */
+export const getFileList = (
+  cateGory: string = 'all',
+  pageNo: string = '1',
+  pageSize: string = '15',
+  fileNameFuzzy?: string,
+  filePid: string = '0'
+) => {
+  try {
+    return request({
+      url: '/file/loadDataList',
+      params: {
+        cateGory,
+        pageNo,
+        pageSize,
+        fileNameFuzzy,
+        filePid,
+      },
+    })
+  } catch (error) {}
+}

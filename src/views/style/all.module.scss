@@ -1,0 +1,16 @@
+.successBtn {
+  @apply bg-green-500 text-white mr-[10px];
+  &:hover {
+    background-color: rgba(149, 212, 117, 1) !important;
+    color: white !important;
+    border: 1px solid transparent !important;
+  }
+}
+.moveBtn {
+  @apply bg-[#fb923c] text-white;
+  &:hover {
+    background-color: #eebe77 !important;
+    color: white !important;
+    border: 1px solid transparent !important;
+  }
+}

@@ -15,8 +15,6 @@ import Avatar from '@/components/Avatar'
 import UpdateAvatar from '../UpdateAvatar'
 import { ModelProps } from '@/components/GlobalModel'
 import UpdatePassword from '../UpdatePassword'
-import { PasswordProps } from 'antd/es/input'
-import store from '@/store'
 import { useSelector } from 'react-redux'
 import { passwordUpload } from '@/api'
 
@@ -245,7 +243,9 @@ const FreameWork = () => {
     return state.globalLoading.loginState
   })
   useEffect(() => {
-    navigate('/main/all', { replace: true })
+    if (location.pathname === '/') {
+      navigate('/main/all', { replace: true })
+    }
   }, [])
   useEffect(() => {
     if (loginState === 1) {
@@ -288,7 +288,7 @@ const FreameWork = () => {
   }
   return (
     <div>
-      <header className="shadow-[0_3px_10px_rgba(0,0,0,0.1)] h-[56px] w-[100%] pl-6 pr-6 relative z-[200] flex items-center justify-between">
+      <header className="shadow-[0_3px_10px_rgba(0,0,0,0.1)] h-[56px] w-[100%]  relative z-[200] flex items-center justify-between">
         <div className="flex items-center">
           <span className="iconfont icon-pan text-[40px] text-[#1296db]"></span>
           <div className="font-bold ml-[5px] text-[25px] text-[#05a1f5]">
@@ -311,7 +311,6 @@ const FreameWork = () => {
           <Dropdown
             menu={{ items }}
             placement="bottom"
-            open={true}
             overlayStyle={{ top: 60 }}
             trigger={['click']}
           >
@@ -398,9 +397,11 @@ const FreameWork = () => {
             </div>
           </div>
         </div>
-        <RouterContent.Provider value={parentProps}>
-          <Outlet />
-        </RouterContent.Provider>
+        <div className="flex-1">
+          <RouterContent.Provider value={parentProps}>
+            <Outlet />
+          </RouterContent.Provider>
+        </div>
       </section>
       <UpdateAvatar
         modelConfig={avatarModelConfig}
