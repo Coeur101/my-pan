@@ -29,7 +29,7 @@ const GlobalModel = <T extends ModelProps>(props: T) => {
     width,
     top,
   } = props
-  const maxHeight = window.innerHeight - (top as number) - 100
+  const maxHeight = window.innerHeight - (top as number) - 50
   return (
     <Modal
       title={title}
