@@ -24,7 +24,6 @@ import {
 } from '@/api/index'
 import message from '@/utils/message'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { getRouterOp } from '@/utils/request'
 import { useCookies } from 'react-cookie'
 import { md5, Message } from 'js-md5'
 type userFormType = {
@@ -72,8 +71,6 @@ const LoginView = (props: any) => {
   )
   const navigate = useNavigate()
   const location = useLocation()
-  // 封装的axios传入路由操作存储路由操作函数
-  getRouterOp(navigate, location)
   const [userForm] = Form.useForm<userFormType>()
   const [emailForm] = Form.useForm<emailFormType>()
   let sendEmailButtonRef: RefObject<HTMLElement> | null =

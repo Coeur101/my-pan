@@ -8,3 +8,6 @@
 .ant-spin-fullscreen {
   z-index: 1001;
 }
+.ant-btn-primary {
+  @apply bg-btn-primary;
+}

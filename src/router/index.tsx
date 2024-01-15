@@ -14,7 +14,7 @@ const RouterView = () => {
       message.error('未登录')
       navigate('/login')
     }
-  }, [])
+  }, [navigate])
   return <>{Element}</>
 }
 export default RouterView

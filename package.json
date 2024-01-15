@@ -16,6 +16,7 @@
     "@types/react": "^18.2.46",
     "@types/react-dom": "^18.2.18",
     "antd": "^5.12.7",
+    "antd-img-crop": "^4.21.0",
     "axios": "^1.6.4",
     "babel-jest": "^27.4.2",
     "babel-loader": "^8.2.3",

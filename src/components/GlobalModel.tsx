@@ -37,7 +37,9 @@ const GlobalModel = <T extends ModelProps>(props: T) => {
       width={width || 520}
       style={{ top: top || 30 }}
       cancelButtonProps={{ type: 'link' }}
-      onCancel={() => close!()}
+      onCancel={() => {
+        close!()
+      }}
       cancelText="取消"
       footer={(_, { OkBtn, CancelBtn }) => (
         <>

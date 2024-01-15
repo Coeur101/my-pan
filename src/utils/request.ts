@@ -3,28 +3,20 @@ import message from './message'
 import axios, { AxiosInstance, AxiosResponse } from 'axios'
 import { hideLoading, showLoading } from '../store/reducer/globalLoading'
 import store from '@/store'
-import {
-  LoaderFunction,
-  Location,
-  NavigateFunction,
-  useLocation,
-  useNavigate,
-} from 'react-router-dom'
+import { Location, NavigateFunction } from 'react-router-dom'
+import { Cookies, useCookies } from 'react-cookie'
 const contentTypeForm = 'application/x-www-form-urlencoded;charset=UTF-8'
 const contentTypeJson = 'application/json'
 const responseTypeJson = 'json'
-const navigate: NavigateFunction | unknown = null
-const location: Location | null = null
-export const getRouterOp = (navigate: NavigateFunction, location: Location) => {
-  navigate = navigate
-  location = location
-}
-const CreateAxiosInstance = (): AxiosInstance => {
+const CreateAxiosInstance = (
+  navigate?: NavigateFunction,
+  location?: Location
+): AxiosInstance => {
   const http = axios.create({
     baseURL: '/api',
     timeout: 10 * 1000,
   })
-
+  // const [cookie, setCookie, removeCookie] = useCookies(['userInfo'])
   http.interceptors.request.use(
     (config: any) => {
       if (config.showLoading) {
@@ -66,6 +58,9 @@ const CreateAxiosInstance = (): AxiosInstance => {
       if (data.code === 200) {
         return data
       } else if (data.code === 901) {
+        // removeCookie('userInfo')
+        const cookie = new Cookies()
+        cookie.remove('userInfo')
         ;(navigate as NavigateFunction)(
           '/login?redirectUrl=' + encodeURI(location!.pathname)
         )
@@ -74,7 +69,7 @@ const CreateAxiosInstance = (): AxiosInstance => {
         if (errorCallback) {
           errorCallback(data.info)
         }
-        return Promise.reject({ showError: showError, msg: data.info })
+        return Promise.reject({ showError: true, msg: data.info })
       }
     },
     (error) => {
@@ -88,7 +83,9 @@ const CreateAxiosInstance = (): AxiosInstance => {
   return http
 }
 const request = (
-  config: RequestType
+  config: RequestType,
+  navigate?: NavigateFunction,
+  location?: Location
 ):
   | Promise<{
       code: number
@@ -116,7 +113,7 @@ const request = (
     'Content-Type': contentType,
     'X-Requestted-With': 'XMLHttpRequest',
   }
-  const http = CreateAxiosInstance()
+  const http = CreateAxiosInstance(navigate, location)
   try {
     return http.post(url, formData, {
       onUploadProgress: (event_1: any) => {

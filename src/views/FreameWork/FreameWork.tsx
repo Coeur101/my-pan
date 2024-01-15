@@ -8,6 +8,7 @@ import RouterContent from '@/utils/RouterContent'
 import Avatar from '@/components/Avatar'
 import UpdateAvatar from '../UpdateAvatar'
 import { ModelProps } from '@/components/GlobalModel'
+
 type MenuItems = {
   icon?: string
   name?: string
@@ -121,21 +122,32 @@ const FreameWork = () => {
     },
   ]
   const [modelConfig, setModelConfig] = useState<ModelProps>({
-    show: true,
+    show: false,
     title: '上传头像',
     buttons: [
       {
         type: 'primary',
         text: '确定',
-        click: () => {},
+        click: () => {
+          setModelConfig({
+            ...modelConfig,
+            show: false,
+          })
+        },
       },
     ],
+    close() {
+      setModelConfig({
+        ...modelConfig,
+        show: false,
+      })
+    },
     cancelBtn: false,
   })
   const location = useLocation()
   const navigate = useNavigate()
   let [popoverVisible, setPopoverVisible] = useState(false)
-  let [cookie] = useCookies(['userInfo'])
+  let [cookie, setCookie, removeCookie] = useCookies(['userInfo'])
   let [subList, setSublist] = useState<MenuItems[]>(
     menuItems[0].children as MenuItems[]
   )
@@ -150,7 +162,11 @@ const FreameWork = () => {
     {
       key: '1',
       label: (
-        <a target="_blank" rel="noopener noreferrer">
+        <a
+          target="_blank"
+          onClick={() => uploadAvatar()}
+          rel="noopener noreferrer"
+        >
           修改头像
         </a>
       ),
@@ -166,7 +182,7 @@ const FreameWork = () => {
     {
       key: '3',
       label: (
-        <a target="_blank" rel="noopener noreferrer">
+        <a target="_blank" rel="noopener noreferrer" onClick={() => logOut()}>
           退出
         </a>
       ),
@@ -181,6 +197,18 @@ const FreameWork = () => {
     }
     startTransition(() => {
       navigate(path)
+    })
+  }
+  const uploadAvatar = () => {
+    setModelConfig({
+      ...modelConfig,
+      show: true,
+    })
+  }
+  const logOut = () => {
+    removeCookie('userInfo')
+    startTransition(() => {
+      navigate('/login')
     })
   }
   return (
@@ -215,13 +243,15 @@ const FreameWork = () => {
             <div className="mr-[10px] flex items-center cursor-pointer">
               <div className="m-[0_5px_0_15px]">
                 <Avatar
-                  userId={cookie.userInfo.userId}
-                  avatar={cookie.userInfo.avatar}
+                  userId={cookie.userInfo?.userId || ''}
+                  avatar={cookie.userInfo?.avatar || ''}
                   timeStamp={new Date().getTime()}
                   width={46}
                 ></Avatar>
               </div>
-              <span className="text-[#05a1f5]">{cookie.userInfo.nickName}</span>
+              <span className="text-[#05a1f5]">
+                {cookie.userInfo?.nickName || ''}
+              </span>
             </div>
           </Dropdown>
         </div>

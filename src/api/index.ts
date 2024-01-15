@@ -1,5 +1,6 @@
 import { AxiosResponse } from 'axios'
 import request from '../utils/request'
+import { NavigateFunction } from 'react-router-dom'
 /**
  * 发送邮箱验证码
  * @param type 0 注册 1 重置密码
@@ -150,5 +151,25 @@ export const qqloginCallback = (
       },
       errorCallback,
     })
+  } catch (error) {}
+}
+export const avatarUpload = (
+  avatar: Blob,
+  errorCallback?: (info: any) => void,
+  navigate?: NavigateFunction,
+  Location?: Location
+) => {
+  try {
+    return request(
+      {
+        url: '/updateUserAvatar',
+        params: {
+          avatar,
+        },
+        errorCallback,
+      },
+      navigate,
+      Location as any
+    )
   } catch (error) {}
 }
