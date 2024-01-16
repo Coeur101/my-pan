@@ -288,7 +288,7 @@ const FreameWork = () => {
   }
   return (
     <div>
-      <header className="shadow-[0_3px_10px_rgba(0,0,0,0.1)] h-[56px] w-[100%]  relative z-[200] flex items-center justify-between">
+      <header className="shadow-[0_3px_10px_rgba(0,0,0,0.1)] h-[56px] w-[100%] p-[0_10px] box-border  relative z-[200] flex items-center justify-between">
         <div className="flex items-center">
           <span className="iconfont icon-pan text-[40px] text-[#1296db]"></span>
           <div className="font-bold ml-[5px] text-[25px] text-[#05a1f5]">
@@ -397,7 +397,7 @@ const FreameWork = () => {
             </div>
           </div>
         </div>
-        <div className="flex-1">
+        <div className="flex-1 p-[0px_10px] box-border">
           <RouterContent.Provider value={parentProps}>
             <Outlet />
           </RouterContent.Provider>

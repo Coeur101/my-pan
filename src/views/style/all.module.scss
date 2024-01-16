@@ -14,3 +14,25 @@
     border: 1px solid transparent !important;
   }
 }
+.wrapper {
+  :global(.ant-table-wrapper) {
+    :global(.ant-spin-nested-loading) {
+      :global(.ant-spin-container) {
+        :global(.ant-table-body) {
+          :global(.ant-table-row) {
+            :global(.ant-table-cell) {
+              padding: 5px 5px;
+            }
+          }
+        }
+      }
+      :global(.ant-table-header) {
+        :global(.ant-table-thead) {
+          :global(.ant-table-cell) {
+            padding: 16px 5px;
+          }
+        }
+      }
+    }
+  }
+}
