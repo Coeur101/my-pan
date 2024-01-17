@@ -30,10 +30,6 @@ type MenuItems = {
 }
 
 const FreameWork = () => {
-  const parentProps = {
-    prop1: 'Value 1',
-    prop2: 'Value 2',
-  }
   const menuItems: MenuItems[] = [
     {
       icon: 'cloude',
@@ -246,7 +242,7 @@ const FreameWork = () => {
     if (location.pathname === '/') {
       navigate('/main/all', { replace: true })
     }
-  }, [])
+  }, [location])
   useEffect(() => {
     if (loginState === 1) {
       ;(navigate as NavigateFunction)(
@@ -286,6 +282,13 @@ const FreameWork = () => {
   const handleFormInstance = (form: FormInstance) => {
     passwordModelRef.current = form
   }
+  const upLoadFile = (info: Blob, filePid: string) => {
+    console.log('fu', info)
+    setPopoverVisible(true)
+  }
+  const parentProps: { upLoadFile?: (...args: any) => void } = {
+    upLoadFile: upLoadFile,
+  }
   return (
     <div>
       <header className="shadow-[0_3px_10px_rgba(0,0,0,0.1)] h-[56px] w-[100%] p-[0_10px] box-border  relative z-[200] flex items-center justify-between">
@@ -300,7 +303,7 @@ const FreameWork = () => {
             placement="bottom"
             content={content}
             trigger="click"
-            open={true}
+            open={popoverVisible}
             overlayStyle={{ top: 60 }}
           >
             <span

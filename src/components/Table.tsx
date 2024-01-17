@@ -26,7 +26,7 @@ const GlobalTable: React.FC<TableProps> = ({
   data,
 }) => {
   useEffect(() => {
-    // option.loadListFunc()
+    option.loadListFunc()
   }, [
     (option.pagination as any).pageSize,
     (option.pagination as any).current,

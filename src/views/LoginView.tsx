@@ -26,6 +26,8 @@ import message from '@/utils/message'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useCookies } from 'react-cookie'
 import { md5, Message } from 'js-md5'
+import { useDispatch } from 'react-redux'
+import { setLoginState } from '@/store/reducer/globalLoading'
 type userFormType = {
   email?: string
   password?: string
@@ -75,6 +77,7 @@ const LoginView = (props: any) => {
   const [emailForm] = Form.useForm<emailFormType>()
   let sendEmailButtonRef: RefObject<HTMLElement> | null =
     useRef<HTMLElement>(null)
+  const dispatch = useDispatch()
   const [disabled, setDisabled] = useState(false)
   const [cookies, setCookie, removeCookie] = useCookies([
     'loginInfo',
@@ -341,6 +344,7 @@ const LoginView = (props: any) => {
           console.log('123', cookies.loginInfo)
           removeCookie('loginInfo')
         }
+        dispatch(setLoginState(0))
         message.success('登录成功') // 存储登录信息cookie
         setCookie('userInfo', res?.data)
         const redirectUrl =

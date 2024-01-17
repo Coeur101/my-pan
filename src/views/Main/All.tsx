@@ -18,7 +18,7 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import style from '../style/all.module.scss'
 import GlobalTable, { OptionType } from '@/components/Table'
 import { PaginationProps } from 'antd/lib'
-import { getFileList } from '@/api'
+import { getFileList, newFoloder, reFileName } from '@/api'
 import { InputRef, SearchProps } from 'antd/es/input'
 import Icon from '@/components/Icon'
 import { formatFileSize } from '@/utils/formatFileSize'
@@ -40,12 +40,16 @@ interface DataList {
   fileNameComple?: string
 }
 const All: React.FC<any> = (props) => {
-  // const aa = useContext(RouterContent)
+  const parentProps = useContext<{ upLoadFile?: (...args: any) => void }>(
+    RouterContent
+  )
   const upProps: UploadProps = {
     hasControlInside: true,
     capture: 'environment',
     multiple: true,
-    customRequest: () => {},
+    customRequest: (info) => {
+      parentProps.upLoadFile!(info.file as Blob, currentFolder)
+    },
     showUploadList: false,
     withCredentials: true,
     accept: '',
@@ -59,6 +63,8 @@ const All: React.FC<any> = (props) => {
   >('all')
 
   const editInputRef = useRef<InputRef>(null)
+  const [data, setData] = useState<DataList[]>([])
+  const [currentFolder, setCurrentFolder] = useState('0')
   const DisplayIcon = (
     status: number,
     iconName: string,
@@ -98,11 +104,23 @@ const All: React.FC<any> = (props) => {
               <div className="flex  items-center w-[230px]">
                 <Input
                   ref={editInputRef}
-                  value={record.fileNameComple || record.fileName}
+                  defaultValue={
+                    record.fileNameComple ? record.fileNameComple : text
+                  }
                   maxLength={190}
                 ></Input>
-                <span className="iconfont icon-right1 ml-[10px] block  bg-btn-primary text-white p-[3px_3px] rounded-md cursor-pointer"></span>
-                <span className="iconfont icon-error ml-[10px] block bg-btn-primary text-white p-[3px_3px] rounded-md cursor-pointer"></span>
+                <span
+                  className="iconfont icon-right1 ml-[10px] block  bg-btn-primary text-white p-[3px_3px] rounded-md cursor-pointer"
+                  onClick={() =>
+                    handleInputValue(record, record.key, 'fileName')
+                  }
+                ></span>
+                <span
+                  className="iconfont icon-error ml-[10px] block bg-btn-primary text-white p-[3px_3px] rounded-md cursor-pointer"
+                  onClick={() => {
+                    handleCancel(record)
+                  }}
+                ></span>
               </div>
             ) : (
               <span className="flex-1 flex overflow-hidden items-center gap-2 cursor-pointer whitespace-nowrap ml-[8px]">
@@ -160,7 +178,7 @@ const All: React.FC<any> = (props) => {
       dataIndex: 'fileSize',
       width: 200,
       render: (text: string, recorde: DataList, index: number) => {
-        return <div>{formatFileSize(recorde.fileSize as number) || 0}</div>
+        return <div>{formatFileSize((recorde.fileSize as number) || 0)}</div>
       },
       align: 'left',
     },
@@ -172,7 +190,14 @@ const All: React.FC<any> = (props) => {
       if (res?.code !== 200) {
         return
       }
-      setData(res?.data?.list)
+      setData(
+        res?.data?.list.map((item: DataList) => {
+          return {
+            ...item,
+            key: item.fileId,
+          }
+        })
+      )
       setTotal(res.data.totalCount)
     } catch (error) {}
   }
@@ -201,59 +226,6 @@ const All: React.FC<any> = (props) => {
     }
   }, [pageNo, pageSize, total])
 
-  const [data, setData] = useState<DataList[]>([
-    // {
-    //   fileName: '123123',
-    //   fileSize: '2333',
-    //   lastUpdateTime: '2024-01-15 20:51:18',
-    //   status: 2,
-    //   fileType: 1,
-    //   key: '1',
-    //   fileId: '123',
-    // },
-    // {
-    //   fileName: '123123',
-    //   fileSize: '2333',
-    //   lastUpdateTime: '2024-01-15 20:51:18',
-    //   key: '2',
-    // },
-    // {
-    //   fileName: '123123',
-    //   fileSize: '2333',
-    //   lastUpdateTime: '2024-01-15 20:51:18',
-    //   key: '3',
-    // },
-    // {
-    //   fileName: '123123',
-    //   fileSize: '2333',
-    //   lastUpdateTime: '2024-01-15 20:51:18',
-    //   key: '4',
-    // },
-    // {
-    //   fileName: '123123',
-    //   fileSize: '2333',
-    //   lastUpdateTime: '2024-01-15 20:51:18',
-    //   key: '5',
-    // },
-    // {
-    //   fileName: '123123',
-    //   fileSize: '2333',
-    //   lastUpdateTime: '2024-01-15 20:51:18',
-    //   key: '6',
-    // },
-    // {
-    //   fileName: '123123',
-    //   fileSize: '2333',
-    //   lastUpdateTime: '2024-01-15 20:51:18',
-    //   key: '7',
-    // },
-    // {
-    //   fileName: '123123',
-    //   fileSize: '2333',
-    //   lastUpdateTime: '2024-01-15 20:51:18',
-    //   key: '8',
-    // },
-  ])
   useEffect(() => {
     editInputRef.current?.focus({
       cursor: 'all',
@@ -267,11 +239,15 @@ const All: React.FC<any> = (props) => {
   }
   const handleEdit = (row: DataList) => {
     setData((prevData) => {
-      return prevData.map((item) => {
-        return item.key === row.key
-          ? { ...item, editStatus: !item.editStatus }
-          : { ...item, editStatus: false }
-      })
+      return prevData
+        .map((item) => {
+          return item.key === row.key
+            ? { ...item, editStatus: !item.editStatus }
+            : { ...item, editStatus: false }
+        })
+        .filter((item) => {
+          return item.fileId !== ''
+        })
     })
   }
   const handleNewFolder = () => {
@@ -279,6 +255,7 @@ const All: React.FC<any> = (props) => {
       message.warning('请先取消或保存当前编辑行')
       return
     }
+
     setData((prevData) => {
       return [
         {
@@ -291,11 +268,66 @@ const All: React.FC<any> = (props) => {
           key: new Date().getTime(),
           lastUpdateTime: '',
           folderType: 1,
+          fileNameComple: '',
           editStatus: true,
         },
         ...prevData,
       ]
     })
+  }
+  const handleInputValue = async (
+    row: DataList,
+    key: string | number,
+    dataIndex: string
+  ) => {
+    let fileName = editInputRef.current?.input?.value.trim()
+    if (
+      editInputRef.current?.input?.value.indexOf('/') !== -1 ||
+      editInputRef.current?.input?.value === ''
+    ) {
+      message.warning('不能有/且不能为空')
+      return
+    }
+    let res: any = ''
+    if (row.fileId === '') {
+      res = await newFoloder(row.filePid as string, fileName as string)
+    } else {
+      res = await reFileName(row.fileId as string, fileName as string)
+    }
+    if (res.code !== 200) {
+      return
+    }
+    if (row.fileType === 0) {
+      fileName =
+        (fileName as string) + fileName?.substring(fileName?.lastIndexOf('.'))
+    }
+    setData((prevData) => {
+      return prevData.map((item) => {
+        return item.key === row.key
+          ? { ...item, editStatus: false, fileName: fileName }
+          : item
+      })
+    })
+  }
+  const handleCancel = (row: DataList) => {
+    if (row.fileId) {
+      setData((prevData) => {
+        return prevData.map((item) => {
+          return item.key === row.key
+            ? {
+                ...item,
+                editStatus: false,
+              }
+            : { ...item, editStatus: false }
+        })
+      })
+    } else {
+      setData((prevData) => {
+        return prevData.filter((item) => {
+          return item.key !== row.key
+        })
+      })
+    }
   }
   return (
     <div className={`${style.wrapper} mt-[20px]`}>

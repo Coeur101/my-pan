@@ -64,9 +64,6 @@ AxiosInstance => {
         // removeCookie('userInfo')
         const cookie = new Cookies()
         cookie.remove('userInfo')
-        // ;(navigate as NavigateFunction)(
-        //   '/login?redirectUrl=' + encodeURI(location!.pathname)
-        // )
         store.dispatch(setLoginState(1))
         return Promise.reject({ showError: false, msg: '登录超时' })
       } else {

@@ -209,3 +209,37 @@ export const getFileList = (
     })
   } catch (error) {}
 }
+/**
+ * 新建目录
+ * @param filePid 文件父ID
+ * @param fileName 文件名
+ * @returns
+ */
+export const newFoloder = (filePid: string, fileName: string) => {
+  try {
+    return request({
+      url: '/file/newFoloder',
+      params: {
+        filePid,
+        fileName,
+      },
+    })
+  } catch (error) {}
+}
+/**
+ * 文件/目录重命名
+ * @param fileId 文件ID
+ * @param fileName 文件名称
+ * @returns
+ */
+export const reFileName = (fileId: string, fileName: string) => {
+  try {
+    return request({
+      url: '/file/rename',
+      params: {
+        fileId,
+        fileName,
+      },
+    })
+  } catch (error) {}
+}
