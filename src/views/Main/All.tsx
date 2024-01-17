@@ -12,6 +12,7 @@ import {
   TableColumnProps,
   Upload,
   UploadProps,
+  message,
 } from 'antd'
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import style from '../style/all.module.scss'
@@ -21,9 +22,10 @@ import { getFileList } from '@/api'
 import { InputRef, SearchProps } from 'antd/es/input'
 import Icon from '@/components/Icon'
 import { formatFileSize } from '@/utils/formatFileSize'
+import { useLocation, useNavigate } from 'react-router-dom'
 interface DataList {
   fileId?: string
-  filePid?: string
+  filePid?: string | number
   fileSize?: number | string
   fileName?: string
   fileCover?: string
@@ -48,11 +50,14 @@ const All: React.FC<any> = (props) => {
     withCredentials: true,
     accept: '',
   }
+  const navigate = useNavigate()
+  const location = useLocation()
   const [pageNo, setPageNo] = useState('1')
   const [pageSize, setPageSize] = useState('15')
   const [catagory, setCatagory] = useState<
     'all' | 'video' | 'music' | 'image' | 'doc' | 'others'
   >('all')
+
   const editInputRef = useRef<InputRef>(null)
   const DisplayIcon = (
     status: number,
@@ -65,12 +70,12 @@ const All: React.FC<any> = (props) => {
         <Icon cover={row.fileCover as string} fielType={type} width={32}></Icon>
       )
     } else {
-      // if (row.folderType === 0 || !row.folderType) {
-      //   return <Icon fielType={type}></Icon>
-      // }
-      // if (row.folderType === 1) {
-      //   return <Icon fielType={0}></Icon>
-      // }
+      if (row.folderType === 0 || !row.folderType) {
+        return <Icon fielType={type}></Icon>
+      }
+      if (row.folderType === 1) {
+        return <Icon fielType={0}></Icon>
+      }
     }
   }
 
@@ -155,7 +160,7 @@ const All: React.FC<any> = (props) => {
       dataIndex: 'fileSize',
       width: 200,
       render: (text: string, recorde: DataList, index: number) => {
-        return <div>{formatFileSize(recorde.fileSize as number)}</div>
+        return <div>{formatFileSize(recorde.fileSize as number) || 0}</div>
       },
       align: 'left',
     },
@@ -163,7 +168,7 @@ const All: React.FC<any> = (props) => {
   const [total, setTotal] = useState(0)
   const loadList = async (fileFuzzName: string) => {
     try {
-      const res = await getFileList('all', pageNo, pageSize, fileFuzzName)
+      const res = await getFileList(catagory, pageNo, pageSize, fileFuzzName)
       if (res?.code !== 200) {
         return
       }
@@ -197,63 +202,66 @@ const All: React.FC<any> = (props) => {
   }, [pageNo, pageSize, total])
 
   const [data, setData] = useState<DataList[]>([
-    {
-      fileName: '123123',
-      fileSize: '2333',
-      lastUpdateTime: '2024-01-15 20:51:18',
-      status: 2,
-      fileType: 1,
-      key: '1',
-      fileId: '123',
-    },
-    {
-      fileName: '123123',
-      fileSize: '2333',
-      lastUpdateTime: '2024-01-15 20:51:18',
-      key: '2',
-    },
-    {
-      fileName: '123123',
-      fileSize: '2333',
-      lastUpdateTime: '2024-01-15 20:51:18',
-      key: '3',
-    },
-    {
-      fileName: '123123',
-      fileSize: '2333',
-      lastUpdateTime: '2024-01-15 20:51:18',
-      key: '4',
-    },
-    {
-      fileName: '123123',
-      fileSize: '2333',
-      lastUpdateTime: '2024-01-15 20:51:18',
-      key: '5',
-    },
-    {
-      fileName: '123123',
-      fileSize: '2333',
-      lastUpdateTime: '2024-01-15 20:51:18',
-      key: '6',
-    },
-    {
-      fileName: '123123',
-      fileSize: '2333',
-      lastUpdateTime: '2024-01-15 20:51:18',
-      key: '7',
-    },
-    {
-      fileName: '123123',
-      fileSize: '2333',
-      lastUpdateTime: '2024-01-15 20:51:18',
-      key: '8',
-    },
+    // {
+    //   fileName: '123123',
+    //   fileSize: '2333',
+    //   lastUpdateTime: '2024-01-15 20:51:18',
+    //   status: 2,
+    //   fileType: 1,
+    //   key: '1',
+    //   fileId: '123',
+    // },
+    // {
+    //   fileName: '123123',
+    //   fileSize: '2333',
+    //   lastUpdateTime: '2024-01-15 20:51:18',
+    //   key: '2',
+    // },
+    // {
+    //   fileName: '123123',
+    //   fileSize: '2333',
+    //   lastUpdateTime: '2024-01-15 20:51:18',
+    //   key: '3',
+    // },
+    // {
+    //   fileName: '123123',
+    //   fileSize: '2333',
+    //   lastUpdateTime: '2024-01-15 20:51:18',
+    //   key: '4',
+    // },
+    // {
+    //   fileName: '123123',
+    //   fileSize: '2333',
+    //   lastUpdateTime: '2024-01-15 20:51:18',
+    //   key: '5',
+    // },
+    // {
+    //   fileName: '123123',
+    //   fileSize: '2333',
+    //   lastUpdateTime: '2024-01-15 20:51:18',
+    //   key: '6',
+    // },
+    // {
+    //   fileName: '123123',
+    //   fileSize: '2333',
+    //   lastUpdateTime: '2024-01-15 20:51:18',
+    //   key: '7',
+    // },
+    // {
+    //   fileName: '123123',
+    //   fileSize: '2333',
+    //   lastUpdateTime: '2024-01-15 20:51:18',
+    //   key: '8',
+    // },
   ])
   useEffect(() => {
     editInputRef.current?.focus({
       cursor: 'all',
     })
   }, [data])
+  useEffect(() => {
+    setCatagory(location.pathname.split('/')[2] as any)
+  }, [location])
   const onSearch: SearchProps['onSearch'] = (value) => {
     loadList(value)
   }
@@ -264,6 +272,29 @@ const All: React.FC<any> = (props) => {
           ? { ...item, editStatus: !item.editStatus }
           : { ...item, editStatus: false }
       })
+    })
+  }
+  const handleNewFolder = () => {
+    if (data.some((item) => item.editStatus)) {
+      message.warning('请先取消或保存当前编辑行')
+      return
+    }
+    setData((prevData) => {
+      return [
+        {
+          fileName: '',
+          fileSize: 0,
+          fileType: 0,
+          fileId: '',
+          filePid: 0,
+          status: 2,
+          key: new Date().getTime(),
+          lastUpdateTime: '',
+          folderType: 1,
+          editStatus: true,
+        },
+        ...prevData,
+      ]
     })
   }
   return (
@@ -282,6 +313,7 @@ const All: React.FC<any> = (props) => {
         </div>
         {catagory === 'all' ? (
           <Button
+            onClick={() => handleNewFolder()}
             type="default"
             className={style.successBtn}
             icon={<FolderAddOutlined />}
@@ -315,17 +347,7 @@ const All: React.FC<any> = (props) => {
       </div>
       <div className="">全部文件</div>
       <div className={`${style.wrapper} mt-[10px]`}>
-        <GlobalTable
-          option={option}
-          data={data}
-          handleRowOption={(row: any) => {
-            return {
-              onClick: () => {
-                console.log(row)
-              },
-            }
-          }}
-        ></GlobalTable>
+        <GlobalTable option={option} data={data}></GlobalTable>
       </div>
     </div>
   )

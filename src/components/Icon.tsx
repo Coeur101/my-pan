@@ -29,9 +29,9 @@ const Icon: React.FC<IconProps> = (props) => {
       icon = iconName
     } else {
       const iconMap = (fileTypeMap as any)[fielType as number]
-      console.log(fielType)
+      console.log(iconMap)
 
-      if (!iconMap) {
+      if (iconMap) {
         icon = iconMap['icon']
       }
     }

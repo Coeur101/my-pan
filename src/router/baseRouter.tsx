@@ -28,21 +28,6 @@ const UserSettingViewLazy: LazyExoticComponent<any> = lazy(
 const SysSettingViewLazy: LazyExoticComponent<any> = lazy(
   () => import('@/views/Admin/Settings')
 )
-const VideoViewLazy: LazyExoticComponent<any> = lazy(
-  () => import('@/views/Main/Video')
-)
-const MusicViewLazy: LazyExoticComponent<any> = lazy(
-  () => import('@/views/Main/Music')
-)
-const ImagesViewLazy: LazyExoticComponent<any> = lazy(
-  () => import('@/views/Main/Images')
-)
-const DocumentsViewLazy: LazyExoticComponent<any> = lazy(
-  () => import('@/views/Main/Doc')
-)
-const OthersViewLazy: LazyExoticComponent<any> = lazy(
-  () => import('@/views/Main/Others')
-)
 const baseRouter: RouteObject[] = [
   {
     path: '/',
@@ -74,23 +59,23 @@ const baseRouter: RouteObject[] = [
       },
       {
         path: '/main/video',
-        element: <VideoViewLazy />,
+        element: <AllViewLazy />,
       },
       {
         path: '/main/music',
-        element: <MusicViewLazy />,
+        element: <AllViewLazy />,
       },
       {
         path: '/main/image',
-        element: <ImagesViewLazy />,
+        element: <AllViewLazy />,
       },
       {
         path: '/main/doc',
-        element: <DocumentsViewLazy />,
+        element: <AllViewLazy />,
       },
       {
         path: '/main/others',
-        element: <OthersViewLazy />,
+        element: <AllViewLazy />,
       },
     ],
   },
