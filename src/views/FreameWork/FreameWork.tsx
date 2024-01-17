@@ -7,7 +7,7 @@ import {
   useNavigate,
 } from 'react-router-dom'
 import '@/views/style/Feame.scss'
-import { startTransition, useEffect, useRef, useState } from 'react'
+import { createRef, startTransition, useEffect, useRef, useState } from 'react'
 import { MenuProps } from 'antd/lib'
 import { useCookies } from 'react-cookie'
 import RouterContent from '@/utils/RouterContent'
@@ -17,6 +17,7 @@ import { ModelProps } from '@/components/GlobalModel'
 import UpdatePassword from '../UpdatePassword'
 import { useSelector } from 'react-redux'
 import { passwordUpload } from '@/api'
+import UploaderList from '../Main/UploaderList'
 
 type MenuItems = {
   icon?: string
@@ -149,7 +150,9 @@ const FreameWork = () => {
     },
     cancelBtn: false,
   })
-
+  const UploaderListRef = useRef<{ addFileToList: (...args: any) => void }>(
+    null
+  )
   const location = useLocation()
   const navigate = useNavigate()
   let [popoverVisible, setPopoverVisible] = useState(false)
@@ -200,7 +203,6 @@ const FreameWork = () => {
   }
   const activeClass = 'text-[#06a7ff]'
   const subListActiveClass = 'bg-[#eef9fe] text-[#05a1f5]'
-  const content = <div>上传区域</div>
   const items: MenuProps['items'] = [
     {
       key: '1',
@@ -282,8 +284,10 @@ const FreameWork = () => {
   const handleFormInstance = (form: FormInstance) => {
     passwordModelRef.current = form
   }
-  const upLoadFile = (info: Blob, filePid: string) => {
-    console.log('fu', info)
+  const upLoadFile = (file: Blob, filePid: string) => {
+    // 调用子组件的方法
+    UploaderListRef.current?.addFileToList(file, filePid)
+    // 更新状态的方法得放在调用函数的后面，否则就不会触发函数，因为每次更新状态相当于重新执行一次函数组件
     setPopoverVisible(true)
   }
   const parentProps: { upLoadFile?: (...args: any) => void } = {
@@ -301,7 +305,7 @@ const FreameWork = () => {
         <div className="flex items-center justify-between">
           <Popover
             placement="bottom"
-            content={content}
+            content={<UploaderList ref={UploaderListRef} />}
             trigger="click"
             open={popoverVisible}
             overlayStyle={{ top: 60 }}
