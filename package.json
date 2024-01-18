@@ -66,6 +66,7 @@
     "sass-loader": "^12.3.0",
     "semver": "^7.3.5",
     "source-map-loader": "^3.0.0",
+    "spark-md5": "^3.0.2",
     "style-loader": "^3.3.1",
     "tailwindcss": "^3.0.2",
     "terser-webpack-plugin": "^5.2.5",
@@ -102,6 +103,7 @@
   "devDependencies": {
     "@types/redux-logger": "^3.0.12",
     "@types/redux-promise": "^0.5.32",
+    "@types/spark-md5": "^3.0.4",
     "autoprefixer": "^10.4.16",
     "node-sass": "^9.0.0",
     "postcss": "^8.4.33",
