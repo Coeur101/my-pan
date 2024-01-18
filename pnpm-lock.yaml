@@ -194,6 +194,9 @@ dependencies:
   source-map-loader:
     specifier: ^3.0.0
     version: 3.0.2(webpack@5.89.0)
+  spark-md5:
+    specifier: ^3.0.2
+    version: 3.0.2
   style-loader:
     specifier: ^3.3.1
     version: 3.3.3(webpack@5.89.0)
@@ -229,6 +232,9 @@ devDependencies:
   '@types/redux-promise':
     specifier: ^0.5.32
     version: 0.5.32
+  '@types/spark-md5':
+    specifier: ^3.0.4
+    version: 3.0.4
   autoprefixer:
     specifier: ^10.4.16
     version: 10.4.16(postcss@8.4.33)
@@ -3075,6 +3081,10 @@ packages:
     dependencies:
       '@types/node': 16.18.69
     dev: false
+
+  /@types/spark-md5@3.0.4:
+    resolution: {integrity: sha512-qtOaDz+IXiNndPgYb6t1YoutnGvFRtWSNzpVjkAPCfB2UzTyybuD4Tjgs7VgRawum3JnJNRwNQd4N//SvrHg1Q==, tarball: https://registry.npmmirror.com/@types/spark-md5/-/spark-md5-3.0.4.tgz}
+    dev: true
 
   /@types/stack-utils@2.0.3:
     resolution: {integrity: sha512-9aEbYZ3TbYMznPdcdr3SmIrLXwC/AKZXQeCf9Pgao5CKb8CyHuEX5jzWPTkvregvhRJHcpRO6BFoGW9ycaOkYw==, tarball: https://registry.npmmirror.com/@types/stack-utils/-/stack-utils-2.0.3.tgz}
@@ -10978,6 +10988,10 @@ packages:
   /sourcemap-codec@1.4.8:
     resolution: {integrity: sha512-9NykojV5Uih4lgo5So5dtw+f0JgJX30KCNI8gwhz2J9A15wD0Ml6tjHKwf6fTSa6fAdVBdZeNOs9eJ71qCk8vA==, tarball: https://registry.npmmirror.com/sourcemap-codec/-/sourcemap-codec-1.4.8.tgz}
     deprecated: Please use @jridgewell/sourcemap-codec instead
+    dev: false
+
+  /spark-md5@3.0.2:
+    resolution: {integrity: sha512-wcFzz9cDfbuqe0FZzfi2or1sgyIrsDwmPwfZC4hiNidPdPINjeUwNfv5kldczoEAcjl9Y1L3SM7Uz2PUEQzxQw==, tarball: https://registry.npmmirror.com/spark-md5/-/spark-md5-3.0.2.tgz}
     dev: false
 
   /spdx-correct@3.2.0:

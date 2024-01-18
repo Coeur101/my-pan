@@ -2,6 +2,7 @@ import Icon from '@/components/Icon'
 import NoData from '@/components/Nodata'
 import { formatFileSize } from '@/utils/formatFileSize'
 import { Progress } from 'antd'
+import sparkMd5 from 'spark-md5'
 import React, { forwardRef, useState } from 'react'
 interface file extends File {
   uid: string
@@ -26,6 +27,8 @@ const UploaderList = forwardRef(
     props: any,
     ref: React.ForwardedRef<{ addFileToList: (...args: any) => void }>
   ) => {
+    // 5mb 进行分片
+    const chunkSize = 5 * 1024 * 1024
     const STATUS = {
       emptyfile: {
         value: 'emptyfile',
@@ -105,16 +108,34 @@ const UploaderList = forwardRef(
       }
       uploadFile(md5FileUid)
     }
+    const loadNext = () => {}
     /**
      * 解析文件,加密Md5
      * @param fileItem 文件对象
      */
     const computeMd5 = (fileItem: FileListType) => {
       let file = fileItem.file
-      console.log(file)
-
+      // 开始分片
+      let blobSlice = File.prototype.slice
+      let chunks = Math.ceil(file.size / chunkSize)
+      // 当前分片
+      let currentChunk = 0
+      let spark = new sparkMd5.ArrayBuffer()
+      let fileReader: any = new FileReader()
+      fileReader.onload!((e: any) => {
+        spark.append(e.target?.result as ArrayBuffer)
+        currentChunk++
+        if (currentChunk < chunks) {
+          // 如果当前分片还没有分完则继续执行
+          loadNext()
+        } else {
+          // 返回md5的计算
+          fileItem.md5 = spark.end()
+        }
+      })
       return Promise.resolve()
     }
+
     const startUpload = (fileUid: string) => {}
     const endUpload = (fileUid: string) => {}
     const delUpload = (fileUid: string) => {}
