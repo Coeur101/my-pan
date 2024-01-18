@@ -6,6 +6,7 @@ import {
 } from 'antd'
 import { TableRowSelection } from 'antd/es/table/interface'
 import React, { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 export type OptionType = {
   selectType?: TableRowSelection<any>
   bordered: boolean
@@ -25,13 +26,13 @@ const GlobalTable: React.FC<TableProps> = ({
   handleRowOption,
   data,
 }) => {
+  const location = useLocation()
   useEffect(() => {
-    option.loadListFunc()
-  }, [
-    (option.pagination as any).pageSize,
-    (option.pagination as any).current,
-    (option.pagination as any).total,
-  ])
+    option.loadListFunc('', location.pathname.split('/')[2] as any)
+  }, [(option.pagination as any).pageSize, (option.pagination as any).current])
+  useEffect(() => {
+    option.loadListFunc('', location.pathname.split('/')[2] as any)
+  }, [location])
   return (
     <Table
       scroll={{ y: option.tableHeght || 260, scrollToFirstRowOnChange: true }}

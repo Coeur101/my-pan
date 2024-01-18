@@ -244,6 +244,11 @@ const FreameWork = () => {
     if (location.pathname === '/') {
       navigate('/main/all', { replace: true })
     }
+    const item = menuItems.filter((item) => {
+      return item.path === location.pathname
+    })
+
+    setSublist(item[0].children as MenuItems[])
   }, [location])
   useEffect(() => {
     if (loginState === 1) {
@@ -284,11 +289,11 @@ const FreameWork = () => {
   const handleFormInstance = (form: FormInstance) => {
     passwordModelRef.current = form
   }
-  const upLoadFile = (file: Blob, filePid: string) => {
+  const upLoadFile = async (file: Blob, filePid: string) => {
+    // 更新状态的方法得放在调用函数的后面，否则就不会触发函数，因为每次更新状态相当于重新执行一次函数组件
+    await setPopoverVisible(true)
     // 调用子组件的方法
     UploaderListRef.current?.addFileToList(file, filePid)
-    // 更新状态的方法得放在调用函数的后面，否则就不会触发函数，因为每次更新状态相当于重新执行一次函数组件
-    setPopoverVisible(true)
   }
   const parentProps: { upLoadFile?: (...args: any) => void } = {
     upLoadFile: upLoadFile,
@@ -404,7 +409,7 @@ const FreameWork = () => {
             </div>
           </div>
         </div>
-        <div className="flex-1 p-[0px_10px] box-border">
+        <div className="flex-1  ">
           <RouterContent.Provider value={parentProps}>
             <Outlet />
           </RouterContent.Provider>

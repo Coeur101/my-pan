@@ -58,10 +58,7 @@ const All: React.FC<any> = (props) => {
   const location = useLocation()
   const [pageNo, setPageNo] = useState('1')
   const [pageSize, setPageSize] = useState('15')
-  const [catagory, setCatagory] = useState<
-    'all' | 'video' | 'music' | 'image' | 'doc' | 'others'
-  >('all')
-
+  const [catagory, setCatagory] = useState<string>('all')
   const editInputRef = useRef<InputRef>(null)
   const [data, setData] = useState<DataList[]>([])
   const [currentFolder, setCurrentFolder] = useState('0')
@@ -184,7 +181,7 @@ const All: React.FC<any> = (props) => {
     },
   ]
   const [total, setTotal] = useState(0)
-  const loadList = async (fileFuzzName: string) => {
+  const loadList = async (fileFuzzName: string, catagory?: string) => {
     try {
       const res = await getFileList(catagory, pageNo, pageSize, fileFuzzName)
       if (res?.code !== 200) {
@@ -198,7 +195,6 @@ const All: React.FC<any> = (props) => {
           }
         })
       )
-      setTotal(res.data.totalCount)
     } catch (error) {}
   }
   const [selectedRow, setSelectedRow] = useState<DataList[]>([])
@@ -214,7 +210,7 @@ const All: React.FC<any> = (props) => {
       pagination: {
         pageSize: 15,
         pageSizeOptions: [15, 30, 50, 100],
-        total: total,
+        total: data.length,
         showTotal: (total: number) => {
           return `共${total}条`
         },
@@ -235,7 +231,7 @@ const All: React.FC<any> = (props) => {
     setCatagory(location.pathname.split('/')[2] as any)
   }, [location])
   const onSearch: SearchProps['onSearch'] = (value) => {
-    loadList(value)
+    loadList(value, catagory)
   }
   const handleEdit = (row: DataList) => {
     setData((prevData) => {

@@ -182,7 +182,7 @@ export const passwordUpload = (password: string) => {
 }
 /**
  * 获取文件列表
- * @param cateGory 文件分类
+ * @param category 文件分类
  * @param pageNo 页码
  * @param pageSize 分页大小
  * @param fileNameFuzzy 文件名称
@@ -190,7 +190,7 @@ export const passwordUpload = (password: string) => {
  * @returns
  */
 export const getFileList = (
-  cateGory: string = 'all',
+  category: string = 'all',
   pageNo: string = '1',
   pageSize: string = '15',
   fileNameFuzzy?: string,
@@ -200,7 +200,7 @@ export const getFileList = (
     return request({
       url: '/file/loadDataList',
       params: {
-        cateGory,
+        category,
         pageNo,
         pageSize,
         fileNameFuzzy,
