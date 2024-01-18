@@ -39,7 +39,7 @@ const Icon: React.FC<IconProps> = (props) => {
     ).href
   }
   return (
-    <span style={{ width: width, height: width }}>
+    <span className="inline-block" style={{ width: width, height: width }}>
       <img src={getImage()} alt="" style={{ objectFit: fit }} />
     </span>
   )

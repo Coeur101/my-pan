@@ -247,8 +247,9 @@ const FreameWork = () => {
     const item = menuItems.filter((item) => {
       return item.path === location.pathname
     })
-
-    setSublist(item[0].children as MenuItems[])
+    if (item.length > 0) {
+      setSublist(item[0].children as MenuItems[])
+    }
   }, [location])
   useEffect(() => {
     if (loginState === 1) {
@@ -332,7 +333,7 @@ const FreameWork = () => {
                   userId={cookie.userInfo?.userId || ''}
                   avatar={cookie.userInfo?.avatar || ''}
                   timeStamp={new Date().getTime()}
-                  width={46}
+                  width={30}
                 ></Avatar>
               </div>
               <span className="text-[#05a1f5]">

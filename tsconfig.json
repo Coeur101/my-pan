@@ -25,6 +25,7 @@
     "src/**/*.tsx",
     "scr/**/*.ts",
     "src/**/*.d.ts",
-    "src/utils/request.ts"
+    "src/utils/request.ts",
+    "src/components/*.tsx"
   ]
 }

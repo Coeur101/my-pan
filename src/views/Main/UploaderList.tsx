@@ -1,3 +1,6 @@
+import Icon from '@/components/Icon'
+import NoData from '@/components/Nodata'
+import { formatFileSize } from '@/utils/formatFileSize'
 import { Progress } from 'antd'
 import React, { forwardRef, useState } from 'react'
 interface file extends File {
@@ -5,7 +8,7 @@ interface file extends File {
 }
 type FileListType = {
   file: file
-  uid: String
+  uid: string
   md5: string | null
   md5Progress: number
   fileName: string
@@ -16,6 +19,7 @@ type FileListType = {
   chunkIndex: number
   filePid: number | string
   errorMsg: string
+  uploadSize: number
 }
 const UploaderList = forwardRef(
   (
@@ -61,20 +65,21 @@ const UploaderList = forwardRef(
       },
     }
     const [fileList, setFileList] = useState<FileListType[]>([])
-    const addFileToList = (file: file, filePid: string) => {
+    const addFileToList = async (file: file, filePid: string) => {
       const fileItem = {
         file,
         uid: file.uid,
         // MD5值
         md5: null,
         // md5进度
-        md5Progress: 0,
+        md5Progress: 10,
         //文件名
         fileName: file.name,
         // 上传状态
         status: STATUS.init.value,
         // 文件总大小
         totalSize: file.size,
+        uploadSize: 0,
         // 上传进度
         uploadProgress: 0,
         // 暂停
@@ -86,9 +91,34 @@ const UploaderList = forwardRef(
         // 错误信息
         errorMsg: '',
       }
+      if (fileItem.totalSize === 0) {
+        fileItem.status = STATUS.emptyfile.value
+        fileList.unshift(fileItem)
+        setFileList([...fileList])
+        return
+      }
       fileList.unshift(fileItem)
       setFileList([...fileList])
+      let md5FileUid = await computeMd5(fileItem)
+      if (md5FileUid === null) {
+        return
+      }
+      uploadFile(md5FileUid)
     }
+    /**
+     * 解析文件,加密Md5
+     * @param fileItem 文件对象
+     */
+    const computeMd5 = (fileItem: FileListType) => {
+      let file = fileItem.file
+      console.log(file)
+
+      return Promise.resolve()
+    }
+    const startUpload = (fileUid: string) => {}
+    const endUpload = (fileUid: string) => {}
+    const delUpload = (fileUid: string) => {}
+    const uploadFile = (file: unknown) => {}
     const FileItem = () => {
       return (
         <div>
@@ -122,18 +152,62 @@ const UploaderList = forwardRef(
                       ? item.errorMsg
                       : (STATUS as any)[item.status].desc}
                   </span>
+                  {item.status === STATUS.uploading.value ? (
+                    <span className="ml-[5px]">
+                      {formatFileSize(item.uploadSize)}/
+                      {formatFileSize(item.totalSize)}
+                    </span>
+                  ) : null}
                 </div>
               </div>
               <div className="w-[100px] flex items-center justify-end">
-                <span
-                  className="w-[28px] h-[28px] ml-[5px] cursor-pointer text-center inline-block rounded overflow-hidden"
-                  title="清除"
-                >
-                  <img
-                    src={require('@/assets/easypan静态资源/icon-image/clean.png')}
-                    alt=""
-                  />
-                </span>
+                {/* 加密MD5的进度 */}
+                {item.status === STATUS.init.value ? (
+                  <Progress
+                    type="circle"
+                    size="small"
+                    style={{ marginBottom: 0 }}
+                    percent={item.md5Progress}
+                    strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
+                  ></Progress>
+                ) : null}
+                {item.status === STATUS.uploading.value ? (
+                  <span className="w-[28px] h-[28px] ml-[5px] cursor-pointer text-center inline-block rounded overflow-hidden">
+                    {item.pause ? (
+                      <div onClick={() => startUpload(item.uid)}>
+                        <Icon width={28} iconName="upload"></Icon>
+                      </div>
+                    ) : (
+                      <div onClick={() => endUpload(item.uid)}>
+                        <Icon width={28} iconName="pause"></Icon>
+                      </div>
+                    )}
+                  </span>
+                ) : (
+                  <span
+                    className="w-[28px] h-[28px] ml-[5px] cursor-pointer text-center inline-block rounded overflow-hidden"
+                    title="删除"
+                  >
+                    {item.status !== STATUS.init.value &&
+                    item.status !== STATUS.uploading_finish.value &&
+                    item.status !== STATUS.uploading_seconds.value ? (
+                      <div onClick={() => delUpload(item.uid)}>
+                        <Icon width={28} iconName="clean"></Icon>
+                      </div>
+                    ) : null}
+                  </span>
+                )}
+                {item.status === STATUS.uploading_finish.value &&
+                item.status === STATUS.uploading_seconds.value ? (
+                  <span
+                    className="w-[28px] h-[28px] ml-[5px] cursor-pointer text-center inline-block rounded overflow-hidden"
+                    title="清除"
+                  >
+                    <div onClick={() => delUpload(item.uid)}>
+                      <Icon width={28} iconName="clean"></Icon>
+                    </div>
+                  </span>
+                ) : null}
               </div>
             </div>
           ))}
@@ -152,7 +226,11 @@ const UploaderList = forwardRef(
           <span className="text-[13px] text-[#a9a9a9]">仅展示本次</span>
         </div>
         <div className="overflow-auto p-[10px_0] min-h-[50vh] max-h-[calc(100vh-120px)]">
-          <FileItem></FileItem>
+          {fileList.length === 0 ? (
+            <NoData msg="暂无上传任务" isOrigin={true}></NoData>
+          ) : (
+            <FileItem></FileItem>
+          )}
         </div>
       </div>
     )
