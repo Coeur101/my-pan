@@ -296,14 +296,14 @@ const FreameWork = () => {
     // 调用子组件的方法
     UploaderListRef.current?.addFileToList(file, filePid)
   }
-  const updateFileList = () => {}
+
   const parentProps: {
     upLoadFile?: (...args: any) => void
-    updateFileList?: (...args: any) => void
+    getFileListFunc?: any
   } = {
     upLoadFile: upLoadFile,
-    updateFileList: updateFileList,
   }
+
   return (
     <div>
       <header className="shadow-[0_3px_10px_rgba(0,0,0,0.1)] h-[56px] w-[100%] p-[0_10px] box-border  relative z-[200] flex items-center justify-between">

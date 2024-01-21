@@ -48,10 +48,11 @@ const All: React.FC<any> = (props) => {
     all: '',
     others: '',
   }
+
   const [accept, setAccept] = useState('')
-  const parentProps = useContext<{ upLoadFile?: (...args: any) => void }>(
-    RouterContent
-  )
+  const parentProps = useContext<{
+    upLoadFile?: (...args: any) => void
+  }>(RouterContent)
   const upProps: UploadProps = {
     hasControlInside: true,
     capture: 'environment',
@@ -191,7 +192,7 @@ const All: React.FC<any> = (props) => {
   ]
   const [total, setTotal] = useState(0)
   const [tableLoading, setTbaleLoading] = useState(false)
-  const loadList = async (fileFuzzName: string, catagory?: string) => {
+  const loadList = async (fileFuzzName: string) => {
     try {
       setTbaleLoading(true)
       const res = await getFileList(catagory, pageNo, pageSize, fileFuzzName)
@@ -224,12 +225,13 @@ const All: React.FC<any> = (props) => {
       },
       pagination: {
         pageSize: 15,
-        pageSizeOptions: [15, 30, 50, 100],
+        pageSizeOptions: [15, 20, 30, 100],
+        defaultPageSize: 15,
         total: data.length,
         showTotal: (total: number) => {
           return `共${total}条`
         },
-        hideOnSinglePage: false,
+        // hideOnSinglePage: false,
       } as PaginationProps,
       tableHeght: 400,
       colums,
@@ -249,9 +251,11 @@ const All: React.FC<any> = (props) => {
       (acceptType as Record<string, string>)[location.pathname.split('/')[2]]
     )
   }, [location])
+  // 搜索
   const onSearch: SearchProps['onSearch'] = (value) => {
-    loadList(value, catagory)
+    loadList(value)
   }
+  // 编辑
   const handleEdit = (row: DataList) => {
     setData((prevData) => {
       return prevData
@@ -290,6 +294,7 @@ const All: React.FC<any> = (props) => {
       ]
     })
   }
+  // 重命名文件
   const handleInputValue = async (
     row: DataList,
     key: string | number,
@@ -312,10 +317,12 @@ const All: React.FC<any> = (props) => {
     if (res.code !== 200) {
       return
     }
+    fileName = res.data.fileName
     if (row.fileType === 0) {
       fileName =
         (fileName as string) + fileName?.substring(fileName?.lastIndexOf('.'))
     }
+
     setData((prevData) => {
       return prevData.map((item) => {
         return item.key === row.key
@@ -324,6 +331,7 @@ const All: React.FC<any> = (props) => {
       })
     })
   }
+  // 取消
   const handleCancel = (row: DataList) => {
     if (row.fileId) {
       setData((prevData) => {
@@ -344,6 +352,8 @@ const All: React.FC<any> = (props) => {
       })
     }
   }
+  const delFile = () => {}
+  const moveFile = () => {}
   return (
     <div className={`${style.wrapper} mt-[20px]`}>
       <div className="flex items-center w-full">
@@ -374,6 +384,8 @@ const All: React.FC<any> = (props) => {
           icon={<DeleteOutlined />}
           className="mr-[10px]"
           type="primary"
+          disabled={selectedRow.length !== 0 ? false : true}
+          onClick={() => delFile()}
         >
           批量删除
         </Button>
@@ -381,6 +393,8 @@ const All: React.FC<any> = (props) => {
           type="default"
           className={style.moveBtn}
           icon={<DragOutlined />}
+          disabled={selectedRow.length !== 0 ? false : true}
+          onClick={() => moveFile()}
         >
           批量移动
         </Button>
@@ -390,7 +404,10 @@ const All: React.FC<any> = (props) => {
             onSearch={onSearch}
           ></Input.Search>
         </div>
-        <div className="iconfont icon-refresh text-[#636d7e] cursor-pointer ml-[10px]"></div>
+        <div
+          className="iconfont icon-refresh text-[#636d7e] cursor-pointer ml-[10px]"
+          onClick={() => loadList('')}
+        ></div>
       </div>
       <div className="">全部文件</div>
       <div className={`${style.wrapper} mt-[10px]`}>

@@ -5,6 +5,7 @@ import { Progress } from 'antd'
 import sparkMd5 from 'spark-md5'
 import React, { forwardRef, useState } from 'react'
 import { uploadChunkFile } from '@/api'
+import { useNavigate } from 'react-router-dom'
 interface file extends File {
   uid: string
 }
@@ -73,6 +74,7 @@ const UploaderList = forwardRef(
     }
     const [fileList, setFileList] = useState<FileListType[]>([])
     const [delFileList, setDelFileList] = useState<string[]>([])
+    const navigate = useNavigate()
     const addFileToList = async (file: file, filePid: string) => {
       const fileItem: FileListType = {
         file,
@@ -198,7 +200,7 @@ const UploaderList = forwardRef(
       const fileSize = sourceFile?.totalSize
       // 分片上传
       const chunks = Math.ceil(fileSize! / chunkSize)
-      for (let i = chunkIndex; i < chunks; i++) {
+      for (let i = chunkIndex; i <= chunks; i++) {
         // 循环上传
         // 判断当前文件是否被删除,如果被删除则在列表中删除
         const delIndex = delFileList.indexOf(fileUid)
@@ -267,7 +269,8 @@ const UploaderList = forwardRef(
             })
             console.log(sourceFile)
 
-            // 子组件通知父组件文件列表
+            // 通过路由更新，来进行刷新文件列表
+            navigate('/main/all')
             break
           }
           setFileList((prev) => {
