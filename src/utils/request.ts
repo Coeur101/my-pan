@@ -117,6 +117,7 @@ const request = (
   const http = CreateAxiosInstance()
   try {
     return http.post(url, formData, {
+      // 上传文件的进度
       onUploadProgress: (event_1: any) => {
         if (config.uploadProgressCallback) {
           config.uploadProgressCallback(event_1)

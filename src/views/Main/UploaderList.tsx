@@ -4,6 +4,7 @@ import { formatFileSize } from '@/utils/formatFileSize'
 import { Progress } from 'antd'
 import sparkMd5 from 'spark-md5'
 import React, { forwardRef, useState } from 'react'
+import { uploadChunkFile } from '@/api'
 interface file extends File {
   uid: string
 }
@@ -22,12 +23,14 @@ type FileListType = {
   errorMsg: string
   uploadSize: number
   key?: number | string
+  fileId?: string
 }
 const UploaderList = forwardRef(
   (
     props: any,
     ref: React.ForwardedRef<{ addFileToList: (...args: any) => void }>
   ) => {
+    // const { loadFileList } = props
     // 5mb 进行分片
     const chunkSize = 5 * 1024 * 1024
     const STATUS = {
@@ -55,14 +58,14 @@ const UploaderList = forwardRef(
         color: '#409eff',
         icon: 'upload',
       },
-      uploading_finish: {
-        value: 'uploading_finish',
+      upload_finish: {
+        value: 'upload_finish',
         desc: '上传完成',
         color: '#67C23A',
         icon: 'ok',
       },
-      uploading_seconds: {
-        value: 'uploading_seconds',
+      upload_seconds: {
+        value: 'upload_seconds',
         desc: '秒传',
         color: '#67c23a',
         icon: 'ok',
@@ -110,7 +113,7 @@ const UploaderList = forwardRef(
         return
       }
 
-      uploadFile(md5FileUid)
+      uploadFile(md5FileUid, 0)
     }
     /**
      * 解析文件,加密Md5
@@ -187,11 +190,12 @@ const UploaderList = forwardRef(
     const endUpload = (fileUid: string) => {}
     const delUpload = (fileUid: string) => {}
     // chunkIndex当前上传的分片是第几片，来实现暂停后续传
-    const uploadFile = (fileUid: string, chunkIndex?: number) => {
+    const uploadFile = async (fileUid: string, chunkIndex?: number) => {
       chunkIndex = chunkIndex ? chunkIndex : 0
+      const sourceFile = getFileByUid(fileUid)
       // 拿到转换完成的uid 查找文件
-      const file = getFileByUid(fileUid)?.file
-      const fileSize = getFileByUid(fileUid)?.totalSize
+      const file = sourceFile?.file
+      const fileSize = sourceFile?.totalSize
       // 分片上传
       const chunks = Math.ceil(fileSize! / chunkSize)
       for (let i = chunkIndex; i < chunks; i++) {
@@ -205,12 +209,75 @@ const UploaderList = forwardRef(
           break
         }
         // 如果暂停则跳出循环上传
-        if (getFileByUid(fileUid)?.pause) {
+        if (sourceFile?.pause) {
           break
         }
         // 进行分片
         let start = i * chunkSize
         let end = start + chunkSize >= fileSize! ? fileSize! : start + chunkSize
+        // 分片文件
+        const chunkFile = file?.slice(start, end)
+        // 开始上传
+        try {
+          const res = await uploadChunkFile(
+            '',
+            chunkFile as File,
+            sourceFile?.filePid as string,
+            sourceFile?.fileName as string,
+            i,
+            chunks,
+            sourceFile?.md5 as string,
+            // 错误回调
+            (info: string) => {
+              sourceFile!.status = STATUS.fail.value
+              sourceFile!.errorMsg = info
+              setFileList((prev) => {
+                return prev.map((item) => {
+                  return item.uid === sourceFile?.uid ? sourceFile : item
+                })
+              })
+            },
+            // 获取上传进度
+            (event) => {
+              sourceFile!.uploadProgress = Math.floor(event.progress * 100)
+              setFileList((prev) => {
+                return prev.map((item) => {
+                  return item.uid === sourceFile?.uid ? sourceFile : item
+                })
+              })
+            }
+          )
+          if (res?.code !== 200) {
+            break
+          }
+          sourceFile!.status = (STATUS as any)[res.data.status].value
+          sourceFile!.fileId = res.data.fileId
+          sourceFile!.chunkIndex = i
+          // 如果等于这两个状态，代表已经上传完毕
+          if (
+            sourceFile?.status === STATUS.upload_finish.value ||
+            sourceFile?.status === STATUS.upload_seconds.value
+          ) {
+            sourceFile!.uploadProgress = 100
+            // loadFileList()
+            setFileList((prev) => {
+              return prev.map((item) => {
+                return item.uid === sourceFile?.uid ? sourceFile : item
+              })
+            })
+            console.log(sourceFile)
+
+            // 子组件通知父组件文件列表
+            break
+          }
+          setFileList((prev) => {
+            return prev.map((item) => {
+              return item.uid === sourceFile?.uid ? sourceFile : item
+            })
+          })
+        } catch (error) {
+          break
+        }
       }
     }
     const FileItem = () => {
@@ -225,8 +292,8 @@ const UploaderList = forwardRef(
                 <div className="text-[#403e3e]">{item.fileName}</div>
                 <div>
                   {item.status === STATUS.uploading.value ||
-                  item.status === STATUS.uploading_seconds.value ||
-                  item.status === STATUS.uploading_finish.value ? (
+                  item.status === STATUS.upload_seconds.value ||
+                  item.status === STATUS.upload_finish.value ? (
                     <Progress
                       style={{ marginBottom: 0 }}
                       percent={item.uploadProgress}
@@ -286,16 +353,16 @@ const UploaderList = forwardRef(
                     title="删除"
                   >
                     {item.status !== STATUS.init.value &&
-                    item.status !== STATUS.uploading_finish.value &&
-                    item.status !== STATUS.uploading_seconds.value ? (
+                    item.status !== STATUS.upload_finish.value &&
+                    item.status !== STATUS.upload_seconds.value ? (
                       <div onClick={() => delUpload(item.uid)}>
                         <Icon width={28} iconName="clean"></Icon>
                       </div>
                     ) : null}
                   </span>
                 )}
-                {item.status === STATUS.uploading_finish.value &&
-                item.status === STATUS.uploading_seconds.value ? (
+                {item.status === STATUS.upload_finish.value ||
+                item.status === STATUS.upload_seconds.value ? (
                   <span
                     className="w-[28px] h-[28px] ml-[5px] cursor-pointer text-center inline-block rounded overflow-hidden"
                     title="清除"

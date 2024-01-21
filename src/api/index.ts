@@ -244,3 +244,46 @@ export const reFileName = (fileId: string, fileName: string) => {
     })
   } catch (error) {}
 }
+/**
+ * 分片上传文件
+ * @param fileId 文件id
+ * @param file 文件 文件流
+ * @param filePid 文件父id
+ * @param fileName 文件名
+ * @param chunkIndex 当前分片的索引
+ * @param chunks 总分片数
+ * @param fileMd5 文件的md5
+ * @param errorCallback 错误回调
+ * @param uploadProgressCallback 上传文件的进度，是从axios中获取
+ * @returns
+ */
+export const uploadChunkFile = (
+  fileId: string,
+  file: File,
+  filePid: string,
+  fileName: string,
+  chunkIndex: number,
+  chunks: number,
+  fileMd5: string,
+  errorCallback?: (info: string) => void,
+  uploadProgressCallback?: (event: any) => void
+) => {
+  try {
+    return request({
+      url: '/file/uploadFile',
+      params: {
+        fileId,
+        file,
+        filePid,
+        fileName,
+        chunkIndex,
+        chunks,
+        fileMd5,
+      },
+      dataType: 'file',
+      showLoading: false,
+      errorCallback,
+      uploadProgressCallback,
+    })
+  } catch (error) {}
+}

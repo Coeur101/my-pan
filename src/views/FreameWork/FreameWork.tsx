@@ -296,8 +296,13 @@ const FreameWork = () => {
     // 调用子组件的方法
     UploaderListRef.current?.addFileToList(file, filePid)
   }
-  const parentProps: { upLoadFile?: (...args: any) => void } = {
+  const updateFileList = () => {}
+  const parentProps: {
+    upLoadFile?: (...args: any) => void
+    updateFileList?: (...args: any) => void
+  } = {
     upLoadFile: upLoadFile,
+    updateFileList: updateFileList,
   }
   return (
     <div>
