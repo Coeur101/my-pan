@@ -40,6 +40,15 @@ interface DataList {
   fileNameComple?: string
 }
 const All: React.FC<any> = (props) => {
+  const acceptType = {
+    video: 'video/*',
+    doc: 'application/msword, application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document, text/plain, text/markdown, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    music: 'audio/*',
+    image: 'image/*',
+    all: '',
+    others: '',
+  }
+  const [accept, setAccept] = useState('')
   const parentProps = useContext<{ upLoadFile?: (...args: any) => void }>(
     RouterContent
   )
@@ -52,7 +61,7 @@ const All: React.FC<any> = (props) => {
     },
     showUploadList: false,
     withCredentials: true,
-    accept: '',
+    accept: accept,
   }
   const navigate = useNavigate()
   const location = useLocation()
@@ -181,12 +190,15 @@ const All: React.FC<any> = (props) => {
     },
   ]
   const [total, setTotal] = useState(0)
+  const [tableLoading, setTbaleLoading] = useState(false)
   const loadList = async (fileFuzzName: string, catagory?: string) => {
     try {
+      setTbaleLoading(true)
       const res = await getFileList(catagory, pageNo, pageSize, fileFuzzName)
       if (res?.code !== 200) {
         return
       }
+
       setData(
         res?.data?.list.map((item: DataList) => {
           return {
@@ -195,13 +207,16 @@ const All: React.FC<any> = (props) => {
           }
         })
       )
-    } catch (error) {}
+    } catch (error) {
+    } finally {
+      setTbaleLoading(false)
+    }
   }
   const [selectedRow, setSelectedRow] = useState<DataList[]>([])
   const option = useMemo<OptionType>(() => {
     return {
       bordered: true,
-      loading: false,
+      loading: tableLoading,
       selectType: {
         onChange(selectedRowKeysA: React.Key[], slectedRows: DataList[]) {
           setSelectedRow(slectedRows)
@@ -220,7 +235,7 @@ const All: React.FC<any> = (props) => {
       colums,
       loadListFunc: loadList,
     }
-  }, [pageNo, pageSize, total])
+  }, [pageNo, pageSize, total, tableLoading])
 
   useEffect(() => {
     editInputRef.current?.focus({
@@ -229,6 +244,10 @@ const All: React.FC<any> = (props) => {
   }, [data])
   useEffect(() => {
     setCatagory(location.pathname.split('/')[2] as any)
+    // 判断分类来设置上传文件的类型
+    setAccept(
+      (acceptType as Record<string, string>)[location.pathname.split('/')[2]]
+    )
   }, [location])
   const onSearch: SearchProps['onSearch'] = (value) => {
     loadList(value, catagory)

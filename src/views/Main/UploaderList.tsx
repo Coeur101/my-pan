@@ -21,6 +21,7 @@ type FileListType = {
   filePid: number | string
   errorMsg: string
   uploadSize: number
+  key?: number | string
 }
 const UploaderList = forwardRef(
   (
@@ -68,8 +69,9 @@ const UploaderList = forwardRef(
       },
     }
     const [fileList, setFileList] = useState<FileListType[]>([])
+    const [delFileList, setDelFileList] = useState<string[]>([])
     const addFileToList = async (file: file, filePid: string) => {
-      const fileItem = {
+      const fileItem: FileListType = {
         file,
         uid: file.uid,
         // MD5值
@@ -96,24 +98,25 @@ const UploaderList = forwardRef(
       }
       if (fileItem.totalSize === 0) {
         fileItem.status = STATUS.emptyfile.value
+        fileItem.key = file.uid
         fileList.unshift(fileItem)
         setFileList([...fileList])
         return
       }
       fileList.unshift(fileItem)
       setFileList([...fileList])
-      let md5FileUid = await computeMd5(fileItem)
+      let md5FileUid: string = await computeMd5(fileItem)
       if (md5FileUid === null) {
         return
       }
+
       uploadFile(md5FileUid)
     }
-    const loadNext = () => {}
     /**
      * 解析文件,加密Md5
      * @param fileItem 文件对象
      */
-    const computeMd5 = (fileItem: FileListType) => {
+    const computeMd5 = async (fileItem: FileListType): Promise<string> => {
       let file = fileItem.file
       // 开始分片
       let blobSlice = File.prototype.slice
@@ -122,29 +125,102 @@ const UploaderList = forwardRef(
       let currentChunk = 0
       let spark = new sparkMd5.ArrayBuffer()
       let fileReader: any = new FileReader()
-      fileReader.onload!((e: any) => {
-        spark.append(e.target?.result as ArrayBuffer)
-        currentChunk++
-        if (currentChunk < chunks) {
-          // 如果当前分片还没有分完则继续执行
-          loadNext()
-        } else {
-          // 返回md5的计算
-          fileItem.md5 = spark.end()
-        }
-      })
-      return Promise.resolve()
+      // 分片的将文件切割放入数组缓冲区
+      const loadNext = () => {
+        let start = currentChunk * chunkSize
+        let end = start + chunkSize >= file.size ? file.size : start + chunkSize
+        fileReader.readAsArrayBuffer(blobSlice.call(file, start, end))
+      }
+      // 开始分片前调用一次
+      loadNext()
+      try {
+        return await new Promise((resolve, reject) => {
+          let resultFile = getFileByUid(file.uid)
+          // 每次加入进数组缓冲区成功后都会调用onload,然后开始递归调用loadNext方法进行分片
+          fileReader.onload = (e: any) => {
+            // 判断每次分片是否完成，然后假如到spark里进行md5加密
+            spark.append(e.target.result)
+            currentChunk++
+            if (currentChunk < chunks) {
+              // console.log(`${file.name}第${currentChunk}分片完成`)
+              // 跟踪进度
+              const progress = Math.floor((currentChunk / chunks) * 100)
+              resultFile!.md5Progress = progress
+              setFileList((prev) =>
+                prev.map((item) => {
+                  return item.uid === resultFile?.uid ? resultFile : item
+                })
+              )
+              // 递归调用进行分片
+              loadNext()
+            } else {
+              const end_1 = spark.end()
+              // 释放内存
+              spark.destroy()
+              resultFile!.md5Progress = 100
+              resultFile!.status = STATUS.uploading.value
+              resultFile!.md5 = end_1
+              setFileList((prev) =>
+                prev.map((item) => {
+                  return item.uid === resultFile?.uid ? resultFile : item
+                })
+              )
+              resolve(fileItem.uid)
+            }
+          }
+          fileReader.onerror = (e_1: any) => {
+            resultFile!.md5Progress = -1
+            resultFile!.status = STATUS.fail.value
+            resolve(fileItem.uid)
+          }
+        })
+      } catch (error) {
+        return ''
+      }
     }
-
+    // 获取文件
+    const getFileByUid = (uid: string) => {
+      const file = fileList.find((item) => item.uid === uid)
+      return file
+    }
     const startUpload = (fileUid: string) => {}
     const endUpload = (fileUid: string) => {}
     const delUpload = (fileUid: string) => {}
-    const uploadFile = (file: unknown) => {}
+    // chunkIndex当前上传的分片是第几片，来实现暂停后续传
+    const uploadFile = (fileUid: string, chunkIndex?: number) => {
+      chunkIndex = chunkIndex ? chunkIndex : 0
+      // 拿到转换完成的uid 查找文件
+      const file = getFileByUid(fileUid)?.file
+      const fileSize = getFileByUid(fileUid)?.totalSize
+      // 分片上传
+      const chunks = Math.ceil(fileSize! / chunkSize)
+      for (let i = chunkIndex; i < chunks; i++) {
+        // 循环上传
+        // 判断当前文件是否被删除,如果被删除则在列表中删除
+        const delIndex = delFileList.indexOf(fileUid)
+        if (delIndex !== -1) {
+          delFileList.slice(delIndex, 1)
+          setDelFileList(delFileList)
+          // 且不进行上传
+          break
+        }
+        // 如果暂停则跳出循环上传
+        if (getFileByUid(fileUid)?.pause) {
+          break
+        }
+        // 进行分片
+        let start = i * chunkSize
+        let end = start + chunkSize >= fileSize! ? fileSize! : start + chunkSize
+      }
+    }
     const FileItem = () => {
       return (
         <div>
-          {fileList.map((item) => (
-            <div className="relative flex justify-center items-center p-[3px_10px] bg-white border-b border-[#ddd]">
+          {fileList.map((item, index) => (
+            <div
+              key={index}
+              className="relative flex justify-center items-center p-[3px_10px] bg-white border-b border-[#ddd]"
+            >
               <div className="flex-1">
                 <div className="text-[#403e3e]">{item.fileName}</div>
                 <div>
@@ -244,7 +320,7 @@ const UploaderList = forwardRef(
       <div className="w-[798px]">
         <div className="border-b border-[#dddd] leading-10 text-[15px]">
           <span>上传任务</span>
-          <span className="text-[13px] text-[#a9a9a9]">仅展示本次</span>
+          <span className="text-[13px] text-[#a9a9a9]">(仅展示本次)</span>
         </div>
         <div className="overflow-auto p-[10px_0] min-h-[50vh] max-h-[calc(100vh-120px)]">
           {fileList.length === 0 ? (

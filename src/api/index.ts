@@ -206,6 +206,7 @@ export const getFileList = (
         fileNameFuzzy,
         filePid,
       },
+      showLoading: false,
     })
   } catch (error) {}
 }
