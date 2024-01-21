@@ -9,6 +9,7 @@ import {
   Button,
   ConfigProvider,
   Input,
+  Modal,
   TableColumnProps,
   Upload,
   UploadProps,
@@ -18,7 +19,7 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import style from '../style/all.module.scss'
 import GlobalTable, { OptionType } from '@/components/Table'
 import { PaginationProps } from 'antd/lib'
-import { getFileList, newFoloder, reFileName } from '@/api'
+import { delFiles, getFileList, newFoloder, reFileName } from '@/api'
 import { InputRef, SearchProps } from 'antd/es/input'
 import Icon from '@/components/Icon'
 import { formatFileSize } from '@/utils/formatFileSize'
@@ -152,7 +153,10 @@ const All: React.FC<any> = (props) => {
                     <span className="ml-[5px]"> 下载</span>
                   </span>
                 ) : null}
-                <span className="iconfont cursor-pointer hover:text-blue-400 icon-del text-[12px] ml-[10px]">
+                <span
+                  className="iconfont cursor-pointer hover:text-blue-400 icon-del text-[12px] ml-[10px]"
+                  onClick={() => delFile(record.fileId)}
+                >
                   <span className="ml-[5px]"> 删除</span>
                 </span>
                 <span
@@ -352,7 +356,33 @@ const All: React.FC<any> = (props) => {
       })
     }
   }
-  const delFile = () => {}
+  // 批量删除和单个删除
+  const delFile = (fileId?: string) => {
+    Modal.confirm({
+      title: '确定要删除这些文件吗？',
+      content: '删除的文件可在10天内通过回收站还原',
+      style: {
+        top: 200,
+      },
+      onOk: async () => {
+        return new Promise(async (resolve, reject) => {
+          const res = await delFiles(
+            fileId
+              ? fileId
+              : (selectedRow.map((item) => item.fileId) as string[])
+          )
+          if (res?.code !== 200) {
+            reject(res?.info)
+          }
+          resolve('')
+          loadList('')
+        }).catch((error) => {
+          message.error(error)
+        })
+      },
+      onCancel: () => {},
+    })
+  }
   const moveFile = () => {}
   return (
     <div className={`${style.wrapper} mt-[20px]`}>

@@ -287,3 +287,14 @@ export const uploadChunkFile = (
     })
   } catch (error) {}
 }
+
+export const delFiles = (fileIds: string[] | string) => {
+  try {
+    return request({
+      url: '/file/delFile',
+      params: {
+        fileIds,
+      },
+    })
+  } catch (error) {}
+}
