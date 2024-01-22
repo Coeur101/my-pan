@@ -36,7 +36,7 @@ interface DataList {
   fileCategory?: number
   fileType?: number
   status?: number
-  key: number | string
+  key: React.Key
   editStatus?: boolean
   fileNameComple?: string
 }
@@ -93,7 +93,7 @@ const All: React.FC<any> = (props) => {
     }
   }
 
-  const colums: TableColumnProps<any>[] = [
+  const colums: TableColumnProps<DataList>[] = [
     {
       key: 1,
       title: '文件名',
@@ -208,7 +208,6 @@ const All: React.FC<any> = (props) => {
         res?.data?.list.map((item: DataList) => {
           return {
             ...item,
-            key: item.fileId,
           }
         })
       )
@@ -301,7 +300,7 @@ const All: React.FC<any> = (props) => {
   // 重命名文件
   const handleInputValue = async (
     row: DataList,
-    key: string | number,
+    key: React.Key,
     dataIndex: string
   ) => {
     let fileName = editInputRef.current?.input?.value.trim()

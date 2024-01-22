@@ -28,10 +28,10 @@ const GlobalTable: React.FC<TableProps> = ({
 }) => {
   const location = useLocation()
   useEffect(() => {
-    option.loadListFunc('', location.pathname.split('/')[2] as any)
+    option.loadListFunc('', location.pathname.split('/')[2] as string)
   }, [(option.pagination as any).pageSize, (option.pagination as any).current])
   useEffect(() => {
-    option.loadListFunc('', location.pathname.split('/')[2] as any)
+    option.loadListFunc('', location.pathname.split('/')[2] as string)
   }, [location])
   return (
     <Table

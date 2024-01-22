@@ -272,6 +272,7 @@ const FreameWork = () => {
       show: true,
     })
   }
+  // 登出
   const logOut = () => {
     removeCookie('userInfo')
     startTransition(() => {
@@ -288,10 +289,11 @@ const FreameWork = () => {
     })
   }
   const handleFormInstance = (form: FormInstance) => {
+    // 获取到子组件的Form实例，在父组件调用修改密码的接口
     passwordModelRef.current = form
   }
   const upLoadFile = async (file: Blob, filePid: string) => {
-    // 更新状态的方法得放在调用函数的后面，否则就不会触发函数，因为每次更新状态相当于重新执行一次函数组件
+    // 更新页面是异步的，更新完页面之后，再将需要展示的文件传入到子组件中进行显示
     await setPopoverVisible(true)
     // 调用子组件的方法
     UploaderListRef.current?.addFileToList(file, filePid)
