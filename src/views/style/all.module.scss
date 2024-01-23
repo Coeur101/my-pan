@@ -25,6 +25,9 @@
   :global(.ant-table-wrapper) {
     :global(.ant-spin-nested-loading) {
       :global(.ant-spin-container) {
+        :global(.ant-table-header) {
+          overflow: visible !important;
+        }
         :global(.ant-table-body) {
           :global(.ant-table-row) {
             :global(.ant-table-cell) {

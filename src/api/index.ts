@@ -287,6 +287,11 @@ export const uploadChunkFile = (
     })
   } catch (error) {}
 }
+/**
+ * 删除文件
+ * @param fileIds 文件id
+ * @returns
+ */
 
 export const delFiles = (fileIds: string[] | string) => {
   try {
@@ -294,6 +299,21 @@ export const delFiles = (fileIds: string[] | string) => {
       url: '/file/delFile',
       params: {
         fileIds,
+      },
+    })
+  } catch (error) {}
+}
+
+export const getAllFolder = (
+  filePid: string | string[] = '0',
+  currentFileIds?: string
+) => {
+  try {
+    return request({
+      url: '/file/loadAllFolder',
+      params: {
+        filePid,
+        currentFileIds,
       },
     })
   } catch (error) {}

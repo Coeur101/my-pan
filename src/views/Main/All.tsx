@@ -24,6 +24,8 @@ import { InputRef, SearchProps } from 'antd/es/input'
 import Icon from '@/components/Icon'
 import { formatFileSize } from '@/utils/formatFileSize'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { ModelProps } from '@/components/GlobalModel'
+import FolderSelect from './FolderSelect'
 interface DataList {
   fileId?: string
   filePid?: string | number
@@ -49,7 +51,25 @@ const All: React.FC<any> = (props) => {
     all: '',
     others: '',
   }
-
+  const [modelConfig, setModelConfig] = useState<ModelProps>({
+    show: false,
+    title: '移动到',
+    width: 600,
+    buttons: [
+      {
+        text: '移动到此',
+        type: 'primary',
+        click: () => {},
+      },
+    ],
+    close() {
+      setModelConfig({
+        ...modelConfig,
+        show: false,
+      })
+    },
+    cancelBtn: true,
+  })
   const [accept, setAccept] = useState('')
   const parentProps = useContext<{
     upLoadFile?: (...args: any) => void
@@ -73,6 +93,7 @@ const All: React.FC<any> = (props) => {
   const editInputRef = useRef<InputRef>(null)
   const [data, setData] = useState<DataList[]>([])
   const [currentFolder, setCurrentFolder] = useState('0')
+  const [currentFileId, setCurrentFileId] = useState<string>('0')
   const DisplayIcon = (
     status: number,
     iconName: string,
@@ -167,7 +188,10 @@ const All: React.FC<any> = (props) => {
                 >
                   <span className="ml-[5px]">编辑</span>
                 </span>
-                <span className="iconfont cursor-pointer hover:text-blue-400 icon-move text-[12px] ml-[10px]">
+                <span
+                  className="iconfont cursor-pointer hover:text-blue-400 icon-move text-[12px] ml-[10px]"
+                  onClick={() => moveFile(record.fileId)}
+                >
                   <span className="ml-[5px]">移动</span>
                 </span>
               </div>
@@ -205,12 +229,14 @@ const All: React.FC<any> = (props) => {
       }
 
       setData(
-        res?.data?.list.map((item: DataList) => {
+        res?.data?.list.map((item: DataList, index: number) => {
           return {
             ...item,
+            key: index,
           }
         })
       )
+      setTotal(res.data.totalCount)
     } catch (error) {
     } finally {
       setTbaleLoading(false)
@@ -303,38 +329,42 @@ const All: React.FC<any> = (props) => {
     key: React.Key,
     dataIndex: string
   ) => {
-    let fileName = editInputRef.current?.input?.value.trim()
-    if (
-      editInputRef.current?.input?.value.indexOf('/') !== -1 ||
-      editInputRef.current?.input?.value === ''
-    ) {
-      message.warning('不能有/且不能为空')
-      return
-    }
-    let res: any = ''
-    if (row.fileId === '') {
-      res = await newFoloder(row.filePid as string, fileName as string)
-    } else {
-      res = await reFileName(row.fileId as string, fileName as string)
-    }
-    if (res.code !== 200) {
-      return
-    }
-    fileName = res.data.fileName
-    if (row.fileType === 0) {
-      fileName =
-        (fileName as string) + fileName?.substring(fileName?.lastIndexOf('.'))
-    }
-
-    setData((prevData) => {
-      return prevData.map((item) => {
-        return item.key === row.key
-          ? { ...item, editStatus: false, fileName: fileName }
-          : item
+    try {
+      let fileName = editInputRef.current?.input?.value.trim()
+      if (
+        editInputRef.current?.input?.value.indexOf('/') !== -1 ||
+        editInputRef.current?.input?.value === ''
+      ) {
+        message.warning('不能有/且不能为空')
+        return
+      }
+      let res: any = ''
+      if (row.fileId === '') {
+        res = await newFoloder(row.filePid as string, fileName as string)
+      } else {
+        res = await reFileName(row.fileId as string, fileName as string)
+      }
+      if (res.code !== 200) {
+        return
+      }
+      fileName = res.data.fileName
+      if (row.fileType === 0) {
+        fileName =
+          (fileName as string) + fileName?.substring(fileName?.lastIndexOf('.'))
+      }
+      setData((prevData) => {
+        return prevData.map((item) => {
+          return item.key === row.key
+            ? { ...res.data, editStatus: false, key: res.data.fileId }
+            : item
+        })
       })
-    })
+      setTotal(total + 1)
+    } catch (error: any) {
+      message.error(error.msg as string)
+    }
   }
-  // 取消
+  // 取消编辑
   const handleCancel = (row: DataList) => {
     if (row.fileId) {
       setData((prevData) => {
@@ -382,7 +412,13 @@ const All: React.FC<any> = (props) => {
       onCancel: () => {},
     })
   }
-  const moveFile = () => {}
+  const moveFile = async (fileId?: string) => {
+    setCurrentFileId(fileId as string)
+    setModelConfig({
+      ...modelConfig,
+      show: true,
+    })
+  }
   return (
     <div className={`${style.wrapper} mt-[20px]`}>
       <div className="flex items-center w-full">
@@ -442,6 +478,11 @@ const All: React.FC<any> = (props) => {
       <div className={`${style.wrapper} mt-[10px]`}>
         <GlobalTable option={option} data={data}></GlobalTable>
       </div>
+      <FolderSelect
+        modelConfig={modelConfig}
+        files={selectedRow.length > 0 ? selectedRow : currentFileId}
+        pCurrentFolder={currentFolder}
+      ></FolderSelect>
     </div>
   )
 }
