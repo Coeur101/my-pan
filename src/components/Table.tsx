@@ -30,9 +30,6 @@ const GlobalTable: React.FC<TableProps> = ({
   useEffect(() => {
     option.loadListFunc('', location.pathname.split('/')[2] as string)
   }, [(option.pagination as any).pageSize, (option.pagination as any).current])
-  useEffect(() => {
-    option.loadListFunc('', location.pathname.split('/')[2] as string)
-  }, [location])
   return (
     <Table
       scroll={{ y: option.tableHeght || 260, scrollToFirstRowOnChange: true }}

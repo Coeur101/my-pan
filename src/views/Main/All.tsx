@@ -32,6 +32,7 @@ import { formatFileSize } from '@/utils/formatFileSize'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ModelProps } from '@/components/GlobalModel'
 import FolderSelect from './FolderSelect'
+import Navigation from '@/components/Navigation'
 interface DataList {
   fileId?: string
   filePid?: string | number
@@ -280,6 +281,9 @@ const All: React.FC<any> = (props) => {
       (acceptType as Record<string, string>)[location.pathname.split('/')[2]]
     )
   }, [location])
+  useEffect(() => {
+    loadList('')
+  }, [catagory])
   // 搜索
   const onSearch: SearchProps['onSearch'] = (value) => {
     loadList(value)
@@ -525,7 +529,7 @@ const All: React.FC<any> = (props) => {
           onClick={() => loadList('')}
         ></div>
       </div>
-      <div className="">全部文件</div>
+      <Navigation isWatchPath={true}></Navigation>
       <div className={`${style.wrapper} mt-[10px]`}>
         <GlobalTable option={option} data={data}></GlobalTable>
       </div>
