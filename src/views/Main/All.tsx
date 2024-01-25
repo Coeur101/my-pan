@@ -19,7 +19,13 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import style from '../style/all.module.scss'
 import GlobalTable, { OptionType } from '@/components/Table'
 import { PaginationProps } from 'antd/lib'
-import { delFiles, getFileList, newFoloder, reFileName } from '@/api'
+import {
+  changeFileFolder,
+  delFiles,
+  getFileList,
+  newFoloder,
+  reFileName,
+} from '@/api'
 import { InputRef, SearchProps } from 'antd/es/input'
 import Icon from '@/components/Icon'
 import { formatFileSize } from '@/utils/formatFileSize'
@@ -55,13 +61,7 @@ const All: React.FC<any> = (props) => {
     show: false,
     title: '移动到',
     width: 600,
-    buttons: [
-      {
-        text: '移动到此',
-        type: 'primary',
-        click: () => {},
-      },
-    ],
+    destroy: true,
     close() {
       setModelConfig({
         ...modelConfig,
@@ -93,7 +93,7 @@ const All: React.FC<any> = (props) => {
   const editInputRef = useRef<InputRef>(null)
   const [data, setData] = useState<DataList[]>([])
   const [currentFolder, setCurrentFolder] = useState('0')
-  const [currentFileId, setCurrentFileId] = useState<string>('0')
+  const [currentFile, setCurrentFile] = useState<DataList>()
   const DisplayIcon = (
     status: number,
     iconName: string,
@@ -190,7 +190,7 @@ const All: React.FC<any> = (props) => {
                 </span>
                 <span
                   className="iconfont cursor-pointer hover:text-blue-400 icon-move text-[12px] ml-[10px]"
-                  onClick={() => moveFile(record.fileId)}
+                  onClick={() => moveFile(record)}
                 >
                   <span className="ml-[5px]">移动</span>
                 </span>
@@ -412,12 +412,63 @@ const All: React.FC<any> = (props) => {
       onCancel: () => {},
     })
   }
-  const moveFile = async (fileId?: string) => {
-    setCurrentFileId(fileId as string)
+  const moveFile = async (file?: DataList) => {
+    setCurrentFile(file)
     setModelConfig({
       ...modelConfig,
       show: true,
     })
+  }
+  const moveFolderDone = async (currentChildFolder: any) => {
+    console.log(currentChildFolder?.fileId, currentFolder)
+    if (!currentChildFolder?.fileId) {
+      const errorFile =
+        selectedRow.length > 0
+          ? selectedRow.filter((item: any) => item.filePid === currentFolder)
+          : currentFile?.filePid === currentFolder
+      console.log(errorFile)
+
+      if (
+        (errorFile as DataList[]).length &&
+        (errorFile as DataList[]).length > 0
+      ) {
+        message.warning(
+          `有${
+            (errorFile as DataList[]).length
+          }个文件或文件夹已在当前文件夹下，无法移动`
+        )
+        return
+      } else if (errorFile) {
+        message.warning(`已在当前文件夹下，无法移动`)
+        return
+      }
+    }
+    let fileIdsList: any[] = []
+    if (selectedRow.length > 0) {
+      fileIdsList = selectedRow
+    } else if (currentFile) {
+      fileIdsList = []
+      fileIdsList.push(currentFile)
+    }
+    try {
+      const res = await changeFileFolder(
+        fileIdsList.map((item) => item.fileId),
+        currentChildFolder?.fileId as string
+      )
+      if (res?.code !== 200) {
+        return
+      }
+      message.success('移动完成')
+      setModelConfig({
+        ...modelConfig,
+        show: false,
+      })
+      loadList('')
+    } catch (error: any) {
+      console.log(error)
+
+      // message.error(error.info)
+    }
   }
   return (
     <div className={`${style.wrapper} mt-[20px]`}>
@@ -480,8 +531,8 @@ const All: React.FC<any> = (props) => {
       </div>
       <FolderSelect
         modelConfig={modelConfig}
-        files={selectedRow.length > 0 ? selectedRow : currentFileId}
-        pCurrentFolder={currentFolder}
+        files={selectedRow.length > 0 ? selectedRow : currentFile}
+        moveFolderDone={moveFolderDone}
       ></FolderSelect>
     </div>
   )

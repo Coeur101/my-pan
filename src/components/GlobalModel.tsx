@@ -16,6 +16,7 @@ export type ModelProps = {
   close?: () => void
   width?: string | number
   top?: number
+  destroy?: boolean
 }
 const GlobalModel = <T extends ModelProps>(props: T) => {
   const {
@@ -28,6 +29,7 @@ const GlobalModel = <T extends ModelProps>(props: T) => {
     cancelBtn,
     width,
     top,
+    destroy,
   } = props
   const maxHeight = window.innerHeight - (top as number) - 50
   return (
@@ -35,9 +37,13 @@ const GlobalModel = <T extends ModelProps>(props: T) => {
       title={title}
       open={show}
       width={width || 520}
+      destroyOnClose={true}
       style={{ top: top || 30 }}
       cancelButtonProps={{ type: 'link' }}
       onCancel={() => {
+        if (destroy) {
+          Modal.destroyAll()
+        }
         close!()
       }}
       cancelText="取消"

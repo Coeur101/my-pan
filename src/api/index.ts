@@ -318,3 +318,20 @@ export const getAllFolder = (
     })
   } catch (error) {}
 }
+/**
+ * 移动文件
+ * @param fileIds 文件id 多选和单选都是个数组
+ * @param filePid 文件需要移动到哪个文件夹下
+ * @returns
+ */
+export const changeFileFolder = (fileIds: string[], filePid: string) => {
+  try {
+    return request({
+      url: '/file/changeFileFolder',
+      params: {
+        fileIds,
+        filePid,
+      },
+    })
+  } catch (error) {}
+}

@@ -1,6 +1,7 @@
-import { getAllFolder } from '@/api'
+import { changeFileFolder, getAllFolder } from '@/api'
 import GlobalModel, { ModelProps } from '@/components/GlobalModel'
 import Icon from '@/components/Icon'
+import { message } from 'antd'
 import React, { useEffect, useState } from 'react'
 interface Folder {
   fileId: string
@@ -19,32 +20,42 @@ interface Folder {
 const FolderSelect: React.FC<{
   modelConfig: ModelProps
   files: any
-  pCurrentFolder?: string
+  moveFolderDone: any
 }> = (props) => {
-  const { modelConfig, files, pCurrentFolder } = props
+  const { modelConfig, files, moveFolderDone } = props
   const [folderList, setFolder] = useState<Folder[] | never[]>([])
-  const [currentFolder] = useState<Folder>()
+  const [currentFolder, setCurrentFolder] = useState<Folder | null>(null)
+  const buttons: any = [
+    {
+      text: '移动到此',
+      type: 'primary',
+      click: () => {
+        moveFolderDone(currentFolder)
+      },
+    },
+  ]
   useEffect(() => {
     if (modelConfig.show) {
       loadAllFolder()
     }
-    console.log(files)
+    setCurrentFolder(null)
   }, [modelConfig])
   const loadAllFolder = async () => {
     try {
       const res = await getAllFolder(
         '0',
-        pCurrentFolder === '0'
-          ? ''
-          : typeof files === 'object'
+        files.length > 0
           ? (files.map((item: any) => item.fileId) as string[])
-          : files
+          : files.fileId
       )
       if (res?.code !== 200) {
         return
       }
+
       setFolder(res.data)
-    } catch (error) {}
+    } catch (error) {
+      console.log(error)
+    }
   }
   const DisplayIcon = (
     status: number,
@@ -65,8 +76,11 @@ const FolderSelect: React.FC<{
       }
     }
   }
+  const selectFolder = (item: Folder) => {
+    setCurrentFolder(item)
+  }
   return (
-    <GlobalModel {...modelConfig}>
+    <GlobalModel {...modelConfig} buttons={buttons}>
       <div className="pl-[10px] fixed w-[530px] bg-[#f1f1f1]">
         <div className="text-[13px] flex items-center leading-10">
           <span className="font-bold">全部文件</span>
@@ -78,6 +92,7 @@ const FolderSelect: React.FC<{
             return (
               <div
                 className="cursor-pointer flex items-center p-[10px]  hover:bg-[#f8f8f8]"
+                onClick={() => selectFolder(item)}
                 key={item.fileId}
               >
                 {DisplayIcon(item.status, item.fileName, item.fileType, item)}
