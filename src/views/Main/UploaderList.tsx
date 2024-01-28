@@ -5,7 +5,7 @@ import { Progress } from 'antd'
 import sparkMd5 from 'spark-md5'
 import React, { forwardRef, useState } from 'react'
 import { uploadChunkFile } from '@/api'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 interface file extends File {
   uid: string
 }
@@ -75,6 +75,8 @@ const UploaderList = forwardRef(
     const [fileList, setFileList] = useState<FileListType[]>([])
     const [delFileList, setDelFileList] = useState<string[]>([])
     const navigate = useNavigate()
+    const location = useLocation()
+    const url = new URLSearchParams(location.search)
     const addFileToList = async (file: file, filePid: string) => {
       const fileItem: FileListType = {
         file,
@@ -269,9 +271,13 @@ const UploaderList = forwardRef(
               })
             })
             console.log(sourceFile)
-
             // 通过路由更新，来进行刷新文件列表
-            navigate('/main/all')
+            if (url.get('path')) {
+              navigate(location.pathname + '?path=' + url.get('path'))
+            } else {
+              navigate(location.pathname)
+            }
+
             break
           }
           setFileList((prev) => {

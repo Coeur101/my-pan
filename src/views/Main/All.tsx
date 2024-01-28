@@ -75,9 +75,6 @@ const All: React.FC<any> = (props) => {
     cancelBtn: true,
   })
   const [accept, setAccept] = useState('')
-  const uploadFile = (info: any) => {
-    parentProps.upLoadFile!(info.file as Blob, currentFolder)
-  }
   const parentProps = useContext<{
     upLoadFile?: (...args: any) => void
   }>(RouterContent)
@@ -85,7 +82,9 @@ const All: React.FC<any> = (props) => {
     hasControlInside: true,
     capture: 'environment',
     multiple: true,
-    customRequest: uploadFile,
+    customRequest: (info) => {
+      parentProps.upLoadFile!(info.file as Blob, currentFolder)
+    },
     showUploadList: false,
     withCredentials: true,
     accept: accept,
@@ -511,6 +510,7 @@ const All: React.FC<any> = (props) => {
   // 点击文件夹进行下钻,点击文件就进行预览
   const openCurrentFolder = (folder: DataList) => {
     if (!folder.fileType) {
+      setCurrentFolder(folder.fileId as string)
       loadList('', folder.fileId)
       navigationRef.current?.openCurrentFolder(folder)
     }
