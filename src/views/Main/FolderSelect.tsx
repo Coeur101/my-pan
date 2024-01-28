@@ -1,6 +1,7 @@
 import { changeFileFolder, getAllFolder } from '@/api'
 import GlobalModel, { ModelProps } from '@/components/GlobalModel'
 import Icon from '@/components/Icon'
+import Navigation from '@/components/Navigation'
 import { message } from 'antd'
 import React, { useEffect, useState } from 'react'
 interface Folder {
@@ -25,6 +26,7 @@ const FolderSelect: React.FC<{
   const { modelConfig, files, moveFolderDone } = props
   const [folderList, setFolder] = useState<Folder[] | never[]>([])
   const [currentFolder, setCurrentFolder] = useState<Folder | null>(null)
+  const [childData, setChildData] = useState([])
   const buttons: any = [
     {
       text: '移动到此',
@@ -43,7 +45,7 @@ const FolderSelect: React.FC<{
   const loadAllFolder = async () => {
     try {
       const res = await getAllFolder(
-        '0',
+        currentFolder?.fileId || '0',
         files.length > 0
           ? (files.map((item: any) => item.fileId) as string[])
           : files.fileId
@@ -76,6 +78,9 @@ const FolderSelect: React.FC<{
       }
     }
   }
+  useEffect(() => {
+    loadAllFolder()
+  }, [currentFolder])
   const selectFolder = (item: Folder) => {
     setCurrentFolder(item)
   }
@@ -83,7 +88,7 @@ const FolderSelect: React.FC<{
     <GlobalModel {...modelConfig} buttons={buttons}>
       <div className="pl-[10px] fixed w-[530px] bg-[#f1f1f1]">
         <div className="text-[13px] flex items-center leading-10">
-          <span className="font-bold">全部文件</span>
+          <Navigation isWatchPath={false} loadList={loadAllFolder}></Navigation>
         </div>
       </div>
       <div className="max-h-[calc(100vh-300px)] min-h-[200px]  mt-[40px]">

@@ -455,6 +455,22 @@ const All: React.FC<any> = (props) => {
       show: true,
     })
   }
+  // 找到要移动的文件在目标文件夹下是否存在
+  const findCommonFile = (fileList: DataList[], childFileList: any[]) => {
+    const commonObjects = []
+
+    // 创建一个 Set 用于存储 arr1 中的所有值
+    const set = new Set(fileList.map((obj) => obj.fileId))
+
+    // 遍历 arr2，如果 arr2 中的任何对象的值在 set 中，则将其添加到 commonObjects 中
+    for (const obj of childFileList) {
+      if (set.has(obj.fileId)) {
+        commonObjects.push(obj)
+      }
+    }
+
+    return commonObjects
+  }
   // 子组件弹窗移动文件
   const moveFolderDone = async (currentChildFolder: any) => {
     console.log(currentChildFolder?.fileId, currentFolder)
@@ -487,6 +503,16 @@ const All: React.FC<any> = (props) => {
       fileIdsList = []
       fileIdsList.push(currentFile)
     }
+    // if(findCommonFile(data,fileIdsList)){
+
+    // }
+    console.log(currentChildFolder, currentFolder)
+
+    if (currentChildFolder?.fileId === currentFolder) {
+      message.warning('所选文件已在当前文件夹下，无法移动')
+      return
+    }
+
     try {
       const res = await changeFileFolder(
         fileIdsList.map((item) => item.fileId),
@@ -500,7 +526,11 @@ const All: React.FC<any> = (props) => {
         ...modelConfig,
         show: false,
       })
-      loadList('')
+
+      if (url.get('path') || location.pathname === '/main/all') {
+        let pathArray = url.get('path')?.split('/')
+        loadList('', pathArray ? pathArray![pathArray!.length - 1] : '0')
+      }
     } catch (error: any) {
       console.log(error)
 
