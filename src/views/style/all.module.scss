@@ -1,5 +1,5 @@
 .successBtn {
-  @apply bg-green-500 text-white;
+  @apply bg-green-500 text-white mr-[10px];
   &:hover {
     background-color: rgba(149, 212, 117, 1) !important;
     color: white !important;

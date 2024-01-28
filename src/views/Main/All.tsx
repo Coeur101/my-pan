@@ -28,11 +28,14 @@ import {
 } from '@/api'
 import { InputRef, SearchProps } from 'antd/es/input'
 import Icon from '@/components/Icon'
-import { formatFileSize } from '@/utils/formatFileSize'
+import { formatFileSize } from '@/utils/format'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ModelProps } from '@/components/GlobalModel'
 import FolderSelect from './FolderSelect'
 import Navigation from '@/components/Navigation'
+import { FileListType } from './UploaderList'
+import { flushSync } from 'react-dom'
+import NoData from '@/components/Nodata'
 interface DataList {
   fileId?: string
   filePid?: string | number
@@ -41,7 +44,7 @@ interface DataList {
   fileCover?: string
   createTime?: string
   lastUpdateTime?: string
-  folderType?: number
+  folderType?: number | string
   fileCategory?: number
   fileType?: number
   status?: number
@@ -88,13 +91,17 @@ const All: React.FC<any> = (props) => {
   }
   const navigate = useNavigate()
   const location = useLocation()
-  const [pageNo, setPageNo] = useState('1')
-  const [pageSize, setPageSize] = useState('15')
+  const [pageNo, setPageNo] = useState(1)
+  const [pageSize, setPageSize] = useState(15)
   const [catagory, setCatagory] = useState<string>('all')
   const editInputRef = useRef<InputRef>(null)
   const [data, setData] = useState<DataList[]>([])
   const [currentFolder, setCurrentFolder] = useState('0')
   const [currentFile, setCurrentFile] = useState<DataList>()
+  const url = new URLSearchParams(location.search)
+  const navigationRef = useRef<{ openCurrentFolder: (...args: any) => void }>(
+    null
+  )
   const DisplayIcon = (
     status: number,
     iconName: string,
@@ -153,7 +160,10 @@ const All: React.FC<any> = (props) => {
                 ></span>
               </div>
             ) : (
-              <span className="flex-1 flex overflow-hidden items-center gap-2 cursor-pointer whitespace-nowrap ml-[8px]">
+              <span
+                className="flex-1 flex overflow-hidden items-center gap-2 cursor-pointer whitespace-nowrap ml-[8px]"
+                onClick={() => openCurrentFolder(record)}
+              >
                 <span className="cursor-pointer">{text}</span>
                 {record.status === 0 ? (
                   <span className="text-[13px] ml-[10px] text-[#f75000]">
@@ -221,14 +231,19 @@ const All: React.FC<any> = (props) => {
   ]
   const [total, setTotal] = useState(0)
   const [tableLoading, setTbaleLoading] = useState(false)
-  const loadList = async (fileFuzzName: string) => {
+  const loadList = async (fileFuzzName: string, filePid?: string) => {
     try {
       setTbaleLoading(true)
-      const res = await getFileList(catagory, pageNo, pageSize, fileFuzzName)
+      const res = await getFileList(
+        catagory,
+        pageNo,
+        pageSize,
+        fileFuzzName,
+        filePid
+      )
       if (res?.code !== 200) {
         return
       }
-
       setData(
         res?.data?.list.map((item: DataList, index: number) => {
           return {
@@ -246,6 +261,7 @@ const All: React.FC<any> = (props) => {
   const [selectedRow, setSelectedRow] = useState<DataList[]>([])
   const option = useMemo<OptionType>(() => {
     return {
+      data: data,
       bordered: true,
       loading: tableLoading,
       selectType: {
@@ -257,17 +273,22 @@ const All: React.FC<any> = (props) => {
         pageSize: 15,
         pageSizeOptions: [15, 20, 30, 100],
         defaultPageSize: 15,
-        total: data.length,
+        total: total,
         showTotal: (total: number) => {
           return `共${total}条`
+        },
+        onChange(current: number, size: number) {
+          flushSync(() => {
+            setPageNo(current)
+            setPageSize(size)
+          })
         },
         // hideOnSinglePage: false,
       } as PaginationProps,
       tableHeght: 400,
       colums,
-      loadListFunc: loadList,
     }
-  }, [pageNo, pageSize, total, tableLoading])
+  }, [pageNo, pageSize, total, data, tableLoading])
 
   useEffect(() => {
     editInputRef.current?.focus({
@@ -280,10 +301,19 @@ const All: React.FC<any> = (props) => {
     setAccept(
       (acceptType as Record<string, string>)[location.pathname.split('/')[2]]
     )
-  }, [location])
+    if (location.pathname !== '/main/all') {
+      return
+    }
+    if (url.get('path') || location.pathname === '/main/all') {
+      let pathArray = url.get('path')?.split('/')
+      loadList('', pathArray ? pathArray![pathArray!.length - 1] : '0')
+    }
+  }, [location, pageNo, pageSize])
   useEffect(() => {
-    loadList('')
-  }, [catagory])
+    if (!url.get('path')) {
+      loadList('')
+    }
+  }, [catagory, pageNo, pageSize])
   // 搜索
   const onSearch: SearchProps['onSearch'] = (value) => {
     loadList(value)
@@ -416,6 +446,7 @@ const All: React.FC<any> = (props) => {
       onCancel: () => {},
     })
   }
+  // 移动文件
   const moveFile = async (file?: DataList) => {
     setCurrentFile(file)
     setModelConfig({
@@ -423,6 +454,7 @@ const All: React.FC<any> = (props) => {
       show: true,
     })
   }
+  // 子组件弹窗移动文件
   const moveFolderDone = async (currentChildFolder: any) => {
     console.log(currentChildFolder?.fileId, currentFolder)
     if (!currentChildFolder?.fileId) {
@@ -472,6 +504,13 @@ const All: React.FC<any> = (props) => {
       console.log(error)
 
       // message.error(error.info)
+    }
+  }
+  // 点击文件夹进行下钻,点击文件就进行预览
+  const openCurrentFolder = (folder: DataList) => {
+    if (!folder.fileType) {
+      loadList('', folder.fileId)
+      navigationRef.current?.openCurrentFolder(folder)
     }
   }
   return (
@@ -529,10 +568,34 @@ const All: React.FC<any> = (props) => {
           onClick={() => loadList('')}
         ></div>
       </div>
-      <Navigation isWatchPath={true}></Navigation>
-      <div className={`${style.wrapper} mt-[10px]`}>
-        <GlobalTable option={option} data={data}></GlobalTable>
-      </div>
+      <Navigation
+        isWatchPath={true}
+        ref={navigationRef}
+        loadList={loadList}
+      ></Navigation>
+      {data.length > 0 ? (
+        <div className={`${style.wrapper}`}>
+          <GlobalTable option={option} data={data}></GlobalTable>
+        </div>
+      ) : (
+        <div className="flex items-center justify-center">
+          <NoData
+            msg="当前目录为空，上传你的第一个文件吧"
+            isOrigin={true}
+          ></NoData>
+          <div className="mt-[20px] flex justify-center items-center">
+            <div className="cursor-pointer w-[100px] h-[100px] m-[0_10px] p-[5px_0px] bg-[rgba(241,241,241,0.5)]">
+              <span>
+                <img
+                  src={require('@/assets/easypan静态资源/icon-image/')}
+                  alt=""
+                />
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
       <FolderSelect
         modelConfig={modelConfig}
         files={selectedRow.length > 0 ? selectedRow : currentFile}

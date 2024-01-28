@@ -21,3 +21,11 @@ export const formatFileSize = (limit: number) => {
   }
   return size
 }
+export const formatName = (title: string) => {
+  if (title.length <= 7) {
+    return title // 如果字符串长度不超过7，则不需要截断
+  } else {
+    // 截取前4位和后3位，并用...代替中间的部分
+    return title.substring(0, 4) + '...' + title.substring(title.length - 3)
+  }
+}

@@ -1,6 +1,6 @@
 import Icon from '@/components/Icon'
 import NoData from '@/components/Nodata'
-import { formatFileSize } from '@/utils/formatFileSize'
+import { formatFileSize } from '@/utils/format'
 import { Progress } from 'antd'
 import sparkMd5 from 'spark-md5'
 import React, { forwardRef, useState } from 'react'
@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom'
 interface file extends File {
   uid: string
 }
-type FileListType = {
+export type FileListType = {
   file: file
   uid: string
   md5: string | null
@@ -24,7 +24,7 @@ type FileListType = {
   errorMsg: string
   uploadSize: number
   key?: number | string
-  fileId?: string
+  fileId: string
 }
 const UploaderList = forwardRef(
   (
@@ -100,6 +100,7 @@ const UploaderList = forwardRef(
         filePid,
         // 错误信息
         errorMsg: '',
+        fileId: '',
       }
       if (fileItem.totalSize === 0) {
         fileItem.status = STATUS.emptyfile.value

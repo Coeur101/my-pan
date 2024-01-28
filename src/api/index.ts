@@ -1,6 +1,4 @@
-import { AxiosResponse } from 'axios'
 import request from '../utils/request'
-import { NavigateFunction } from 'react-router-dom'
 /**
  * 发送邮箱验证码
  * @param type 0 注册 1 重置密码
@@ -191,8 +189,8 @@ export const passwordUpload = (password: string) => {
  */
 export const getFileList = (
   category: string = 'all',
-  pageNo: string = '1',
-  pageSize: string = '15',
+  pageNo: number = 1,
+  pageSize: number = 15,
   fileNameFuzzy?: string,
   filePid: string = '0'
 ) => {
@@ -331,6 +329,54 @@ export const changeFileFolder = (fileIds: string[], filePid: string) => {
       params: {
         fileIds,
         filePid,
+      },
+    })
+  } catch (error) {}
+}
+/**
+ * 获取当前目录信息
+ * @param path 完整路径
+ * @returns
+ */
+export const getFolderInfo = (path: string) => {
+  try {
+    return request({
+      url: '/file/getFolderInfo',
+      params: {
+        path,
+      },
+      showLoading: false,
+    })
+  } catch (error) {}
+}
+/**
+ * 获取分享出去的文件目录信息
+ * @param shareId 分享的id
+ * @param path 完整路径
+ * @returns
+ */
+export const getShareFolderInfo = (shareId: string, path: string) => {
+  try {
+    return request({
+      url: '/showShare/getFolderInfo',
+      params: {
+        shareId,
+        path,
+      },
+    })
+  } catch (error) {}
+}
+/**
+ * 管理员获取文件目录信息
+ * @param path 完整路径
+ * @returns
+ */
+export const getAdminFolderInfo = (path: string) => {
+  try {
+    return request({
+      url: '/admin/getFolderInfo',
+      params: {
+        path,
       },
     })
   } catch (error) {}

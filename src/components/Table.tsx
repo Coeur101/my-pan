@@ -14,22 +14,18 @@ export type OptionType = {
   tableHeght?: number
   pagination: false | PaginationProps
   colums: TableColumnType<any>[]
-  loadListFunc: (...args: any) => void
+  data: any
 }
 interface TableProps {
   option: OptionType
   handleRowOption?: any
   data: any
 }
-const GlobalTable: React.FC<TableProps> = ({
-  option,
-  handleRowOption,
-  data,
-}) => {
+const GlobalTable: React.FC<TableProps> = ({ option, handleRowOption }) => {
   const location = useLocation()
-  useEffect(() => {
-    option.loadListFunc('', location.pathname.split('/')[2] as string)
-  }, [(option.pagination as any).pageSize, (option.pagination as any).current])
+  // useEffect(() => {
+  //   console.log(data)
+  // }, [data])
   return (
     <Table
       scroll={{ y: option.tableHeght || 260, scrollToFirstRowOnChange: true }}
@@ -38,7 +34,7 @@ const GlobalTable: React.FC<TableProps> = ({
       pagination={option.pagination}
       rowSelection={option.selectType}
       columns={option.colums}
-      dataSource={data}
+      dataSource={option.data}
     />
   )
 }
