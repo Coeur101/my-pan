@@ -75,6 +75,9 @@ const All: React.FC<any> = (props) => {
     cancelBtn: true,
   })
   const [accept, setAccept] = useState('')
+  const uploadFile = (info: any) => {
+    parentProps.upLoadFile!(info.file as Blob, currentFolder)
+  }
   const parentProps = useContext<{
     upLoadFile?: (...args: any) => void
   }>(RouterContent)
@@ -82,9 +85,7 @@ const All: React.FC<any> = (props) => {
     hasControlInside: true,
     capture: 'environment',
     multiple: true,
-    customRequest: (info) => {
-      parentProps.upLoadFile!(info.file as Blob, currentFolder)
-    },
+    customRequest: uploadFile,
     showUploadList: false,
     withCredentials: true,
     accept: accept,
@@ -231,6 +232,7 @@ const All: React.FC<any> = (props) => {
   ]
   const [total, setTotal] = useState(0)
   const [tableLoading, setTbaleLoading] = useState(false)
+
   const loadList = async (fileFuzzName: string, filePid?: string) => {
     try {
       setTbaleLoading(true)
@@ -578,20 +580,37 @@ const All: React.FC<any> = (props) => {
           <GlobalTable option={option} data={data}></GlobalTable>
         </div>
       ) : (
-        <div className="flex items-center justify-center">
+        <div>
           <NoData
             msg="当前目录为空，上传你的第一个文件吧"
             isOrigin={true}
           ></NoData>
           <div className="mt-[20px] flex justify-center items-center">
-            <div className="cursor-pointer w-[100px] h-[100px] m-[0_10px] p-[5px_0px] bg-[rgba(241,241,241,0.5)]">
-              <span>
-                <img
-                  src={require('@/assets/easypan静态资源/icon-image/')}
-                  alt=""
-                />
-              </span>
-            </div>
+            <Upload {...upProps}>
+              <div className="cursor-pointer text-center w-[100px] h-[100px] m-[0_10px] p-[5px_0px] bg-[rgba(241,241,241,0.5)]">
+                <span className="w-[60px] h-[60px] inline-block rounded overflow-hidden">
+                  <img
+                    src={require('@/assets/easypan静态资源/icon-image/file.png')}
+                    alt=""
+                  />
+                </span>
+                <div>上传文件</div>
+              </div>
+            </Upload>
+            {catagory === 'all' ? (
+              <div
+                className="cursor-pointer text-center w-[100px] h-[100px] m-[0_10px] p-[5px_0px] bg-[rgba(241,241,241,0.5)]"
+                onClick={() => handleNewFolder()}
+              >
+                <span className="w-[60px] h-[60px] inline-block rounded overflow-hidden">
+                  <img
+                    src={require('@/assets/easypan静态资源/icon-image/folder.png')}
+                    alt=""
+                  />
+                </span>
+                <div>新建目录</div>
+              </div>
+            ) : null}
           </div>
         </div>
       )}
