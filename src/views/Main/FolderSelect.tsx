@@ -4,7 +4,7 @@ import Icon from '@/components/Icon'
 import Navigation from '@/components/Navigation'
 import { message } from 'antd'
 import React, { useEffect, useState } from 'react'
-interface Folder {
+export interface Folder {
   fileId: string
   filePid: string
   fileSize?: any
@@ -25,7 +25,14 @@ const FolderSelect: React.FC<{
 }> = (props) => {
   const { modelConfig, files, moveFolderDone } = props
   const [folderList, setFolder] = useState<Folder[] | never[]>([])
-  const [currentFolder, setCurrentFolder] = useState<Folder | null>(null)
+  const [currentFolder, setCurrentFolder] = useState<
+    | Folder
+    | null
+    | {
+        fileName: string
+        fileId: string
+      }
+  >(null)
   const [childData, setChildData] = useState([])
   const buttons: any = [
     {
@@ -42,11 +49,12 @@ const FolderSelect: React.FC<{
     }
     setCurrentFolder(null)
   }, [modelConfig])
+
   const loadAllFolder = async () => {
     try {
       const res = await getAllFolder(
-        currentFolder?.fileId || '0',
-        files.length > 0
+        (currentFolder && currentFolder?.fileId) || '0',
+        files && files.length > 0
           ? (files.map((item: any) => item.fileId) as string[])
           : files.fileId
       )
@@ -79,8 +87,20 @@ const FolderSelect: React.FC<{
     }
   }
   useEffect(() => {
-    loadAllFolder()
+    if (currentFolder) {
+      loadAllFolder()
+    }
   }, [currentFolder])
+  const navChange = async (data: any) => {
+    if (data === 'all') {
+      setCurrentFolder({
+        fileName: '',
+        fileId: '0',
+      })
+    } else {
+      setCurrentFolder(data)
+    }
+  }
   const selectFolder = (item: Folder) => {
     setCurrentFolder(item)
   }
@@ -88,7 +108,11 @@ const FolderSelect: React.FC<{
     <GlobalModel {...modelConfig} buttons={buttons}>
       <div className="pl-[10px] fixed w-[530px] bg-[#f1f1f1]">
         <div className="text-[13px] flex items-center leading-10">
-          <Navigation isWatchPath={false} loadList={loadAllFolder}></Navigation>
+          <Navigation
+            isWatchPath={false}
+            pCurrentFolder={currentFolder as Folder}
+            navChange={navChange}
+          ></Navigation>
         </div>
       </div>
       <div className="max-h-[calc(100vh-300px)] min-h-[200px]  mt-[40px]">

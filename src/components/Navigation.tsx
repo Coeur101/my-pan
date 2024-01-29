@@ -1,5 +1,6 @@
 import { getAdminFolderInfo, getFolderInfo, getShareFolderInfo } from '@/api'
 import { formatName } from '@/utils/format'
+import { Folder } from '@/views/Main/FolderSelect'
 import { FileListType } from '@/views/Main/UploaderList'
 import { RightOutlined } from '@ant-design/icons'
 import { Divider } from 'antd'
@@ -10,20 +11,33 @@ interface navigationProps {
   isWatchPath: boolean
   shareId?: string
   adminShow?: boolean
-  loadList: (...args: any) => void
+  loadList?: (...args: any) => void
+  navChange?: (...args: any) => void
+  pCurrentFolder?: Folder | null
 }
-type navigationFolder = {
+interface navigationFolder {
   fileId: string
   fileName: string
 }
 type categroy = 'all' | 'video' | 'image' | 'music' | 'others' | 'doc'
+// 判断是否存在
+const findCommonFile = (folderList: any[], currentFolder: any) => {
+  return folderList.find((item) => item.fileId === currentFolder.fileId)
+}
 const Navigation = forwardRef(
   (
     props: navigationProps,
     ref: React.ForwardedRef<{ openCurrentFolder: (...args: any) => void }>
   ) => {
-    const { isWatchPath, shareId, adminShow, loadList } = props
-    const [folderList, setFolderList] = useState<navigationFolder[]>([])
+    const {
+      isWatchPath,
+      shareId,
+      adminShow,
+      loadList,
+      pCurrentFolder,
+      navChange,
+    } = props
+    let [folderList, setFolderList] = useState<navigationFolder[]>([])
     const [currentFolder, setCurrentFolder] = useState<{
       fileId: string
     }>({ fileId: '' })
@@ -33,35 +47,64 @@ const Navigation = forwardRef(
     const location = useLocation()
     const url = new URLSearchParams(location.search)
     useEffect(() => {
-      if (!isWatchPath) return
+      if (pCurrentFolder && pCurrentFolder.fileId !== '0') {
+        if (findCommonFile(folderList, pCurrentFolder)) {
+        } else {
+          console.log(pCurrentFolder)
 
-      setCategroy(location.pathname.split('/')[2] as categroy)
+          folderList.push({
+            fileId: pCurrentFolder?.fileId as string,
+            fileName: pCurrentFolder?.fileName as string,
+          })
+        }
+      }
+    }, [pCurrentFolder])
+    useEffect(() => {
+      if (isWatchPath) {
+        setCategroy(location.pathname.split('/')[2] as categroy)
 
-      if (!url.get('path')) {
-        setFolderList([])
-      } else {
-        getNavigationFolder(url.get('path'))
+        if (!url.get('path')) {
+          setFolderList([])
+        } else {
+          getNavigationFolder(url.get('path'))
+        }
       }
     }, [location])
     const openCurrentFolder = (folder: navigationFolder) => {
-      if (folderList.find((item) => item.fileId === folder.fileId)) {
-        navigate(`${location.pathname}?path=${folder.fileId}`)
-        loadList('', folder.fileId)
-        return
-      }
+      if (isWatchPath) {
+        if (folderList.find((item) => item.fileId === folder.fileId)) {
+          navigate(`${location.pathname}?path=${folder.fileId}`)
+          loadList!('', folder.fileId)
+          return
+        }
 
-      if (!folder.fileId) {
-        navigate('/main/all')
-        loadList()
-        return
-      }
+        if (!folder.fileId) {
+          navigate('/main/all')
+          loadList!()
+          return
+        }
 
-      const { fileId, fileName } = folder
-      folderList?.push({ fileId, fileName })
-      setFolderList(folderList)
-      setPath()
+        const { fileId, fileName } = folder
+        folderList?.push({ fileId, fileName })
+        setFolderList(folderList)
+        setPath()
+      } else {
+        if (!folder.fileId) {
+          setFolderList([])
+          navChange!('all')
+          console.log(folderList)
+
+          return
+        }
+
+        navChange!(folder)
+        folderList = folderList.splice(
+          folderList.findIndex((item) => item.fileId === folder.fileId),
+          1
+        )
+        setFolderList(folderList)
+      }
     }
-
     const setPath = () => {
       // 不监听路由则不跳转
       if (!isWatchPath) {
@@ -96,8 +139,20 @@ const Navigation = forwardRef(
       }
     }
     const handleRouteBack = () => {
-      navigate(-1)
+      if (isWatchPath) {
+        navigate(-1)
+      } else {
+        if (folderList.length - 2 <= 0) {
+          setFolderList([])
+          navChange!('all')
+          return
+        }
+        navChange!(folderList[folderList.length - 2])
+        folderList = folderList.splice(folderList.length - 1, 1)
+        setFolderList(folderList)
+      }
     }
+
     React.useImperativeHandle(ref, () => {
       return {
         openCurrentFolder,
@@ -140,7 +195,7 @@ const Navigation = forwardRef(
                   {formatName(item.fileName)}
                 </span>
               ) : (
-                <span>{formatName(item.fileName)}</span>
+                <span> {formatName(item.fileName)}</span>
               )}
             </div>
           )
