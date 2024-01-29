@@ -13,7 +13,7 @@ interface navigationProps {
   adminShow?: boolean
   loadList?: (...args: any) => void
   navChange?: (...args: any) => void
-  pCurrentFolder?: Folder | null
+  pCurrentFolder?: Folder | null | string
 }
 interface navigationFolder {
   fileId: string
@@ -47,14 +47,17 @@ const Navigation = forwardRef(
     const location = useLocation()
     const url = new URLSearchParams(location.search)
     useEffect(() => {
-      if (pCurrentFolder && pCurrentFolder.fileId !== '0') {
+      if (pCurrentFolder && (pCurrentFolder as Folder).fileId !== '0') {
         if (findCommonFile(folderList, pCurrentFolder)) {
         } else {
           console.log(pCurrentFolder)
 
           folderList.push({
-            fileId: pCurrentFolder?.fileId as string,
-            fileName: pCurrentFolder?.fileName as string,
+            fileId:
+              pCurrentFolder !== '0'
+                ? ((pCurrentFolder as Folder)?.fileId as string)
+                : '',
+            fileName: (pCurrentFolder as Folder)?.fileName as string,
           })
         }
       }
@@ -195,7 +198,7 @@ const Navigation = forwardRef(
                   {formatName(item.fileName)}
                 </span>
               ) : (
-                <span> {formatName(item.fileName)}</span>
+                <span>{formatName(item.fileName)}</span>
               )}
             </div>
           )

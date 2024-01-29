@@ -98,6 +98,7 @@ const All: React.FC<any> = (props) => {
   const [data, setData] = useState<DataList[]>([])
   const [currentFile, setCurrentFile] = useState<DataList>()
   const url = new URLSearchParams(location.search)
+  const [selectedRowKeysA, setSelectedRowKeysA] = useState<React.Key[]>([])
   const [currentFolder, setCurrentFolder] = useState(
     url.get('path')?.split('/')[url.get('path')!.split('/')!.length - 1] || '0'
   )
@@ -252,10 +253,12 @@ const All: React.FC<any> = (props) => {
           return {
             ...item,
             key: index,
+            selected: false,
           }
         })
       )
       setTotal(res.data.totalCount)
+      setSelectedRowKeysA([])
     } catch (error) {
     } finally {
       setTbaleLoading(false)
@@ -268,8 +271,10 @@ const All: React.FC<any> = (props) => {
       bordered: true,
       loading: tableLoading,
       selectType: {
+        selectedRowKeys: selectedRowKeysA,
         onChange(selectedRowKeysA: React.Key[], slectedRows: DataList[]) {
           setSelectedRow(slectedRows)
+          setSelectedRowKeysA(selectedRowKeysA)
         },
       },
       pagination: {
@@ -291,7 +296,7 @@ const All: React.FC<any> = (props) => {
       tableHeght: 400,
       colums,
     }
-  }, [pageNo, pageSize, total, data, tableLoading])
+  }, [pageNo, pageSize, total, data, tableLoading, selectedRowKeysA])
 
   useEffect(() => {
     editInputRef.current?.focus({
@@ -305,6 +310,7 @@ const All: React.FC<any> = (props) => {
       (acceptType as Record<string, string>)[location.pathname.split('/')[2]]
     )
     if (location.pathname !== '/main/all') {
+      setCurrentFolder('0')
       return
     }
     if (url.get('path') || location.pathname === '/main/all') {
@@ -372,7 +378,7 @@ const All: React.FC<any> = (props) => {
         editInputRef.current?.input?.value.indexOf('/') !== -1 ||
         editInputRef.current?.input?.value === ''
       ) {
-        message.warning('不能有/且不能为空')
+        message.warning('不能有‘/’且不能为空')
         return
       }
       let res: any = ''
@@ -461,7 +467,7 @@ const All: React.FC<any> = (props) => {
   // 子组件弹窗移动文件
   const moveFolderDone = async (currentChildFolder: any) => {
     console.log(currentChildFolder?.fileId, currentFolder)
-    if (!currentChildFolder?.fileId) {
+    /* if (!currentChildFolder?.fileId) {
       const errorFile =
         selectedRow.length > 0
           ? selectedRow.filter((item: any) => item.filePid === currentFolder)
@@ -482,7 +488,7 @@ const All: React.FC<any> = (props) => {
         message.warning(`已在当前文件夹下，无法移动`)
         return
       }
-    }
+    } */
     let fileIdsList: any[] = []
     if (selectedRow.length > 0) {
       fileIdsList = selectedRow
@@ -494,7 +500,6 @@ const All: React.FC<any> = (props) => {
 
     // }
     console.log(currentChildFolder, currentFolder)
-
     if (currentChildFolder?.fileId === currentFolder) {
       message.warning('所选文件或文件夹已在当前文件夹下，无法移动')
       return
@@ -513,7 +518,6 @@ const All: React.FC<any> = (props) => {
         ...modelConfig,
         show: false,
       })
-
       if (url.get('path') || location.pathname === '/main/all') {
         let pathArray = url.get('path')?.split('/')
         loadList('', pathArray ? pathArray![pathArray!.length - 1] : '0')

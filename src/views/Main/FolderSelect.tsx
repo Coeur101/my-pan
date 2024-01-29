@@ -27,18 +27,22 @@ const FolderSelect: React.FC<{
   const [folderList, setFolder] = useState<Folder[] | never[]>([])
   const [currentFolder, setCurrentFolder] = useState<
     | Folder
-    | null
     | {
         fileName: string
         fileId: string
       }
-  >(null)
+  >({
+    fileName: '',
+    fileId: '0',
+  })
   const [childData, setChildData] = useState([])
   const buttons: any = [
     {
       text: '移动到此',
       type: 'primary',
       click: () => {
+        console.log(currentFolder)
+
         moveFolderDone(currentFolder)
       },
     },
@@ -47,13 +51,16 @@ const FolderSelect: React.FC<{
     if (modelConfig.show) {
       loadAllFolder()
     }
-    setCurrentFolder(null)
+    setCurrentFolder({
+      fileId: '0',
+      fileName: '',
+    })
   }, [modelConfig])
 
   const loadAllFolder = async () => {
     try {
       const res = await getAllFolder(
-        (currentFolder && currentFolder?.fileId) || '0',
+        (currentFolder && (currentFolder as Folder)?.fileId) || '0',
         files && files.length > 0
           ? (files.map((item: any) => item.fileId) as string[])
           : files.fileId
@@ -87,7 +94,7 @@ const FolderSelect: React.FC<{
     }
   }
   useEffect(() => {
-    if (currentFolder) {
+    if (currentFolder.fileId !== '0') {
       loadAllFolder()
     }
   }, [currentFolder])
@@ -131,7 +138,7 @@ const FolderSelect: React.FC<{
           })
         ) : (
           <div className="text-center leading-[200px]">
-            移动到 {currentFolder?.fileName} 文件夹下
+            移动到 {(currentFolder as Folder)?.fileName} 文件夹下
           </div>
         )}
       </div>
