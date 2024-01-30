@@ -1,4 +1,11 @@
-import { Button, Dropdown, FormInstance, Popover, message } from 'antd'
+import {
+  Button,
+  Dropdown,
+  FormInstance,
+  Popover,
+  Progress,
+  message,
+} from 'antd'
 import {
   Navigate,
   NavigateFunction,
@@ -16,8 +23,9 @@ import UpdateAvatar from '../UpdateAvatar'
 import { ModelProps } from '@/components/GlobalModel'
 import UpdatePassword from '../UpdatePassword'
 import { useSelector } from 'react-redux'
-import { passwordUpload } from '@/api'
+import { getUserSpaceInfo, passwordUpload } from '@/api'
 import UploaderList from '../Main/UploaderList'
+import { formatFileSize } from '@/utils/format'
 
 type MenuItems = {
   icon?: string
@@ -198,6 +206,10 @@ const FreameWork = () => {
     },
     cancelBtn: false,
   })
+  const [userSpaceInfo, setUserSpaceInfo] = useState({
+    useSpace: 0,
+    totalSpace: 0,
+  })
   const popoverShow = () => {
     setPopoverVisible(!popoverVisible)
   }
@@ -256,8 +268,21 @@ const FreameWork = () => {
       ;(navigate as NavigateFunction)(
         '/login?redirectUrl=' + encodeURI(location!.pathname)
       )
+    } else {
+      getUserSpace()
     }
   }, [loginState])
+  // 获取用户空间
+  const getUserSpace = async () => {
+    try {
+      const res = await getUserSpaceInfo()
+      //@ts-ignore
+      if (res?.code !== 200) {
+        return
+      }
+      setUserSpaceInfo(res.data)
+    } catch (error) {}
+  }
   const routerActive = (path: string, children?: MenuItems[]) => {
     if (children) {
       setSublist(children as MenuItems[])
@@ -409,10 +434,27 @@ const FreameWork = () => {
             })}
             <div className="absolute bottom-[10px] w-[90%] p-[0_5px]">
               <div className="">空间使用</div>
-              <div className="pr-3"></div>
+              <div className="pr-3">
+                <Progress
+                  percent={
+                    Number(
+                      (
+                        userSpaceInfo.useSpace / userSpaceInfo.totalSpace
+                      ).toFixed(1)
+                    ) * 100
+                  }
+                  strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
+                />
+              </div>
               <div className="mt-[5px] text-[#7e7e7e] flex justify-around">
-                <div className="flex-1">0B / 5MB</div>
-                <div className="iconfont icon-refresh text-[#05a1f5] cursor-pointer"></div>
+                <div className="flex-1">
+                  {formatFileSize(userSpaceInfo.useSpace)} /{' '}
+                  {formatFileSize(userSpaceInfo.totalSpace)}
+                </div>
+                <div
+                  onClick={() => getUserSpace()}
+                  className="iconfont icon-refresh text-[#05a1f5] cursor-pointer"
+                ></div>
               </div>
             </div>
           </div>

@@ -1,4 +1,5 @@
-import request from '../utils/request'
+import request, { CreateAxiosInstance } from '../utils/request'
+
 /**
  * 发送邮箱验证码
  * @param type 0 注册 1 重置密码
@@ -378,6 +379,18 @@ export const getAdminFolderInfo = (path: string) => {
       params: {
         path,
       },
+    })
+  } catch (error) {}
+}
+/**
+ * 获取用户使用空间
+ * @returns
+ */
+export const getUserSpaceInfo = () => {
+  try {
+    return CreateAxiosInstance().get('/getUseSpace', {
+      // @ts-ignore
+      showLoading: false,
     })
   } catch (error) {}
 }

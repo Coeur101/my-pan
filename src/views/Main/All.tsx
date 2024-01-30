@@ -325,7 +325,7 @@ const All: React.FC<any> = (props) => {
   }, [catagory, pageNo, pageSize])
   // 搜索
   const onSearch: SearchProps['onSearch'] = (value) => {
-    loadList(value)
+    loadList(value, currentFolder)
   }
   // 编辑
   const handleEdit = (row: DataList) => {
@@ -534,6 +534,11 @@ const All: React.FC<any> = (props) => {
       setCurrentFolder(folder.fileId as string)
       loadList('', folder.fileId)
       navigationRef.current?.openCurrentFolder(folder)
+      return
+    }
+    if (folder.status !== 2) {
+      message.warning('文件转码中无法预览,请尝试刷新')
+      return
     }
   }
   return (
@@ -588,7 +593,7 @@ const All: React.FC<any> = (props) => {
         </div>
         <div
           className="iconfont icon-refresh text-[#636d7e] cursor-pointer ml-[10px]"
-          onClick={() => loadList('')}
+          onClick={() => loadList('', currentFolder)}
         ></div>
       </div>
       <Navigation

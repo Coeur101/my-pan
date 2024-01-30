@@ -270,7 +270,6 @@ const UploaderList = forwardRef(
                 return item.uid === sourceFile?.uid ? sourceFile : item
               })
             })
-            console.log(sourceFile)
             // 通过路由更新，来进行刷新文件列表
             if (url.get('path')) {
               navigate(location.pathname + '?path=' + url.get('path'))

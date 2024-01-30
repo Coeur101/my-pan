@@ -12,7 +12,7 @@ import { Cookies, useCookies } from 'react-cookie'
 const contentTypeForm = 'application/x-www-form-urlencoded;charset=UTF-8'
 const contentTypeJson = 'application/json'
 const responseTypeJson = 'json'
-const CreateAxiosInstance = (): // navigate?: NavigateFunction,
+export const CreateAxiosInstance = (): // navigate?: NavigateFunction,
 // location?: Location
 AxiosInstance => {
   const http = axios.create({
