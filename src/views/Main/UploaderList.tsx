@@ -226,7 +226,7 @@ const UploaderList = forwardRef(
         // 开始上传
         try {
           const res = await uploadChunkFile(
-            '',
+            sourceFile?.fileId || '',
             chunkFile as File,
             sourceFile?.filePid as string,
             sourceFile?.fileName as string,

@@ -438,13 +438,12 @@ const FreameWork = () => {
               <div className="">空间使用</div>
               <div className="pr-3">
                 <Progress
-                  percent={
-                    Number(
-                      (
-                        userSpaceInfo.useSpace / userSpaceInfo.totalSpace
-                      ).toFixed(2)
-                    ) * 100
-                  }
+                  percent={Number(
+                    (
+                      (userSpaceInfo.useSpace / userSpaceInfo.totalSpace) *
+                      100
+                    ).toFixed(2)
+                  )}
                   strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
                 />
               </div>
