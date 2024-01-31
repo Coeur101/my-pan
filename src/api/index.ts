@@ -394,3 +394,137 @@ export const getUserSpaceInfo = () => {
     })
   } catch (error) {}
 }
+/**
+ * 获取文件信息
+ * @returns
+ */
+export const getFile = (fileId: string) => {
+  return `/api/file/getFile/${fileId}`
+}
+/**
+ * 获取视频信息
+ * @returns
+ */
+export const getVideoInfo = () => {
+  try {
+    return CreateAxiosInstance().get('/file/ts/getVideoInfo', {
+      //@ts-ignore
+      showLoading: false,
+    })
+  } catch (error) {}
+}
+/**
+ * 创建下载链接
+ * @returns
+ */
+export const createDownLoadUrl = () => {
+  try {
+    return CreateAxiosInstance().get('/file/createDownLoadUrl', {
+      //@ts-ignore
+      showLoading: true,
+    })
+  } catch (error) {}
+}
+/**
+ * 下载文件
+ * @returns
+ */
+export const downLoadFile = () => {
+  try {
+    return CreateAxiosInstance().get('/file/download', {
+      //@ts-ignore
+      showLoading: true,
+    })
+  } catch (error) {}
+}
+/**
+ * 管理员获取文件信息
+ * @returns
+ */
+export const adminGetFile = (fileId: string) => {
+  return `/admin/getFile${fileId}`
+}
+/**
+ * 管理员获取视频信息
+ * @returns
+ */
+export const adminGetVideoInfo = () => {
+  try {
+    return CreateAxiosInstance().get('/admin/ts/getVideoInfo', {
+      //@ts-ignore
+      showLoading: false,
+    })
+  } catch (error) {}
+}
+/**
+ * 管理员创建下载链接
+ * @returns
+ */
+export const adminCreateDownLoadUrl = () => {
+  try {
+    return CreateAxiosInstance().get('/admin/createDownLoadUrl', {
+      //@ts-ignore
+      showLoading: true,
+    })
+  } catch (error) {}
+}
+/**
+ * 管理员下载文件
+ * @returns
+ */
+export const adminDownLoadFile = () => {
+  try {
+    return CreateAxiosInstance().get('/admin/download', {
+      //@ts-ignore
+      showLoading: true,
+    })
+  } catch (error) {}
+}
+/**
+ * 外部分享获取文件信息
+ * @returns
+ */
+export const shareGetFile = () => {
+  try {
+    return CreateAxiosInstance().get('/showShare/getFile', {
+      //@ts-ignore
+      showLoading: false,
+    })
+  } catch (error) {}
+}
+/**
+ * 外部分享获取视频信息
+ * @returns
+ */
+export const shareGetVideoInfo = () => {
+  try {
+    return CreateAxiosInstance().get('/showShare/ts/getVideoInfo', {
+      //@ts-ignore
+      showLoading: false,
+    })
+  } catch (error) {}
+}
+/**
+ * 外部分享创建下载链接
+ * @returns
+ */
+export const shareCreateDownLoadUrl = () => {
+  try {
+    return CreateAxiosInstance().get('/showShare/createDownLoadUrl', {
+      //@ts-ignore
+      showLoading: true,
+    })
+  } catch (error) {}
+}
+/**
+ * 外部分享下载文件
+ * @returns
+ */
+export const shareDownLoadFile = () => {
+  try {
+    return CreateAxiosInstance().get('/showShare/download', {
+      //@ts-ignore
+      showLoading: true,
+    })
+  } catch (error) {}
+}

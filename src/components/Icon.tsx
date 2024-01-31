@@ -22,7 +22,7 @@ const Icon: React.FC<IconProps> = (props) => {
   }
   const getImage = () => {
     if (cover) {
-      return `/api/file/getImage${cover}`
+      return `/api/file/getImage/${cover}`
     }
     let icon = 'del'
     if (iconName) {

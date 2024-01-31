@@ -33,10 +33,11 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { ModelProps } from '@/components/GlobalModel'
 import FolderSelect from './FolderSelect'
 import Navigation from '@/components/Navigation'
-import { FileListType } from './UploaderList'
 import { flushSync } from 'react-dom'
 import NoData from '@/components/Nodata'
-interface DataList {
+import { useSelector } from 'react-redux'
+import Preview, { previewType } from '@/components/Preview/Preview'
+export interface DataList {
   fileId?: string
   filePid?: string | number
   fileSize?: number | string
@@ -83,6 +84,7 @@ const All: React.FC<any> = (props) => {
     capture: 'environment',
     multiple: true,
     customRequest: (info) => {
+      // console.log(currentFolder)
       parentProps.upLoadFile!(info.file as Blob, currentFolder)
     },
     showUploadList: false,
@@ -105,6 +107,12 @@ const All: React.FC<any> = (props) => {
   const navigationRef = useRef<{ openCurrentFolder: (...args: any) => void }>(
     null
   )
+  const previewRef = useRef<{
+    showPreview: (file: DataList, type: previewType) => void
+  }>(null)
+  const isUploadFileList = useSelector((state: any) => {
+    return state.globalLoading.isUploadFileList
+  })
   const DisplayIcon = (
     status: number,
     iconName: string,
@@ -309,15 +317,24 @@ const All: React.FC<any> = (props) => {
     setAccept(
       (acceptType as Record<string, string>)[location.pathname.split('/')[2]]
     )
+    setCurrentFolder(
+      url.get('path')?.split('/')[url.get('path')!.split('/')!.length - 1] ||
+        '0'
+    )
   }, [location, pageNo, pageSize])
 
   useEffect(() => {
     if (!url.get('path')) {
       loadList('')
+      return
     }
     let pathArray = url.get('path')?.split('/')
     loadList('', pathArray ? pathArray![pathArray!.length - 1] : '0')
-  }, [catagory, pageNo, pageSize])
+    setCurrentFolder(
+      url.get('path')?.split('/')[url.get('path')!.split('/')!.length - 1] ||
+        '0'
+    )
+  }, [catagory, pageNo, pageSize, isUploadFileList])
   // 搜索
   const onSearch: SearchProps['onSearch'] = (value) => {
     loadList(value, currentFolder)
@@ -535,6 +552,7 @@ const All: React.FC<any> = (props) => {
       message.warning('文件转码中无法预览,请尝试刷新')
       return
     }
+    previewRef.current?.showPreview(folder, '0')
   }
   return (
     <div className={`${style.wrapper} mt-[20px]`}>
@@ -641,6 +659,7 @@ const All: React.FC<any> = (props) => {
         files={selectedRow.length > 0 ? selectedRow : currentFile}
         moveFolderDone={moveFolderDone}
       ></FolderSelect>
+      <Preview ref={previewRef}></Preview>
     </div>
   )
 }

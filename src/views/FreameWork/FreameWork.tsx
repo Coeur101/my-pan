@@ -442,7 +442,7 @@ const FreameWork = () => {
                     Number(
                       (
                         userSpaceInfo.useSpace / userSpaceInfo.totalSpace
-                      ).toFixed(1)
+                      ).toFixed(2)
                     ) * 100
                   }
                   strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
@@ -461,7 +461,7 @@ const FreameWork = () => {
             </div>
           </div>
         </div>
-        <div className="flex-1  ">
+        <div className="flex-1">
           <RouterContent.Provider value={parentProps}>
             <Outlet />
           </RouterContent.Provider>

@@ -1,10 +1,11 @@
 import { getAdminFolderInfo, getFolderInfo, getShareFolderInfo } from '@/api'
+import { setIsUploadFileList } from '@/store/reducer/globalLoading'
 import { formatName } from '@/utils/format'
 import { Folder } from '@/views/Main/FolderSelect'
-import { FileListType } from '@/views/Main/UploaderList'
 import { RightOutlined } from '@ant-design/icons'
 import { Divider } from 'antd'
 import React, { forwardRef, useEffect, useState } from 'react'
+import { useDispatch } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 interface navigationProps {
@@ -46,6 +47,7 @@ const Navigation = forwardRef(
     const navigate = useNavigate()
     const location = useLocation()
     const url = new URLSearchParams(location.search)
+    const dispatch = useDispatch()
     useEffect(() => {
       if (pCurrentFolder && (pCurrentFolder as Folder).fileId !== '0') {
         if (findCommonFile(folderList, pCurrentFolder)) {
@@ -146,7 +148,14 @@ const Navigation = forwardRef(
         let pathArry = url.get('path')?.split('/')
         if (pathArry) {
           pathArry.pop()
-          navigate(`${location.pathname}?path=${pathArry.join('/')}`)
+          if (pathArry.length === 1) {
+            navigate(`${location.pathname}?path=${pathArry[0]}`)
+          } else if (pathArry.length === 0) {
+            navigate(`${location.pathname}`)
+          } else {
+            navigate(`${location.pathname}?path=${pathArry.join('/')}`)
+          }
+          dispatch(setIsUploadFileList(null))
         } else {
           navigate(`${location.pathname}`)
         }
