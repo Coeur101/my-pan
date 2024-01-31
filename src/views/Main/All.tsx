@@ -309,19 +309,14 @@ const All: React.FC<any> = (props) => {
     setAccept(
       (acceptType as Record<string, string>)[location.pathname.split('/')[2]]
     )
-    if (location.pathname !== '/main/all') {
-      setCurrentFolder('0')
-      return
-    }
-    if (url.get('path') || location.pathname === '/main/all') {
-      let pathArray = url.get('path')?.split('/')
-      loadList('', pathArray ? pathArray![pathArray!.length - 1] : '0')
-    }
   }, [location, pageNo, pageSize])
+
   useEffect(() => {
     if (!url.get('path')) {
       loadList('')
     }
+    let pathArray = url.get('path')?.split('/')
+    loadList('', pathArray ? pathArray![pathArray!.length - 1] : '0')
   }, [catagory, pageNo, pageSize])
   // 搜索
   const onSearch: SearchProps['onSearch'] = (value) => {

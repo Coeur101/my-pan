@@ -35,7 +35,6 @@ const FolderSelect: React.FC<{
     fileName: '',
     fileId: '0',
   })
-  const [childData, setChildData] = useState([])
   const buttons: any = [
     {
       text: '移动到此',

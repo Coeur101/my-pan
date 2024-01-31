@@ -82,7 +82,7 @@ const Navigation = forwardRef(
         }
 
         if (!folder.fileId) {
-          navigate('/main/all')
+          navigate(`${location.pathname}`)
           loadList!()
           return
         }
@@ -143,7 +143,13 @@ const Navigation = forwardRef(
     }
     const handleRouteBack = () => {
       if (isWatchPath) {
-        navigate(-1)
+        let pathArry = url.get('path')?.split('/')
+        if (pathArry) {
+          pathArry.pop()
+          navigate(`${location.pathname}?path=${pathArry.join('/')}`)
+        } else {
+          navigate(`${location.pathname}`)
+        }
       } else {
         if (folderList.length - 2 <= 0) {
           setFolderList([])

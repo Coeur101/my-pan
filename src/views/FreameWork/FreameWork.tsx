@@ -168,6 +168,7 @@ const FreameWork = () => {
   let [subList, setSublist] = useState<MenuItems[]>(
     menuItems[0].children as MenuItems[]
   )
+  const url = new URLSearchParams(location.search)
   let passwordModelRef = useRef<FormInstance | null>()
   const [passwordModelConfig, setPasswordModelConfig] = useState<ModelProps>({
     show: false,
@@ -288,7 +289,8 @@ const FreameWork = () => {
       setSublist(children as MenuItems[])
     }
     startTransition(() => {
-      navigate(path)
+      navigate(`${path}${url.get('path') ? '?path=' + url.get('path') : ''}`)
+      // navigate(`${path}`)
     })
   }
   const uploadAvatar = () => {

@@ -276,7 +276,6 @@ const UploaderList = forwardRef(
             } else {
               navigate(location.pathname)
             }
-
             break
           }
           setFileList((prev) => {
