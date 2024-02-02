@@ -35,7 +35,7 @@ const UploaderList = forwardRef(
   ) => {
     // const { loadFileList } = props
     // 5mb 进行分片
-    const chunkSize = 5 * 1024 * 1024
+    let chunkSize = 5 * 1024 * 1024
     const STATUS = {
       emptyfile: {
         value: 'emptyfile',
@@ -190,6 +190,8 @@ const UploaderList = forwardRef(
     // 获取文件
     const getFileByUid = (uid: string) => {
       const file = fileList.find((item) => item.uid === uid)
+      // if(file!.totalSize<chunkSize){
+      // }
       return file
     }
     const startUpload = (fileUid: string) => {}

@@ -460,7 +460,7 @@ const FreameWork = () => {
             </div>
           </div>
         </div>
-        <div className="flex-1">
+        <div className="flex-1 w-0">
           <RouterContent.Provider value={parentProps}>
             <Outlet />
           </RouterContent.Provider>

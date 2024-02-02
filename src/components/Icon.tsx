@@ -40,7 +40,11 @@ const Icon: React.FC<IconProps> = (props) => {
   }
   return (
     <span className="inline-block" style={{ width: width, height: width }}>
-      <img src={getImage()} alt="" style={{ objectFit: fit }} />
+      <img
+        src={getImage()}
+        alt=""
+        style={{ objectFit: fit, width, height: width }}
+      />
     </span>
   )
 }

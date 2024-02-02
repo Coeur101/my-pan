@@ -552,7 +552,7 @@ const All: React.FC<any> = (props) => {
       message.warning('文件转码中无法预览,请尝试刷新')
       return
     }
-    previewRef.current?.showPreview(folder, '0')
+    previewRef.current?.showPreview(folder, 'user')
   }
   return (
     <div className={`${style.wrapper} mt-[20px]`}>

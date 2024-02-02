@@ -405,21 +405,16 @@ export const getFile = (fileId: string) => {
  * 获取视频信息
  * @returns
  */
-export const getVideoInfo = () => {
-  try {
-    return CreateAxiosInstance().get('/file/ts/getVideoInfo', {
-      //@ts-ignore
-      showLoading: false,
-    })
-  } catch (error) {}
+export const getVideoInfo = (fileId: string) => {
+  return `/file/ts/getVideoInfo/${fileId}`
 }
 /**
  * 创建下载链接
  * @returns
  */
-export const createDownLoadUrl = () => {
+export const createDownLoadUrl = (fileId: string) => {
   try {
-    return CreateAxiosInstance().get('/file/createDownLoadUrl', {
+    return CreateAxiosInstance().get(`/file/createDownLoadUrl${fileId}`, {
       //@ts-ignore
       showLoading: true,
     })
@@ -429,9 +424,9 @@ export const createDownLoadUrl = () => {
  * 下载文件
  * @returns
  */
-export const downLoadFile = () => {
+export const downLoadFile = (fileId: string) => {
   try {
-    return CreateAxiosInstance().get('/file/download', {
+    return CreateAxiosInstance().get(`/file/download${fileId}`, {
       //@ts-ignore
       showLoading: true,
     })
@@ -448,21 +443,16 @@ export const adminGetFile = (fileId: string) => {
  * 管理员获取视频信息
  * @returns
  */
-export const adminGetVideoInfo = () => {
-  try {
-    return CreateAxiosInstance().get('/admin/ts/getVideoInfo', {
-      //@ts-ignore
-      showLoading: false,
-    })
-  } catch (error) {}
+export const adminGetVideoInfo = (fileId: string) => {
+  return `/admin/ts/getVideoInfo${fileId}`
 }
 /**
  * 管理员创建下载链接
  * @returns
  */
-export const adminCreateDownLoadUrl = () => {
+export const adminCreateDownLoadUrl = (fileId: string) => {
   try {
-    return CreateAxiosInstance().get('/admin/createDownLoadUrl', {
+    return CreateAxiosInstance().get(`/admin/createDownLoadUrl${fileId}`, {
       //@ts-ignore
       showLoading: true,
     })
@@ -472,9 +462,9 @@ export const adminCreateDownLoadUrl = () => {
  * 管理员下载文件
  * @returns
  */
-export const adminDownLoadFile = () => {
+export const adminDownLoadFile = (fileId: string) => {
   try {
-    return CreateAxiosInstance().get('/admin/download', {
+    return CreateAxiosInstance().get(`/admin/download${fileId}`, {
       //@ts-ignore
       showLoading: true,
     })
@@ -484,33 +474,23 @@ export const adminDownLoadFile = () => {
  * 外部分享获取文件信息
  * @returns
  */
-export const shareGetFile = () => {
-  try {
-    return CreateAxiosInstance().get('/showShare/getFile', {
-      //@ts-ignore
-      showLoading: false,
-    })
-  } catch (error) {}
+export const shareGetFile = (fileId: string) => {
+  return `/showShare/getFile${fileId}`
 }
 /**
  * 外部分享获取视频信息
  * @returns
  */
-export const shareGetVideoInfo = () => {
-  try {
-    return CreateAxiosInstance().get('/showShare/ts/getVideoInfo', {
-      //@ts-ignore
-      showLoading: false,
-    })
-  } catch (error) {}
+export const shareGetVideoInfo = (fileId: string) => {
+  return `/showShare/ts/getVideoInfo${fileId}`
 }
 /**
  * 外部分享创建下载链接
  * @returns
  */
-export const shareCreateDownLoadUrl = () => {
+export const shareCreateDownLoadUrl = (fileId: string) => {
   try {
-    return CreateAxiosInstance().get('/showShare/createDownLoadUrl', {
+    return CreateAxiosInstance().get(`/showShare/createDownLoadUrl${fileId}`, {
       //@ts-ignore
       showLoading: true,
     })
@@ -520,9 +500,9 @@ export const shareCreateDownLoadUrl = () => {
  * 外部分享下载文件
  * @returns
  */
-export const shareDownLoadFile = () => {
+export const shareDownLoadFile = (fileId: string) => {
   try {
-    return CreateAxiosInstance().get('/showShare/download', {
+    return CreateAxiosInstance().get(`/showShare/download${fileId}`, {
       //@ts-ignore
       showLoading: true,
     })
