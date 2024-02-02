@@ -190,8 +190,9 @@ const UploaderList = forwardRef(
     // 获取文件
     const getFileByUid = (uid: string) => {
       const file = fileList.find((item) => item.uid === uid)
-      // if(file!.totalSize<chunkSize){
-      // }
+      if (file!.totalSize < chunkSize) {
+        chunkSize = 1 * 1024 * 1024
+      }
       return file
     }
     const startUpload = (fileUid: string) => {}
