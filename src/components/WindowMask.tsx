@@ -52,7 +52,7 @@ const WindowMask: React.FC<{
           </div>
         ) : null}
         <div
-          className="h-[calc(100vh-41px)]   flex overflow-auto"
+          className="h-[calc(100vh-61px)] pb-10   flex overflow-auto"
           style={{ alignItems: align }}
         >
           {children}

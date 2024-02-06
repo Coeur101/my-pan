@@ -19,6 +19,7 @@ import {
 } from '@/api'
 import WindowMask from '../WindowMask'
 import PreviewVideo from './PreviewVideo'
+import PreviewDoc from './PreviewDoc'
 export type previewType = 'user' | 'admin' | 'share'
 // 整合各种预览组件
 const Preview = forwardRef(
@@ -116,8 +117,13 @@ const Preview = forwardRef(
             />
           </>
         )
-      } else {
-        return null
+      }
+      if (fileInfo?.fileCategory === 4) {
+        return (
+          <>
+            <PreviewDoc fileId={fileInfo.fileId as string}></PreviewDoc>
+          </>
+        )
       }
     }
     return (

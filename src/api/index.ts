@@ -508,3 +508,18 @@ export const shareDownLoadFile = (fileId: string) => {
     })
   } catch (error) {}
 }
+/**
+ * 获取文件信息
+ * @param fileId 文件ID
+ * @returns
+ */
+export const getFileInfo = (fileId: string) => {
+  try {
+    return request({
+      url: `/file/getFile/${fileId}`,
+      params: {},
+      responseType: 'blob',
+      showLoading: false,
+    })
+  } catch (error) {}
+}

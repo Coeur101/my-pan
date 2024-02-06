@@ -191,11 +191,11 @@ const All: React.FC<any> = (props) => {
                 <span className="iconfont cursor-pointer hover:text-blue-400 icon-share1 text-[12px] ml-[10px]">
                   <span className="ml-[5px]">分享</span>
                 </span>
-                {record.fileType === 0 ? (
-                  <span className="iconfont cursor-pointer hover:text-blue-400 icon-download text-[12px] ml-[10px]">
-                    <span className="ml-[5px]"> 下载</span>
-                  </span>
-                ) : null}
+
+                <span className="iconfont cursor-pointer hover:text-blue-400 icon-download text-[12px] ml-[10px]">
+                  <span className="ml-[5px]"> 下载</span>
+                </span>
+
                 <span
                   className="iconfont cursor-pointer hover:text-blue-400 icon-del text-[12px] ml-[10px]"
                   onClick={() => delFile(record.fileId)}
