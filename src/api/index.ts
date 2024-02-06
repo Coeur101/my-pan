@@ -513,12 +513,12 @@ export const shareDownLoadFile = (fileId: string) => {
  * @param fileId 文件ID
  * @returns
  */
-export const getFileInfo = (fileId: string) => {
+export const getFileInfo = (fileId: string, responseType: any) => {
   try {
     return request({
       url: `/file/getFile/${fileId}`,
       params: {},
-      responseType: 'blob',
+      responseType: responseType,
       showLoading: false,
     })
   } catch (error) {}

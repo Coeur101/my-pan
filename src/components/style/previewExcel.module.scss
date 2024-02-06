@@ -1,0 +1,8 @@
+.excelBox {
+  :global(table) {
+    @apply w-full border-collapse;
+    td {
+      @apply border border-[#ddd] border-collapse p-[5px] h-8 min-w-12;
+    }
+  }
+}

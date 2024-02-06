@@ -10,7 +10,7 @@ const PreviewDoc: React.FC<{
   }, [])
   const initDoc = async () => {
     try {
-      const res = await getFileInfo(fileId)
+      const res = await getFileInfo(fileId, 'blob')
       if (!res) {
         return
       }

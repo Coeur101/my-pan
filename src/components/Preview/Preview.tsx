@@ -19,6 +19,7 @@ import {
 } from '@/api'
 import WindowMask from '../WindowMask'
 import PreviewVideo from './PreviewVideo'
+import PreviewExcel from './PreviewExcelx'
 import PreviewDoc from './PreviewDoc'
 export type previewType = 'user' | 'admin' | 'share'
 // 整合各种预览组件
@@ -107,7 +108,7 @@ const Preview = forwardRef(
       setFileInfo(null)
     }
     const PreviewContainer = () => {
-      if (fileInfo?.fileCategory === 1) {
+      if (fileInfo?.fileType === 1) {
         return (
           <>
             <PreviewVideo
@@ -118,10 +119,17 @@ const Preview = forwardRef(
           </>
         )
       }
-      if (fileInfo?.fileCategory === 4) {
+      if (fileInfo?.fileType === 5) {
         return (
           <>
             <PreviewDoc fileId={fileInfo.fileId as string}></PreviewDoc>
+          </>
+        )
+      }
+      if (fileInfo?.fileType === 6) {
+        return (
+          <>
+            <PreviewExcel fileId={fileInfo.fileId as string}></PreviewExcel>
           </>
         )
       }
