@@ -22,6 +22,7 @@ import PreviewVideo from './PreviewVideo'
 import PreviewExcel from './PreviewExcelx'
 import PreviewDoc from './PreviewDoc'
 import PreviewMd from './PreviewMd'
+import PreviewTxt from './PreviewTxt'
 export type previewType = 'user' | 'admin' | 'share'
 // 整合各种预览组件
 const Preview = forwardRef(
@@ -131,6 +132,13 @@ const Preview = forwardRef(
         return (
           <>
             <PreviewExcel fileId={fileInfo.fileId as string}></PreviewExcel>
+          </>
+        )
+      }
+      if (fileInfo?.fileType === 7) {
+        return (
+          <>
+            <PreviewTxt fileId={fileInfo.fileId as string}></PreviewTxt>
           </>
         )
       }
