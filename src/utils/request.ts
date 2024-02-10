@@ -70,6 +70,7 @@ AxiosInstance => {
         if (errorCallback) {
           errorCallback(data.info)
         }
+
         return Promise.reject({ showError: true, msg: data.info })
       }
     },

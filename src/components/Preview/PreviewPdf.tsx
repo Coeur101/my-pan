@@ -2,7 +2,7 @@ import { getFile, getFileInfo } from '@/api'
 import * as XLSX from 'xlsx'
 import React, { useEffect, useRef, useState } from 'react'
 import style from '../style/previewExcel.module.scss'
-const PreviewExcel: React.FC<{
+const PreviewPdf: React.FC<{
   fileId: string
 }> = (props) => {
   const { fileId } = props
@@ -33,4 +33,4 @@ const PreviewExcel: React.FC<{
     ></div>
   )
 }
-export default PreviewExcel
+export default PreviewPdf
