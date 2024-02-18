@@ -11,6 +11,7 @@ import {
   createDownLoadUrl,
   downLoadFile,
   getFile,
+  getFileInfo,
   getVideoInfo,
   shareCreateDownLoadUrl,
   shareDownLoadFile,
@@ -23,6 +24,7 @@ import PreviewExcel from './PreviewExcelx'
 import PreviewDoc from './PreviewDoc'
 import PreviewMd from './PreviewMd'
 import PreviewTxt from './PreviewTxt'
+import PreviewPdf from './PreviewPdf'
 export type previewType = 'user' | 'admin' | 'share'
 // 整合各种预览组件
 const Preview = forwardRef(
@@ -32,6 +34,8 @@ const Preview = forwardRef(
       showPreview: (file: DataList, type: previewType) => void
     }>
   ) => {
+    const [pdfData, setPdfData] = useState('')
+
     const file_url_map = {
       user: {
         file: (fileId: string) => {
@@ -118,6 +122,13 @@ const Preview = forwardRef(
                 fileInfo.fileId as string
               )}
             />
+          </>
+        )
+      }
+      if (fileInfo?.fileType === 4) {
+        return (
+          <>
+            <PreviewPdf fileId={fileInfo.fileId as string}></PreviewPdf>
           </>
         )
       }
