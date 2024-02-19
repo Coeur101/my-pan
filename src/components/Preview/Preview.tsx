@@ -25,6 +25,7 @@ import PreviewDoc from './PreviewDoc'
 import PreviewMd from './PreviewMd'
 import PreviewTxt from './PreviewTxt'
 import PreviewPdf from './PreviewPdf'
+import PreviewMusic from './PreviewMusic'
 export type previewType = 'user' | 'admin' | 'share'
 // 整合各种预览组件
 const Preview = forwardRef(
@@ -121,6 +122,18 @@ const Preview = forwardRef(
               videoUrl={file_url_map[prviewType].video(
                 fileInfo.fileId as string
               )}
+            />
+          </>
+        )
+      }
+      if (fileInfo?.fileType === 2) {
+        return (
+          <>
+            <PreviewMusic
+              musicUrl={file_url_map[prviewType].file(
+                fileInfo.fileId as string
+              )}
+              fileInfo={fileInfo}
             />
           </>
         )
