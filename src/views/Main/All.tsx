@@ -478,29 +478,6 @@ const All: React.FC<any> = (props) => {
 
   // 子组件弹窗移动文件
   const moveFolderDone = async (currentChildFolder: any) => {
-    console.log(currentChildFolder?.fileId, currentFolder)
-    /* if (!currentChildFolder?.fileId) {
-      const errorFile =
-        selectedRow.length > 0
-          ? selectedRow.filter((item: any) => item.filePid === currentFolder)
-          : currentFile?.filePid === currentFolder
-      console.log(errorFile)
-
-      if (
-        (errorFile as DataList[]).length &&
-        (errorFile as DataList[]).length > 0
-      ) {
-        message.warning(
-          `有${
-            (errorFile as DataList[]).length
-          }个文件或文件夹已在当前文件夹下，无法移动`
-        )
-        return
-      } else if (errorFile) {
-        message.warning(`已在当前文件夹下，无法移动`)
-        return
-      }
-    } */
     let fileIdsList: any[] = []
     if (selectedRow.length > 0) {
       fileIdsList = selectedRow
@@ -556,7 +533,7 @@ const All: React.FC<any> = (props) => {
   }
   return (
     <div className={`${style.wrapper} mt-[20px]`}>
-      <div className="flex items-center w-full">
+      <div className="flex items-center ml-[10px]">
         <div className="mr-[10px]">
           <Upload {...upProps}>
             <Button

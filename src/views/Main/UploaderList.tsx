@@ -197,7 +197,11 @@ const UploaderList = forwardRef(
     }
     const startUpload = (fileUid: string) => {}
     const endUpload = (fileUid: string) => {}
-    const delUpload = (fileUid: string) => {}
+    const delUpload = (fileUid: string) => {
+      setFileList((fileList) => {
+        return fileList.filter((item) => item.uid !== fileUid)
+      })
+    }
     // chunkIndex当前上传的分片是第几片，来实现暂停后续传
     const uploadFile = async (fileUid: string, chunkIndex?: number) => {
       chunkIndex = chunkIndex ? chunkIndex : 0

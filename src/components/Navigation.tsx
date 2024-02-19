@@ -177,7 +177,7 @@ const Navigation = forwardRef(
       }
     })
     return (
-      <div className="text-[13px] flex items-center leading-10">
+      <div className="text-[13px] flex items-center leading-10  ml-[10px]">
         {folderList.length > 0 ? (
           <div>
             <span
