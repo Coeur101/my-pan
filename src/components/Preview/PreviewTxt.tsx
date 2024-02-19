@@ -1,13 +1,17 @@
 import { getFileInfo } from '@/api'
+import message from '@/utils/message'
 import { Button, Select, SelectProps } from 'antd'
-import React, { useEffect, useState } from 'react'
-
+import React, { useEffect, useRef, useState } from 'react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import Clipboard from 'clipboard'
 const PreviewTxt: React.FC<{
   fileId: string
 }> = (props) => {
   const { fileId } = props
   const [content, setContent] = useState('')
   const [originContent, setOriginContent] = useState('')
+  const contentRef = useRef<HTMLDivElement | null>(null)
   const options: SelectProps['options'] = [
     {
       label: 'urf8编码',
@@ -21,6 +25,14 @@ const PreviewTxt: React.FC<{
   useEffect(() => {
     initContent()
   }, [])
+  useEffect(() => {
+    const clipboard = new Clipboard('.copyBtn', {
+      text: () => content,
+    })
+    clipboard.on('success', () => {
+      message.success('复制成功')
+    })
+  }, [content])
   const handleChange = (value: string | string[]) => {
     setContent(arrayBufferToString(originContent, value as string))
   }
@@ -33,6 +45,7 @@ const PreviewTxt: React.FC<{
     const decoder = new TextDecoder(encoding)
     return decoder.decode(buffer)
   }
+
   return (
     <div className="w-full">
       <div className="flex items-center justify-around">
@@ -47,11 +60,24 @@ const PreviewTxt: React.FC<{
           <div className="ml-2 text-[#828282]">乱码了切换编码试试看</div>
         </div>
         <div className="mr-2">
-          <Button type="primary">复制</Button>
+          <Button type="primary" className="copyBtn">
+            复制
+          </Button>
         </div>
       </div>
       <div className="m-0">
-        <div className="overflow-x-auto p-[20px]">{content}</div>
+        <div className="overflow-x-auto p-[20px]" ref={contentRef}>
+          <SyntaxHighlighter
+            showLineNumbers={true}
+            startingLineNumber={0}
+            language=""
+            style={dracula}
+            lineNumberStyle={{ color: '#ddd', fontSize: 18 }}
+            wrapLines={true}
+          >
+            {content.replace(/^\s+|\s+$/g, '')}
+          </SyntaxHighlighter>
+        </div>
       </div>
     </div>
   )

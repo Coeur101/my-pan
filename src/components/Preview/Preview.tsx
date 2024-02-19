@@ -146,17 +146,20 @@ const Preview = forwardRef(
           </>
         )
       }
-      if (fileInfo?.fileType === 7) {
-        return (
-          <>
-            <PreviewTxt fileId={fileInfo.fileId as string}></PreviewTxt>
-          </>
-        )
-      }
-      if (fileInfo?.fileType === 8) {
+      if (
+        fileInfo?.fileType === 8 &&
+        fileInfo.fileName?.split('.')[1] === 'md'
+      ) {
         return (
           <>
             <PreviewMd fileId={fileInfo.fileId as string}></PreviewMd>
+          </>
+        )
+      }
+      if (fileInfo?.fileType === 7 || fileInfo?.fileType === 8) {
+        return (
+          <>
+            <PreviewTxt fileId={fileInfo.fileId as string}></PreviewTxt>
           </>
         )
       }
