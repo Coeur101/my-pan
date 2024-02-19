@@ -26,6 +26,7 @@ import PreviewMd from './PreviewMd'
 import PreviewTxt from './PreviewTxt'
 import PreviewPdf from './PreviewPdf'
 import PreviewMusic from './PreviewMusic'
+import PreviewNotFound from './PreviewNotFound'
 export type previewType = 'user' | 'admin' | 'share'
 // 整合各种预览组件
 const Preview = forwardRef(
@@ -48,8 +49,8 @@ const Preview = forwardRef(
         createFileUrl: async (fileId: string) => {
           return await createDownLoadUrl(fileId)
         },
-        downloadFile: async (fileId: string) => {
-          return await downLoadFile(fileId)
+        downloadFile: (downloadId: string) => {
+          return downLoadFile(downloadId)
         },
       },
       admin: {
@@ -62,8 +63,8 @@ const Preview = forwardRef(
         createFileUrl: async (fileId: string) => {
           return await adminCreateDownLoadUrl(fileId)
         },
-        downloadFile: async (fileId: string) => {
-          return await adminDownLoadFile(fileId)
+        downloadFile: (downloadId: string) => {
+          return adminDownLoadFile(downloadId)
         },
       },
       share: {
@@ -76,8 +77,8 @@ const Preview = forwardRef(
         createFileUrl: async (fileId: string) => {
           return await shareCreateDownLoadUrl(fileId)
         },
-        downloadFile: async (fileId: string) => {
-          return await shareDownLoadFile(fileId)
+        downloadFile: (downloadId: string) => {
+          return shareDownLoadFile(downloadId)
         },
       },
     }
@@ -115,7 +116,7 @@ const Preview = forwardRef(
       setFileInfo(null)
     }
     const PreviewContainer = () => {
-      if (fileInfo?.fileType === 1) {
+      if (fileInfo?.fileCategory === 1) {
         return (
           <>
             <PreviewVideo
@@ -126,7 +127,7 @@ const Preview = forwardRef(
           </>
         )
       }
-      if (fileInfo?.fileType === 2) {
+      if (fileInfo?.fileCategory === 2) {
         return (
           <>
             <PreviewMusic
@@ -173,6 +174,17 @@ const Preview = forwardRef(
         return (
           <>
             <PreviewTxt fileId={fileInfo.fileId as string}></PreviewTxt>
+          </>
+        )
+      }
+      if (fileInfo?.fileCategory === 5) {
+        return (
+          <>
+            <PreviewNotFound
+              fileInfo={fileInfo}
+              getDownloadUrlFunc={file_url_map[prviewType].downloadFile}
+              getCreateDownloadUrlFunc={file_url_map[prviewType].createFileUrl}
+            />
           </>
         )
       }
