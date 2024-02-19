@@ -513,7 +513,7 @@ const LoginView = (props: any) => {
               >
                 快捷登录
                 <img
-                  src={require('@/assets/easypan静态资源/icon-image/qq.png')}
+                  src={require('@/assets/icon-image/qq.png')}
                   className="w-[20px] ml-[10px]"
                 />
               </Button>

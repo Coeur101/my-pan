@@ -605,10 +605,7 @@ const All: React.FC<any> = (props) => {
             <Upload {...upProps}>
               <div className="cursor-pointer text-center w-[100px] h-[100px] m-[0_10px] p-[5px_0px] bg-[rgba(241,241,241,0.5)]">
                 <span className="w-[60px] h-[60px] inline-block rounded overflow-hidden">
-                  <img
-                    src={require('@/assets/easypan静态资源/icon-image/file.png')}
-                    alt=""
-                  />
+                  <img src={require('@/assets/icon-image/file.png')} alt="" />
                 </span>
                 <div>上传文件</div>
               </div>
@@ -619,10 +616,7 @@ const All: React.FC<any> = (props) => {
                 onClick={() => handleNewFolder()}
               >
                 <span className="w-[60px] h-[60px] inline-block rounded overflow-hidden">
-                  <img
-                    src={require('@/assets/easypan静态资源/icon-image/folder.png')}
-                    alt=""
-                  />
+                  <img src={require('@/assets/icon-image/folder.png')} alt="" />
                 </span>
                 <div>新建目录</div>
               </div>

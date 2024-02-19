@@ -33,10 +33,8 @@ const Icon: React.FC<IconProps> = (props) => {
         icon = iconMap['icon']
       }
     }
-    return new URL(
-      require(`@/assets/easypan静态资源/icon-image/${icon}.png`),
-      import.meta.url
-    ).href
+    return new URL(require(`@/assets/icon-image/${icon}.png`), import.meta.url)
+      .href
   }
   return (
     <span className="inline-block" style={{ width: width, height: width }}>
