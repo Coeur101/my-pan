@@ -195,8 +195,36 @@ const UploaderList = forwardRef(
       }
       return file
     }
-    const startUpload = (fileUid: string) => {}
-    const endUpload = (fileUid: string) => {}
+    // 继续上传
+    const startUpload = (fileUid: string) => {
+      setFileList((fileList) => {
+        return fileList.map((item) => {
+          if (item.uid === fileUid) {
+            return {
+              ...item,
+              pause: false,
+            }
+          } else {
+            return item
+          }
+        })
+      })
+    }
+    // 暂停上传
+    const endUpload = (fileUid: string) => {
+      setFileList((fileList) => {
+        return fileList.map((item) => {
+          if (item.uid === fileUid) {
+            return {
+              ...item,
+              pause: true,
+            }
+          } else {
+            return item
+          }
+        })
+      })
+    }
     const delUpload = (fileUid: string) => {
       setFileList((fileList) => {
         return fileList.filter((item) => item.uid !== fileUid)
@@ -401,7 +429,7 @@ const UploaderList = forwardRef(
           <span>上传任务</span>
           <span className="text-[13px] text-[#a9a9a9]">(仅展示本次)</span>
         </div>
-        <div className="overflow-auto p-[10px_0] min-h-[50vh] max-h-[calc(100vh-120px)]">
+        <div className="overflow-auto p-[10px_0] min-h-[30vh] max-h-[calc(100vh-120px)]">
           {fileList.length === 0 ? (
             <NoData msg="暂无上传任务" isOrigin={true}></NoData>
           ) : (
