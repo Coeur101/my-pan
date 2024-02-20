@@ -508,3 +508,21 @@ export const getFileInfo = (fileId: string, responseType?: any) => {
     })
   } catch (error) {}
 }
+export const shareFile = (
+  fileId: string,
+  codeType: 0 | 1,
+  validType: 0 | 1 | 2 | 3,
+  code: string
+) => {
+  try {
+    return request({
+      url: '/share/shareFile',
+      params: {
+        fileId,
+        codeType,
+        validType,
+        code,
+      },
+    })
+  } catch (error) {}
+}

@@ -40,8 +40,6 @@ const FolderSelect: React.FC<{
       text: '移动到此',
       type: 'primary',
       click: () => {
-        console.log(currentFolder)
-
         moveFolderDone(currentFolder)
       },
     },

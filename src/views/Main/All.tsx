@@ -15,13 +15,22 @@ import {
   UploadProps,
   message,
 } from 'antd'
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import style from '../style/all.module.scss'
 import GlobalTable, { OptionType } from '@/components/Table'
 import { PaginationProps } from 'antd/lib'
 import {
   changeFileFolder,
+  createDownLoadUrl,
   delFiles,
+  downLoadFile,
   getFileList,
   newFoloder,
   reFileName,
@@ -37,6 +46,7 @@ import { flushSync } from 'react-dom'
 import NoData from '@/components/Nodata'
 import { useSelector } from 'react-redux'
 import Preview, { previewType } from '@/components/Preview/Preview'
+import ShareModel from './ShareModel'
 export interface DataList {
   fileId?: string
   filePid?: string | number
@@ -75,6 +85,28 @@ const All: React.FC<any> = (props) => {
     },
     cancelBtn: true,
   })
+  const [shareModelConfig, setShareModelConfig] = useState<ModelProps>({
+    show: false,
+    title: '分享',
+    width: 600,
+    destroy: true,
+    close() {
+      setShareModelConfig({
+        ...shareModelConfig,
+        show: false,
+      })
+    },
+    buttons: [
+      {
+        text: '确定',
+        type: 'primary',
+        click: () => {
+          shareModelRef.current?.createShareUrl()
+        },
+      },
+    ],
+    cancelBtn: true,
+  })
   const [accept, setAccept] = useState('')
   const parentProps = useContext<{
     upLoadFile?: (...args: any) => void
@@ -107,6 +139,7 @@ const All: React.FC<any> = (props) => {
   const navigationRef = useRef<{ openCurrentFolder: (...args: any) => void }>(
     null
   )
+  const shareModelRef = useRef<{ createShareUrl: () => any }>(null)
   const previewRef = useRef<{
     showPreview: (file: DataList, type: previewType) => void
   }>(null)
@@ -132,7 +165,9 @@ const All: React.FC<any> = (props) => {
       }
     }
   }
-
+  /**
+   * 表格列的配置
+   */
   const colums: TableColumnProps<DataList>[] = [
     {
       key: 1,
@@ -188,11 +223,19 @@ const All: React.FC<any> = (props) => {
 
             {record.fileId && record.status === 2 ? (
               <div className="w-[280px]  hidden  group-hover:flex items-center ">
-                <span className="iconfont cursor-pointer hover:text-blue-400 icon-share1 text-[12px] ml-[10px]">
+                <span
+                  className="iconfont cursor-pointer hover:text-blue-400 icon-share1 text-[12px] ml-[10px]"
+                  onClick={() => {
+                    share(record)
+                  }}
+                >
                   <span className="ml-[5px]">分享</span>
                 </span>
 
-                <span className="iconfont cursor-pointer hover:text-blue-400 icon-download text-[12px] ml-[10px]">
+                <span
+                  className="iconfont cursor-pointer hover:text-blue-400 icon-download text-[12px] ml-[10px]"
+                  onClick={() => download(record.fileId as string)}
+                >
                   <span className="ml-[5px]"> 下载</span>
                 </span>
 
@@ -511,11 +554,7 @@ const All: React.FC<any> = (props) => {
         let pathArray = url.get('path')?.split('/')
         loadList('', pathArray ? pathArray![pathArray!.length - 1] : '0')
       }
-    } catch (error: any) {
-      console.log(error)
-
-      // message.error(error.info)
-    }
+    } catch (error: any) {}
   }
   // 点击文件夹进行下钻,点击文件就进行预览
   const openCurrentFolder = (folder: DataList) => {
@@ -530,6 +569,43 @@ const All: React.FC<any> = (props) => {
       return
     }
     previewRef.current?.showPreview(folder, 'user')
+  }
+  // 下载文件
+  const download = async (fileId: string) => {
+    // 创建下载链接
+    try {
+      const downloadUrl = await createDownLoadUrl(fileId)
+      if ((downloadUrl as any)?.code !== 200) {
+        return
+      }
+      const domain = window.location.origin // 获取当前页面的域名部分
+      const fullDownloadUrl = `${domain}/api/${downLoadFile(downloadUrl!.data)}`
+      window.open(fullDownloadUrl)
+    } catch (error) {}
+  }
+  // 创建分享链接
+  const share = useCallback((file: DataList) => {
+    setCurrentFile(file)
+    setShareModelConfig({
+      ...shareModelConfig,
+      show: true,
+    })
+  }, [])
+  // 关闭创建分享链接的弹窗
+  const setShareModelButtons = () => {
+    setShareModelConfig({
+      ...shareModelConfig,
+      buttons: [
+        {
+          text: '关闭',
+          type: 'primary',
+          click: () => {
+            shareModelConfig.close!()
+          },
+        },
+      ],
+      cancelBtn: false,
+    })
   }
   return (
     <div className={`${style.wrapper} mt-[20px]`}>
@@ -630,6 +706,12 @@ const All: React.FC<any> = (props) => {
         files={selectedRow.length > 0 ? selectedRow : currentFile}
         moveFolderDone={moveFolderDone}
       ></FolderSelect>
+      <ShareModel
+        modelConfig={shareModelConfig}
+        fileInfo={currentFile as DataList}
+        setShareModelButtons={setShareModelButtons}
+        ref={shareModelRef}
+      ></ShareModel>
       <Preview ref={previewRef}></Preview>
     </div>
   )

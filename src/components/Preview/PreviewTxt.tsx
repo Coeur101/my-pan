@@ -32,6 +32,9 @@ const PreviewTxt: React.FC<{
     clipboard.on('success', () => {
       message.success('复制成功')
     })
+    return () => {
+      clipboard.destroy()
+    }
   }, [content])
   const handleChange = (value: string | string[]) => {
     setContent(arrayBufferToString(originContent, value as string))
