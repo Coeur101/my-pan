@@ -550,3 +550,16 @@ export const getShareFileList = (pageNo: number = 1, pageSize: number = 15) => {
     showLoading: false,
   })
 }
+/**
+ * 取消分享
+ * @param shareIds 分享链接id的数组
+ * @returns
+ */
+export const cancelShareUrl = (shareIds: string[]) => {
+  return request({
+    url: '/share/cancelShare',
+    params: {
+      shareIds,
+    },
+  })
+}

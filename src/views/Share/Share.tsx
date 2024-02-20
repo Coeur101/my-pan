@@ -1,11 +1,12 @@
-import { Button, PaginationProps, TableColumnProps } from 'antd'
+import { Button, Modal, PaginationProps, TableColumnProps } from 'antd'
 import style from '../style/all.module.scss'
 import { StopOutlined } from '@ant-design/icons'
 import GlobalTable, { OptionType } from '@/components/Table'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import Icon from '@/components/Icon'
-import { getShareFileList } from '@/api'
+import { cancelShareUrl, getShareFileList } from '@/api'
+import message from '@/utils/message'
 interface DataList {
   shareId: string
   fileId: string
@@ -43,11 +44,21 @@ const Share = () => {
               <span className="cursor-pointer">{text}</span>
             </span>
             <div className="w-[280px]  hidden  group-hover:flex items-center ">
-              <span className="iconfont cursor-pointer hover:text-blue-400 icon-link text-[12px] ml-[10px]">
+              <span
+                className="iconfont cursor-pointer hover:text-blue-400 icon-link text-[12px] ml-[10px]"
+                onClick={() => {
+                  copyUrl(record)
+                }}
+              >
                 <span className="ml-[5px]">复制链接</span>
               </span>
 
-              <span className="iconfont cursor-pointer hover:text-blue-400 icon-cancel text-[12px] ml-[10px]">
+              <span
+                className="iconfont cursor-pointer hover:text-blue-400 icon-cancel text-[12px] ml-[10px]"
+                onClick={() => {
+                  cancelShare(record.shareId)
+                }}
+              >
                 <span className="ml-[5px]"> 取消分享</span>
               </span>
             </div>
@@ -67,6 +78,9 @@ const Share = () => {
       title: '失效时间',
       dataIndex: 'expireTime',
       width: 220,
+      render: (text: string, recorde: DataList) => {
+        return <div>{recorde.expireTime ? recorde.expireTime : '永久'}</div>
+      },
       align: 'left',
     },
     {
@@ -148,6 +162,44 @@ const Share = () => {
       setTbaleLoading(false)
     }
   }
+  const copyUrl = (file: DataList) => {
+    const domain = window.location.origin // 获取当前页面的域名部分
+    const fullShareUrl = `${domain}/share/${file.shareId}`
+    const copyText = `链接:${fullShareUrl}\n提取码:${file.code}`
+    navigator.clipboard.writeText(copyText).then(() => {
+      message.success('复制链接成功')
+    })
+  }
+  const cancelShare = (shareId?: string) => {
+    let shareIds: string[] = []
+    if (shareId) {
+      shareIds.push(shareId)
+    } else {
+      shareIds = selectedRow.map((item) => item.shareId)
+    }
+    Modal.confirm({
+      title: '提示',
+      content: '确定要取消分享吗？',
+      style: {
+        top: 200,
+      },
+      onOk: async () => {
+        return new Promise(async (resolve, reject) => {
+          try {
+            const res = await cancelShareUrl(shareIds)
+            if (res?.code !== 200) {
+              reject(res?.info)
+            }
+            resolve('')
+            message.success('取消分享成功')
+            loadList()
+          } catch (error) {
+            message.error(error as any)
+          }
+        })
+      },
+    })
+  }
   useEffect(() => {
     loadList()
   }, [])
@@ -162,6 +214,9 @@ const Share = () => {
             type="primary"
             icon={<StopOutlined />}
             disabled={selectedRowKeysA.length === 0}
+            onClick={() => {
+              cancelShare()
+            }}
           >
             取消分享
           </Button>
