@@ -231,13 +231,14 @@ const All: React.FC<any> = (props) => {
                 >
                   <span className="ml-[5px]">分享</span>
                 </span>
-
-                <span
-                  className="iconfont cursor-pointer hover:text-blue-400 icon-download text-[12px] ml-[10px]"
-                  onClick={() => download(record.fileId as string)}
-                >
-                  <span className="ml-[5px]"> 下载</span>
-                </span>
+                {record.folderType !== 1 ? (
+                  <span
+                    className="iconfont cursor-pointer hover:text-blue-400 icon-download text-[12px] ml-[10px]"
+                    onClick={() => download(record.fileId as string)}
+                  >
+                    <span className="ml-[5px]"> 下载</span>
+                  </span>
+                ) : null}
 
                 <span
                   className="iconfont cursor-pointer hover:text-blue-400 icon-del text-[12px] ml-[10px]"
@@ -309,11 +310,13 @@ const All: React.FC<any> = (props) => {
         })
       )
       setTotal(res.data.totalCount)
-      setSelectedRowKeysA([])
     } catch (error) {
     } finally {
       setTbaleLoading(false)
     }
+  }
+  const saveSelectedKeys = (keys: React.Key[]) => {
+    setSelectedRowKeysA(keys)
   }
   const [selectedRow, setSelectedRow] = useState<DataList[]>([])
   const option = useMemo<OptionType>(() => {
@@ -378,6 +381,7 @@ const All: React.FC<any> = (props) => {
       url.get('path')?.split('/')[url.get('path')!.split('/')!.length - 1] ||
         '0'
     )
+    saveSelectedKeys(selectedRowKeysA)
   }, [catagory, pageNo, pageSize, isUploadFileList])
   // 搜索
   const onSearch: SearchProps['onSearch'] = (value) => {
@@ -502,6 +506,8 @@ const All: React.FC<any> = (props) => {
           if (res?.code !== 200) {
             reject(res?.info)
           }
+          setSelectedRow([])
+          setSelectedRowKeysA([])
           resolve('')
           loadList('')
         }).catch((error) => {
@@ -551,6 +557,8 @@ const All: React.FC<any> = (props) => {
         ...modelConfig,
         show: false,
       })
+      setSelectedRow([])
+      setSelectedRowKeysA([])
       if (url.get('path') || location.pathname === '/main/all') {
         let pathArray = url.get('path')?.split('/')
         loadList('', pathArray ? pathArray![pathArray!.length - 1] : '0')
@@ -638,7 +646,7 @@ const All: React.FC<any> = (props) => {
           icon={<DeleteOutlined />}
           className="mr-[10px]"
           type="primary"
-          disabled={selectedRow.length !== 0 ? false : true}
+          disabled={selectedRowKeysA.length !== 0 ? false : true}
           onClick={() => delFile()}
         >
           批量删除
@@ -647,7 +655,7 @@ const All: React.FC<any> = (props) => {
           type="default"
           className={style.moveBtn}
           icon={<DragOutlined />}
-          disabled={selectedRow.length !== 0 ? false : true}
+          disabled={selectedRowKeysA.length !== 0 ? false : true}
           onClick={() => moveFile()}
         >
           批量移动

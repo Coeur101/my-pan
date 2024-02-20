@@ -156,7 +156,6 @@ const Share = () => {
         })
       )
       setTotal(res.data.totalCount)
-      setSelectedRowKeysA([])
     } catch (error) {
     } finally {
       setTbaleLoading(false)
@@ -191,6 +190,8 @@ const Share = () => {
               reject(res?.info)
             }
             resolve('')
+            setSelectedRow([])
+            setSelectedRowKeysA([])
             message.success('取消分享成功')
             loadList()
           } catch (error) {
@@ -200,11 +201,12 @@ const Share = () => {
       },
     })
   }
+  const saveSelectedKeys = (keys: React.Key[]) => {
+    setSelectedRowKeysA(keys)
+  }
   useEffect(() => {
     loadList()
-  }, [])
-  useEffect(() => {
-    loadList()
+    saveSelectedKeys(selectedRowKeysA)
   }, [pageSize, pageNo])
   return (
     <div className={`${style.wrapper} mt-[20px]`}>

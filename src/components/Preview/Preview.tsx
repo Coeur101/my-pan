@@ -27,7 +27,7 @@ import PreviewTxt from './PreviewTxt'
 import PreviewPdf from './PreviewPdf'
 import PreviewMusic from './PreviewMusic'
 import PreviewNotFound from './PreviewNotFound'
-export type previewType = 'user' | 'admin' | 'share'
+export type previewType = 'user' | 'share'
 // 整合各种预览组件
 const Preview = forwardRef(
   (
@@ -51,20 +51,6 @@ const Preview = forwardRef(
         },
         downloadFile: (downloadId: string) => {
           return downLoadFile(downloadId)
-        },
-      },
-      admin: {
-        file: (fileId: string) => {
-          return adminGetFile(fileId)
-        },
-        video: (fileId: string) => {
-          return adminGetVideoInfo(fileId)
-        },
-        createFileUrl: async (fileId: string) => {
-          return await adminCreateDownLoadUrl(fileId)
-        },
-        downloadFile: (downloadId: string) => {
-          return adminDownLoadFile(downloadId)
         },
       },
       share: {
@@ -117,6 +103,8 @@ const Preview = forwardRef(
     }
     const PreviewContainer = () => {
       if (fileInfo?.fileCategory === 1) {
+        console.log(prviewType)
+
         return (
           <>
             <PreviewVideo

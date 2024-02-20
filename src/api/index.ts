@@ -432,7 +432,7 @@ export const downLoadFile = (downloadId: string) => {
  * @returns
  */
 export const adminGetFile = (fileId: string) => {
-  return `/admin/getFile/${fileId}`
+  return `/api/admin/getFile/${fileId}`
 }
 /**
  * 管理员获取视频信息
@@ -501,7 +501,7 @@ export const shareDownLoadFile = (downloadId: string) => {
 export const getFileInfo = (fileId: string, responseType?: any) => {
   try {
     return request({
-      url: `/file/getFile/${fileId}`,
+      url: `/admin/getFile/${fileId}`,
       params: {},
       responseType: responseType,
       showLoading: false,
@@ -541,14 +541,16 @@ export const shareFile = (
  * @returns
  */
 export const getShareFileList = (pageNo: number = 1, pageSize: number = 15) => {
-  return request({
-    url: '/share/loadShareList',
-    params: {
-      pageNo,
-      pageSize,
-    },
-    showLoading: false,
-  })
+  try {
+    return request({
+      url: '/share/loadShareList',
+      params: {
+        pageNo,
+        pageSize,
+      },
+      showLoading: false,
+    })
+  } catch (error) {}
 }
 /**
  * 取消分享
@@ -556,10 +558,94 @@ export const getShareFileList = (pageNo: number = 1, pageSize: number = 15) => {
  * @returns
  */
 export const cancelShareUrl = (shareIds: string[]) => {
-  return request({
-    url: '/share/cancelShare',
-    params: {
-      shareIds,
-    },
-  })
+  try {
+    return request({
+      url: '/share/cancelShare',
+      params: {
+        shareIds,
+      },
+    })
+  } catch (error) {}
+}
+/**
+ * 获取回收站文件列表。
+ *
+ * @param {number} pageNo - 要获取的页码
+ * @param {number} pageSize - 每页的条目数
+ * @return {Promise<any>} 一个返回回收站文件列表的承诺
+ */
+export const getRecycleFileList = (
+  pageNo: number = 1,
+  pageSize: number = 15
+) => {
+  try {
+    return request({
+      url: '/recycle/loadRecycleList',
+      params: {
+        pageNo,
+        pageSize,
+      },
+      showLoading: false,
+    })
+  } catch (error) {}
+}
+/**
+ * 处理恢复具有给定文件ID的文件。
+ *
+ * @param {string[]} fileIds - 要恢复的文件的ID
+ * @return {Promise<any>} 一个Promise，它会返回恢复请求的结果
+ */
+export const handleRecoverFile = (fileIds: string[]) => {
+  try {
+    return request({
+      url: '/recycle/recoverFile',
+      params: {
+        fileIds,
+      },
+    })
+  } catch (error) {}
+}
+/**
+ * 从回收站永久删除文件。
+ *
+ * @param {string[]} fileIds - 要删除的文件ID数组。
+ * @return {Promise<any>} 一个Promise，返回删除操作的结果。
+ */
+export const completelyDelFile = (fileIds: string[]) => {
+  try {
+    return request({
+      url: '/recycle/delFile',
+      params: {
+        fileIds,
+      },
+    })
+  } catch (error) {}
+}
+/**
+ * 根据指定的页码、页面大小、文件名模糊搜索和文件PID检索所有文件列表。
+ *
+ * @param {number} pageNo - 要检索的页码
+ * @param {number} pageSize - 每页的项目数
+ * @param {string} [fileNameFuzzy] - 文件名的模糊搜索字符串
+ * @param {string} [filePid='0'] - 父文件ID
+ * @return {Promise<any>} 解析为文件列表的Promise
+ */
+export const getAllFileList = (
+  pageNo: number = 1,
+  pageSize: number = 15,
+  fileNameFuzzy?: string,
+  filePid: string = '0'
+) => {
+  try {
+    return request({
+      url: '/admin/loadFileList',
+      params: {
+        pageNo,
+        pageSize,
+        fileNameFuzzy,
+        filePid,
+      },
+      showLoading: false,
+    })
+  } catch (error) {}
 }
