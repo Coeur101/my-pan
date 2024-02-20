@@ -508,6 +508,14 @@ export const getFileInfo = (fileId: string, responseType?: any) => {
     })
   } catch (error) {}
 }
+/**
+ * 创建分享链接
+ * @param fileId 文件id
+ * @param codeType 是否为自定义提取码
+ * @param validType 时间有效期
+ * @param code 自定义提取码
+ * @returns
+ */
 export const shareFile = (
   fileId: string,
   codeType: 0 | 1,
@@ -525,4 +533,20 @@ export const shareFile = (
       },
     })
   } catch (error) {}
+}
+/**
+ * 获取分享文件列表
+ * @param pageNo 当前页
+ * @param pageSize 当前页总数量
+ * @returns
+ */
+export const getShareFileList = (pageNo: number = 1, pageSize: number = 15) => {
+  return request({
+    url: '/share/loadShareList',
+    params: {
+      pageNo,
+      pageSize,
+    },
+    showLoading: false,
+  })
 }

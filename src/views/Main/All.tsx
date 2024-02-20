@@ -329,7 +329,7 @@ const All: React.FC<any> = (props) => {
         },
       },
       pagination: {
-        pageSize: 15,
+        pageSize: pageSize,
         pageSizeOptions: [15, 20, 30, 100],
         defaultPageSize: 15,
         total: total,
@@ -342,6 +342,7 @@ const All: React.FC<any> = (props) => {
             setPageSize(size)
           })
         },
+        showSizeChanger: true,
         // hideOnSinglePage: false,
       } as PaginationProps,
       tableHeght: 400,
