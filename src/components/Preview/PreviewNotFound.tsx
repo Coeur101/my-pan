@@ -4,17 +4,19 @@ import Icon from '../Icon'
 import { Button } from 'antd'
 import { formatFileSize } from '@/utils/format'
 import { AxiosResponse } from 'axios'
+import { preivewDataList } from './Preview'
 interface PreviewNotFoundProps {
-  fileInfo: DataList
+  fileInfo: preivewDataList
   getDownloadUrlFunc: (downloadId: string) => string
-  getCreateDownloadUrlFunc: (fileId: string) => any
+  getCreateDownloadUrlFunc: (fileId: string, userId?: string) => any
 }
 const PreviewNotFound: React.FC<PreviewNotFoundProps> = (props) => {
   const { fileInfo, getCreateDownloadUrlFunc, getDownloadUrlFunc } = props
   const download = async () => {
     try {
       const createDownloadUrl = await getCreateDownloadUrlFunc(
-        fileInfo.fileId as string
+        fileInfo.fileId as string,
+        fileInfo.userId
       )
       if (createDownloadUrl.code !== 200) {
         return

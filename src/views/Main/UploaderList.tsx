@@ -118,8 +118,7 @@ const UploaderList = forwardRef(
       if (md5FileUid === null) {
         return
       }
-
-      uploadFile(md5FileUid, 0)
+      // uploadFile(md5FileUid, 0)
     }
     /**
      * 解析文件,加密Md5
@@ -186,49 +185,6 @@ const UploaderList = forwardRef(
       } catch (error) {
         return ''
       }
-    }
-    // 获取文件
-    const getFileByUid = (uid: string) => {
-      const file = fileList.find((item) => item.uid === uid)
-      if (file!.totalSize < chunkSize) {
-        chunkSize = 1 * 1024 * 1024
-      }
-      return file
-    }
-    // 继续上传
-    const startUpload = (fileUid: string) => {
-      setFileList((fileList) => {
-        return fileList.map((item) => {
-          if (item.uid === fileUid) {
-            return {
-              ...item,
-              pause: false,
-            }
-          } else {
-            return item
-          }
-        })
-      })
-    }
-    // 暂停上传
-    const endUpload = (fileUid: string) => {
-      setFileList((fileList) => {
-        return fileList.map((item) => {
-          if (item.uid === fileUid) {
-            return {
-              ...item,
-              pause: true,
-            }
-          } else {
-            return item
-          }
-        })
-      })
-    }
-    const delUpload = (fileUid: string) => {
-      setFileList((fileList) => {
-        return fileList.filter((item) => item.uid !== fileUid)
-      })
     }
     // chunkIndex当前上传的分片是第几片，来实现暂停后续传
     const uploadFile = async (fileUid: string, chunkIndex?: number) => {
@@ -300,7 +256,6 @@ const UploaderList = forwardRef(
             sourceFile?.status === STATUS.upload_seconds.value
           ) {
             sourceFile!.uploadProgress = 100
-            // loadFileList()
             setFileList((prev) => {
               return prev.map((item) => {
                 return item.uid === sourceFile?.uid ? sourceFile : item
@@ -320,6 +275,50 @@ const UploaderList = forwardRef(
         }
       }
     }
+    // 获取文件
+    const getFileByUid = (uid: string) => {
+      const file = fileList.find((item) => item.uid === uid)
+      if (file!.totalSize < chunkSize) {
+        chunkSize = 1 * 1024 * 1024
+      }
+      return file
+    }
+    // 继续上传
+    const startUpload = (fileUid: string) => {
+      setFileList((fileList) => {
+        return fileList.map((item) => {
+          if (item.uid === fileUid) {
+            return {
+              ...item,
+              pause: false,
+            }
+          } else {
+            return item
+          }
+        })
+      })
+    }
+    // 暂停上传
+    const endUpload = (fileUid: string) => {
+      setFileList((fileList) => {
+        return fileList.map((item) => {
+          if (item.uid === fileUid) {
+            return {
+              ...item,
+              pause: true,
+            }
+          } else {
+            return item
+          }
+        })
+      })
+    }
+    const delUpload = (fileUid: string) => {
+      setFileList((fileList) => {
+        return fileList.filter((item) => item.uid !== fileUid)
+      })
+    }
+
     const FileItem = () => {
       return (
         <div>

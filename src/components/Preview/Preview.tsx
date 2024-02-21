@@ -27,13 +27,16 @@ import PreviewTxt from './PreviewTxt'
 import PreviewPdf from './PreviewPdf'
 import PreviewMusic from './PreviewMusic'
 import PreviewNotFound from './PreviewNotFound'
-export type previewType = 'user' | 'share'
+export type previewType = 'user' | 'share' | 'admin'
+export interface preivewDataList extends DataList {
+  userId?: string
+}
 // 整合各种预览组件
 const Preview = forwardRef(
   (
     props,
     ref: React.ForwardedRef<{
-      showPreview: (file: DataList, type: previewType) => void
+      showPreview: (file: preivewDataList, type: previewType) => void
     }>
   ) => {
     const [pdfData, setPdfData] = useState('')
@@ -53,6 +56,20 @@ const Preview = forwardRef(
           return downLoadFile(downloadId)
         },
       },
+      admin: {
+        file: (fileId: string, userId: string) => {
+          return adminGetFile(fileId, userId)
+        },
+        video: (fileId: string, userId: string) => {
+          return adminGetVideoInfo(fileId, userId)
+        },
+        createFileUrl: async (fileId: string, userId: string) => {
+          return await adminCreateDownLoadUrl(fileId, userId)
+        },
+        downloadFile: (downloadId: string) => {
+          return adminDownLoadFile(downloadId)
+        },
+      },
       share: {
         file: (fileId: string) => {
           return shareGetFile(fileId)
@@ -69,13 +86,13 @@ const Preview = forwardRef(
       },
     }
     const [prviewType, setPriewTtpe] = useState<previewType>('user')
-    const [fileInfo, setFileInfo] = useState<DataList | null>()
+    const [fileInfo, setFileInfo] = useState<preivewDataList | null>()
     const [maskShow, setMaskShow] = useState(false)
     const [maskTitle, setMaskTitle] = useState('')
     const imagePriviewRef = useRef<{ show: () => void }>(null)
     const [imageUrl, setImageUrl] = useState('')
 
-    const showPreview = async (file: DataList, type: previewType) => {
+    const showPreview = async (file: preivewDataList, type: previewType) => {
       setPriewTtpe(type)
       setFileInfo(file)
       switch (file.fileCategory) {
@@ -90,7 +107,12 @@ const Preview = forwardRef(
     }
 
     useEffect(() => {
-      setImageUrl(getFile(fileInfo?.fileId as string))
+      setImageUrl(
+        file_url_map[prviewType].file(
+          fileInfo?.fileId as string,
+          fileInfo?.userId as string
+        )
+      )
     }, [fileInfo])
     React.useImperativeHandle(ref, () => {
       return {
@@ -109,7 +131,8 @@ const Preview = forwardRef(
           <>
             <PreviewVideo
               videoUrl={file_url_map[prviewType].video(
-                fileInfo.fileId as string
+                fileInfo.fileId as string,
+                fileInfo.userId as string
               )}
             />
           </>
@@ -120,7 +143,8 @@ const Preview = forwardRef(
           <>
             <PreviewMusic
               musicUrl={file_url_map[prviewType].file(
-                fileInfo.fileId as string
+                fileInfo.fileId as string,
+                fileInfo.userId as string
               )}
               fileInfo={fileInfo}
             />
@@ -130,21 +154,33 @@ const Preview = forwardRef(
       if (fileInfo?.fileType === 4) {
         return (
           <>
-            <PreviewPdf fileId={fileInfo.fileId as string}></PreviewPdf>
+            <PreviewPdf
+              fileId={fileInfo.fileId as string}
+              previewType={prviewType}
+              userId={fileInfo.userId}
+            ></PreviewPdf>
           </>
         )
       }
       if (fileInfo?.fileType === 5) {
         return (
           <>
-            <PreviewDoc fileId={fileInfo.fileId as string}></PreviewDoc>
+            <PreviewDoc
+              fileId={fileInfo.fileId as string}
+              previewType={prviewType}
+              userId={fileInfo.userId}
+            ></PreviewDoc>
           </>
         )
       }
       if (fileInfo?.fileType === 6) {
         return (
           <>
-            <PreviewExcel fileId={fileInfo.fileId as string}></PreviewExcel>
+            <PreviewExcel
+              fileId={fileInfo.fileId as string}
+              previewType={prviewType}
+              userId={fileInfo.userId}
+            ></PreviewExcel>
           </>
         )
       }
@@ -154,14 +190,22 @@ const Preview = forwardRef(
       ) {
         return (
           <>
-            <PreviewMd fileId={fileInfo.fileId as string}></PreviewMd>
+            <PreviewMd
+              fileId={fileInfo.fileId as string}
+              previewType={prviewType}
+              userId={fileInfo.userId}
+            ></PreviewMd>
           </>
         )
       }
       if (fileInfo?.fileType === 7 || fileInfo?.fileType === 8) {
         return (
           <>
-            <PreviewTxt fileId={fileInfo.fileId as string}></PreviewTxt>
+            <PreviewTxt
+              fileId={fileInfo.fileId as string}
+              previewType={prviewType}
+              userId={fileInfo.userId}
+            ></PreviewTxt>
           </>
         )
       }
@@ -170,8 +214,10 @@ const Preview = forwardRef(
           <>
             <PreviewNotFound
               fileInfo={fileInfo}
-              getDownloadUrlFunc={file_url_map[prviewType].downloadFile}
-              getCreateDownloadUrlFunc={file_url_map[prviewType].createFileUrl}
+              getDownloadUrlFunc={file_url_map[prviewType].downloadFile as any}
+              getCreateDownloadUrlFunc={
+                file_url_map[prviewType].createFileUrl as any
+              }
             />
           </>
         )

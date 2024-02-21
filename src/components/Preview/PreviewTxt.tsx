@@ -1,4 +1,4 @@
-import { getFileInfo } from '@/api'
+import { adminGetFileInfo, getFileInfo } from '@/api'
 import message from '@/utils/message'
 import { Button, Select, SelectProps } from 'antd'
 import React, { useEffect, useRef, useState } from 'react'
@@ -7,8 +7,10 @@ import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Clipboard from 'clipboard'
 const PreviewTxt: React.FC<{
   fileId: string
+  previewType: 'user' | 'admin' | 'share'
+  userId?: string
 }> = (props) => {
-  const { fileId } = props
+  const { fileId, previewType, userId } = props
   const [content, setContent] = useState('')
   const [originContent, setOriginContent] = useState('')
   const contentRef = useRef<HTMLDivElement | null>(null)
@@ -40,7 +42,12 @@ const PreviewTxt: React.FC<{
     setContent(arrayBufferToString(originContent, value as string))
   }
   const initContent = async () => {
-    const res = await getFileInfo(fileId, 'arraybuffer')
+    let res
+    if (previewType === 'admin') {
+      res = await adminGetFileInfo(fileId, userId as string, 'arraybuffer')
+    } else if (previewType === 'user') {
+      res = await getFileInfo(fileId, userId)
+    }
     setOriginContent(res as any)
     setContent(arrayBufferToString(res))
   }

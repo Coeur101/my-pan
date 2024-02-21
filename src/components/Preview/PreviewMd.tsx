@@ -1,4 +1,4 @@
-import { getFileInfo } from '@/api'
+import { adminGetFileInfo, getFileInfo } from '@/api'
 import React, { useEffect, useState } from 'react'
 import ReactMarkDown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
@@ -9,14 +9,21 @@ import {
 import remarkGfm from 'remark-gfm'
 const PreviewMd: React.FC<{
   fileId: string
+  previewType: 'user' | 'admin' | 'share'
+  userId?: string
 }> = (props) => {
-  const { fileId } = props
+  const { fileId, previewType, userId } = props
   const [content, setContent] = useState('')
   useEffect(() => {
     initContent()
   }, [])
   const initContent = async () => {
-    const res = await getFileInfo(fileId, 'arraybuffer')
+    let res
+    if (previewType === 'admin') {
+      res = await adminGetFileInfo(fileId, userId as string, 'arraybuffer')
+    } else if (previewType === 'user') {
+      res = await getFileInfo(fileId, userId)
+    }
     setContent(arrayBufferToString(res))
   }
   const arrayBufferToString = (buffer: any, encoding = 'utf-8') => {

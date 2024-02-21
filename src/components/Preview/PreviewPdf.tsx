@@ -1,4 +1,4 @@
-import { getFile, getFileInfo } from '@/api'
+import { adminGetFileInfo, getFile, getFileInfo } from '@/api'
 import { pdfjs, Page, Document } from 'react-pdf'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Input, Spin, Tooltip } from 'antd'
@@ -17,8 +17,10 @@ import 'react-pdf/dist/Page/AnnotationLayer.css'
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`
 const PreviewPdf: React.FC<{
   fileId: string
+  previewType: 'user' | 'admin' | 'share'
+  userId?: string
 }> = (props) => {
-  const { fileId } = props
+  const { fileId, previewType, userId } = props
   const [pageInfo, setPageInfo] = useState({
     pageNumber: 1,
     pageNumberInput: 1,
@@ -32,7 +34,12 @@ const PreviewPdf: React.FC<{
   let file = useMemo(() => ({ data: pdfData }), [pdfData])
   const initPdf = async () => {
     try {
-      const res = await getFileInfo(fileId, 'arraybuffer')
+      let res
+      if (previewType === 'admin') {
+        res = await adminGetFileInfo(fileId, userId as string, 'arraybuffer')
+      } else if (previewType === 'user') {
+        res = await getFileInfo(fileId, userId)
+      }
       if (!res) {
         return
       }

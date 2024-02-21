@@ -1,16 +1,24 @@
-import { getFile, getFileInfo } from '@/api'
+import { adminGetFileInfo, getFile, getFileInfo } from '@/api'
 import * as docx from 'docx-preview'
 import React, { useEffect, useRef } from 'react'
 const PreviewDoc: React.FC<{
   fileId: string
+  previewType: 'user' | 'admin' | 'share'
+  userId?: string
 }> = (props) => {
-  const { fileId } = props
+  const { fileId, previewType, userId } = props
   useEffect(() => {
     initDoc()
   }, [])
   const initDoc = async () => {
     try {
-      const res = await getFileInfo(fileId, 'blob')
+      let res
+      if (previewType === 'admin') {
+        res = await adminGetFileInfo(fileId, userId as string, 'blob')
+      } else if (previewType === 'user') {
+        res = await getFileInfo(fileId, userId)
+      }
+
       if (!res) {
         return
       }

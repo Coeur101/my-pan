@@ -28,6 +28,7 @@ import GlobalTable, { OptionType } from '@/components/Table'
 import { PaginationProps } from 'antd/lib'
 import {
   adminCreateDownLoadUrl,
+  adminDelFile,
   adminDownLoadFile,
   changeFileFolder,
   createDownLoadUrl,
@@ -49,53 +50,30 @@ import NoData from '@/components/Nodata'
 import { useSelector } from 'react-redux'
 import Preview, { previewType } from '@/components/Preview/Preview'
 export interface DataList {
-  fileId?: string
-  filePid?: string | number
-  fileSize?: number | string
-  fileName?: string
-  fileCover?: string
-  createTime?: string
-  lastUpdateTime?: string
-  folderType?: number | string
-  fileCategory?: number
-  fileType?: number
-  status?: number
-  key: React.Key
-  editStatus?: boolean
-  fileNameComple?: string
+  fileId: string
+  userId: string
+  fileMd5?: any
+  filePid: string
+  fileSize?: any
+  fileName: string
+  fileCover?: any
+  filePath?: any
+  createTime: string
+  lastUpdateTime: string
+  folderType: number
+  fileCategory?: any
+  fileType?: any
+  status: number
+  recoveryTime: string
+  delFlag: number
+  nickName: string
 }
 const FileList: React.FC<any> = (props) => {
-  const acceptType = {
-    video: 'video/*',
-    doc: 'application/msword, application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document, text/plain, text/markdown, application/vnd.ms-powerpoint, application/vnd.openxmlformats-officedocument.presentationml.presentation, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    music: 'audio/*',
-    image: 'image/*',
-    all: '',
-    others: '',
-  }
-  const [accept, setAccept] = useState('')
-  const parentProps = useContext<{
-    upLoadFile?: (...args: any) => void
-  }>(RouterContent)
-  const upProps: UploadProps = {
-    hasControlInside: true,
-    capture: 'environment',
-    multiple: true,
-    customRequest: (info) => {
-      // console.log(currentFolder)
-      parentProps.upLoadFile!(info.file as Blob, currentFolder)
-    },
-    showUploadList: false,
-    withCredentials: true,
-    accept: accept,
-  }
   const location = useLocation()
   const [pageNo, setPageNo] = useState(1)
   const [pageSize, setPageSize] = useState(15)
-  const [catagory, setCatagory] = useState<string>('all')
   const editInputRef = useRef<InputRef>(null)
   const [data, setData] = useState<DataList[]>([])
-  const [currentFile, setCurrentFile] = useState<DataList>()
   const url = new URLSearchParams(location.search)
   const [selectedRowKeysA, setSelectedRowKeysA] = useState<React.Key[]>([])
   const [currentFolder, setCurrentFolder] = useState(
@@ -147,31 +125,29 @@ const FileList: React.FC<any> = (props) => {
               record.fileType as number,
               record
             )}
-            {record.editStatus ? (
-              <div className="flex  items-center w-[230px]">
-                <Input
-                  ref={editInputRef}
-                  defaultValue={
-                    record.fileNameComple ? record.fileNameComple : text
-                  }
-                  maxLength={190}
-                ></Input>
-              </div>
-            ) : (
-              <span
-                className="flex-1 flex overflow-hidden items-center gap-2 cursor-pointer whitespace-nowrap ml-[8px]"
-                onClick={() => openCurrentFolder(record)}
-              >
-                <span className="cursor-pointer">{text}</span>
-              </span>
-            )}
+
+            <span
+              className="flex-1 flex overflow-hidden items-center gap-2 cursor-pointer whitespace-nowrap ml-[8px]"
+              onClick={() => openCurrentFolder(record)}
+            >
+              <span className="cursor-pointer">{text}</span>
+              {record.status === 0 ? (
+                <span className="text-[13px] ml-[10px] text-[#f75000]">
+                  转码中
+                </span>
+              ) : record.status === 1 ? (
+                <span className="text-[red] text-[13px] ml-[10px]">失败</span>
+              ) : null}
+            </span>
 
             {record.fileId && record.status === 2 ? (
               <div className="w-[280px]  hidden  group-hover:flex items-center ">
                 {record.folderType !== 1 ? (
                   <span
                     className="iconfont cursor-pointer hover:text-blue-400 icon-download text-[12px] ml-[10px]"
-                    onClick={() => download(record.fileId as string)}
+                    onClick={() =>
+                      download(record.fileId as string, record.userId)
+                    }
                   >
                     <span className="ml-[5px]"> 下载</span>
                   </span>
@@ -179,7 +155,7 @@ const FileList: React.FC<any> = (props) => {
 
                 <span
                   className="iconfont cursor-pointer hover:text-blue-400 icon-del text-[12px] ml-[10px]"
-                  onClick={() => delFile(record.fileId)}
+                  onClick={() => delFile(record.fileId, record.userId)}
                 >
                   <span className="ml-[5px]"> 删除</span>
                 </span>
@@ -286,19 +262,21 @@ const FileList: React.FC<any> = (props) => {
     loadList(value)
   }
   // 批量删除和单个删除
-  const delFile = (fileId?: string) => {
+  const delFile = (fileId?: string, userId?: string) => {
     Modal.confirm({
-      title: '确定要删除这些文件吗？',
-      content: '删除的文件可在10天内通过回收站还原',
+      title: '提示',
+      content: '确定永久删除该用户的文件吗？',
       style: {
         top: 200,
       },
       onOk: async () => {
         return new Promise(async (resolve, reject) => {
-          const res = await delFiles(
+          const res = await adminDelFile(
             fileId
-              ? fileId
-              : (selectedRow.map((item) => item.fileId) as string[])
+              ? [userId + '_' + fileId]
+              : (selectedRow.map(
+                  (item) => `${item.userId}_${item.fileId}`
+                ) as string[])
           )
           if (res?.code !== 200) {
             reject(res?.info)
@@ -327,13 +305,13 @@ const FileList: React.FC<any> = (props) => {
       message.warning('文件转码中无法预览,请尝试刷新')
       return
     }
-    previewRef.current?.showPreview(folder, 'user')
+    previewRef.current?.showPreview(folder, 'admin')
   }
   // 下载文件
-  const download = async (fileId: string) => {
+  const download = async (fileId: string, userId: string) => {
     // 创建下载链接
     try {
-      const downloadUrl = await adminCreateDownLoadUrl(fileId)
+      const downloadUrl = await adminCreateDownLoadUrl(fileId, userId)
       if ((downloadUrl as any)?.code !== 200) {
         return
       }
@@ -382,7 +360,7 @@ const FileList: React.FC<any> = (props) => {
         <GlobalTable option={option} data={data}></GlobalTable>
       </div>
 
-      <Preview ref={previewRef}></Preview>
+      <Preview ref={previewRef as any}></Preview>
     </div>
   )
 }

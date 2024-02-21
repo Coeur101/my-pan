@@ -431,26 +431,29 @@ export const downLoadFile = (downloadId: string) => {
  * 管理员获取文件信息
  * @returns
  */
-export const adminGetFile = (fileId: string) => {
-  return `/api/admin/getFile/${fileId}`
+export const adminGetFile = (fileId: string, userId: string) => {
+  return `/api/admin/getFile/${userId}/${fileId}`
 }
 /**
  * 管理员获取视频信息
  * @returns
  */
-export const adminGetVideoInfo = (fileId: string) => {
-  return `/admin/ts/getVideoInfo/${fileId}`
+export const adminGetVideoInfo = (fileId: string, userId: string) => {
+  return `/admin/ts/getVideoInfo/${userId}/${fileId}`
 }
 /**
  * 管理员创建下载链接
  * @returns
  */
-export const adminCreateDownLoadUrl = (fileId: string) => {
+export const adminCreateDownLoadUrl = (fileId: string, userId: string) => {
   try {
-    return CreateAxiosInstance().get(`/admin/createDownloadUrl/${fileId}`, {
-      //@ts-ignore
-      showLoading: true,
-    })
+    return CreateAxiosInstance().get(
+      `/admin/createDownloadUrl/${userId}/${fileId}`,
+      {
+        //@ts-ignore
+        showLoading: true,
+      }
+    )
   } catch (error) {}
 }
 /**
@@ -501,7 +504,28 @@ export const shareDownLoadFile = (downloadId: string) => {
 export const getFileInfo = (fileId: string, responseType?: any) => {
   try {
     return request({
-      url: `/admin/getFile/${fileId}`,
+      url: `/file/getFile/${fileId}`,
+      params: {},
+      responseType: responseType,
+      showLoading: false,
+    })
+  } catch (error) {}
+}
+/**
+ * 管理员获取文件信息
+ * @param fileId 文件id
+ * @param userId 用户id
+ * @param responseType 返回的数据格式
+ * @returns
+ */
+export const adminGetFileInfo = (
+  fileId: string,
+  userId: string,
+  responseType?: any
+) => {
+  try {
+    return request({
+      url: `/admin/getFile/${userId}/${fileId}`,
       params: {},
       responseType: responseType,
       showLoading: false,
@@ -646,6 +670,22 @@ export const getAllFileList = (
         filePid,
       },
       showLoading: false,
+    })
+  } catch (error) {}
+}
+/**
+ * 作为管理员删除文件。
+ *
+ * @param {string[]} fileIdAndUserIds - 文件ID和用户ID的数组。
+ * @return {Promise<any>} 一个 Promise，返回删除请求的结果。
+ */
+export const adminDelFile = (fileIdAndUserIds: string[]) => {
+  try {
+    return request({
+      url: '/admin/delFile',
+      params: {
+        fileIdAndUserIds,
+      },
     })
   } catch (error) {}
 }
