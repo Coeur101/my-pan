@@ -319,11 +319,11 @@ const FreameWork = () => {
     // 获取到子组件的Form实例，在父组件调用修改密码的接口
     passwordModelRef.current = form
   }
-  const upLoadFile = async (file: Blob, filePid: string) => {
+  const upLoadFile = async (files: Blob[], filePid: string) => {
     // 更新页面是异步的，更新完页面之后，再将需要展示的文件传入到子组件中进行显示
     await setPopoverVisible(true)
     // 调用子组件的方法
-    UploaderListRef.current?.addFileToList(file, filePid)
+    UploaderListRef.current?.addFileToList(files, filePid)
   }
 
   const parentProps: {

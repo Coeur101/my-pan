@@ -76,49 +76,58 @@ const UploaderList = forwardRef(
     }
     const [fileList, setFileList] = useState<FileListType[]>([])
     const [delFileList, setDelFileList] = useState<string[]>([])
-
+    let uploadQueue: any[] = []
     const dispatch = useDispatch()
-    const addFileToList = async (file: file, filePid: string) => {
-      const fileItem: FileListType = {
-        file,
-        uid: file.uid,
-        // MD5值
-        md5: null,
-        // md5进度
-        md5Progress: 10,
-        //文件名
-        fileName: file.name,
-        // 上传状态
-        status: STATUS.init.value,
-        // 文件总大小
-        totalSize: file.size,
-        uploadSize: 0,
-        // 上传进度
-        uploadProgress: 0,
-        // 暂停
-        pause: false,
-        // 当前分片
-        chunkIndex: 0,
-        // 文件父Id
-        filePid,
-        // 错误信息
-        errorMsg: '',
-        fileId: '',
-      }
-      if (fileItem.totalSize === 0) {
-        fileItem.status = STATUS.emptyfile.value
-        fileItem.key = file.uid
+    const md5FileUidList: Promise<string>[] = []
+    const addFileToList = async (files: any[], filePid: string) => {
+      for (const file of files) {
+        const fileItem: FileListType = {
+          file,
+          uid: file.uid,
+          // MD5值
+          md5: null,
+          // md5进度
+          md5Progress: 10,
+          //文件名
+          fileName: file.name,
+          // 上传状态
+          status: STATUS.init.value,
+          // 文件总大小
+          totalSize: file.size,
+          uploadSize: 0,
+          // 上传进度
+          uploadProgress: 0,
+          // 暂停
+          pause: false,
+          // 当前分片
+          chunkIndex: 0,
+          // 文件父Id
+          filePid,
+          // 错误信息
+          errorMsg: '',
+          fileId: '',
+        }
+        if (fileItem.totalSize === 0) {
+          fileItem.status = STATUS.emptyfile.value
+          fileItem.key = file.uid
+          fileList.unshift(fileItem)
+          setFileList([...fileList])
+          return
+        }
         fileList.unshift(fileItem)
         setFileList([...fileList])
-        return
-      }
-      fileList.unshift(fileItem)
-      setFileList([...fileList])
-      let md5FileUid: string = await computeMd5(fileItem)
-      if (md5FileUid === null) {
-        return
+        uploadQueue.push(file)
+        md5FileUidList.push(computeMd5(fileItem))
       }
       // uploadFile(md5FileUid, 0)
+      loopUpload()
+    }
+    const loopUpload = async () => {
+      const filesToMd5 = md5FileUidList.slice(0, 6)
+      const md5FileIds = await Promise.all(filesToMd5)
+      for (const fileItem of md5FileIds) {
+        uploadFile(fileItem, 0)
+      }
     }
     /**
      * 解析文件,加密Md5
@@ -274,6 +283,14 @@ const UploaderList = forwardRef(
           break
         }
       }
+      const index = uploadQueue.findIndex((item) => item.uid === fileUid)
+      if (index !== -1) {
+        uploadQueue.splice(index, 1)
+      }
+      // 如果上传队列中仍有文件，则继续上传
+      if (uploadQueue.length > 0) {
+        loopUpload()
+      }
     }
     // 获取文件
     const getFileByUid = (uid: string) => {
@@ -313,10 +330,18 @@ const UploaderList = forwardRef(
         })
       })
     }
-    const delUpload = (fileUid: string) => {
-      setFileList((fileList) => {
-        return fileList.filter((item) => item.uid !== fileUid)
-      })
+    const delUpload = (file: FileListType) => {
+      if (file.status !== STATUS.uploading.value) {
+        setFileList((fileList) => {
+          return fileList.filter((item) => item.uid !== file.uid)
+        })
+      } else {
+        delFileList.unshift(file.uid)
+        setDelFileList(delFileList)
+        setFileList((fileList) => {
+          return fileList.filter((item) => item.uid !== file.uid)
+        })
+      }
     }
 
     const FileItem = () => {
@@ -394,7 +419,7 @@ const UploaderList = forwardRef(
                     {item.status !== STATUS.init.value &&
                     item.status !== STATUS.upload_finish.value &&
                     item.status !== STATUS.upload_seconds.value ? (
-                      <div onClick={() => delUpload(item.uid)}>
+                      <div onClick={() => delUpload(item)}>
                         <Icon width={28} iconName="clean"></Icon>
                       </div>
                     ) : null}
@@ -406,7 +431,7 @@ const UploaderList = forwardRef(
                     className="w-[28px] h-[28px] ml-[5px] cursor-pointer text-center inline-block rounded overflow-hidden"
                     title="清除"
                   >
-                    <div onClick={() => delUpload(item.uid)}>
+                    <div onClick={() => delUpload(item)}>
                       <Icon width={28} iconName="clean"></Icon>
                     </div>
                   </span>

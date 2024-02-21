@@ -72,6 +72,7 @@ const All: React.FC<any> = (props) => {
     all: '',
     others: '',
   }
+  let [uploadFileList, setUploadFileList] = useState<any[]>([])
   const [modelConfig, setModelConfig] = useState<ModelProps>({
     show: false,
     title: '移动到',
@@ -116,14 +117,22 @@ const All: React.FC<any> = (props) => {
     capture: 'environment',
     multiple: true,
     customRequest: (info) => {
-      // console.log(currentFolder)
-      parentProps.upLoadFile!(info.file as Blob, currentFolder)
+      uploadFileList.unshift(info.file)
+      setUploadFileList(uploadFileList)
+      if (
+        (info.file as any).uid ===
+        uploadFileList[uploadFileList.length - 1]?.uid
+      ) {
+        parentProps.upLoadFile!(uploadFileList, currentFolder)
+
+        setUploadFileList([])
+        return
+      }
     },
     showUploadList: false,
     withCredentials: true,
     accept: accept,
   }
-  const navigate = useNavigate()
   const location = useLocation()
   const [pageNo, setPageNo] = useState(1)
   const [pageSize, setPageSize] = useState(15)
