@@ -689,3 +689,22 @@ export const adminDelFile = (fileIdAndUserIds: string[]) => {
     })
   } catch (error) {}
 }
+export const getAllUserList = (
+  pageNo: number = 1,
+  pageSize: number = 15,
+  status?: string,
+  nickNameFuzzy?: string
+) => {
+  try {
+    return request({
+      url: '/admin/loadUserList',
+      params: {
+        pageNo,
+        pageSize,
+        nickNameFuzzy,
+        status,
+      },
+      showLoading: false,
+    })
+  } catch (error) {}
+}
