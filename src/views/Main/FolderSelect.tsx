@@ -1,8 +1,7 @@
-import { changeFileFolder, getAllFolder } from '@/api'
+import { getAllFolder } from '@/api'
 import GlobalModel, { ModelProps } from '@/components/GlobalModel'
 import Icon from '@/components/Icon'
 import Navigation from '@/components/Navigation'
-import { message } from 'antd'
 import React, { useEffect, useState } from 'react'
 export interface Folder {
   fileId: string

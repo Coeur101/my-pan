@@ -7,14 +7,13 @@ import {
   message,
 } from 'antd'
 import {
-  Navigate,
   NavigateFunction,
   Outlet,
   useLocation,
   useNavigate,
 } from 'react-router-dom'
 import '@/views/style/Feame.scss'
-import { createRef, startTransition, useEffect, useRef, useState } from 'react'
+import { startTransition, useEffect, useRef, useState } from 'react'
 import { MenuProps } from 'antd/lib'
 import { useCookies } from 'react-cookie'
 import RouterContent from '@/utils/RouterContent'

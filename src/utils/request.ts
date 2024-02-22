@@ -7,14 +7,11 @@ import {
   showLoading,
 } from '../store/reducer/globalLoading'
 import store from '@/store'
-import { Location, NavigateFunction } from 'react-router-dom'
-import { Cookies, useCookies } from 'react-cookie'
+import { Cookies } from 'react-cookie'
 const contentTypeForm = 'application/x-www-form-urlencoded;charset=UTF-8'
 const contentTypeJson = 'application/json'
 const responseTypeJson = 'json'
-export const CreateAxiosInstance = (): // navigate?: NavigateFunction,
-// location?: Location
-AxiosInstance => {
+export const CreateAxiosInstance = (): AxiosInstance => {
   const http = axios.create({
     baseURL: '/api',
     timeout: 10 * 1000,
@@ -85,9 +82,7 @@ AxiosInstance => {
   return http
 }
 const request = (
-  config: RequestType,
-  navigate?: NavigateFunction,
-  location?: Location
+  config: RequestType
 ):
   | Promise<{
       code: number

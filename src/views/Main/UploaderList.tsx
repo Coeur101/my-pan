@@ -5,7 +5,6 @@ import { Progress } from 'antd'
 import sparkMd5 from 'spark-md5'
 import React, { forwardRef, useState } from 'react'
 import { uploadChunkFile } from '@/api'
-import { useLocation, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { setIsUploadFileList } from '@/store/reducer/globalLoading'
 interface file extends File {
@@ -34,7 +33,6 @@ const UploaderList = forwardRef(
     ref: React.ForwardedRef<{ addFileToList: (...args: any) => void }>
   ) => {
     let isUploading = false
-    let fileListLength = 0
     let workCount = 0
     // 5mb 进行分片
     let chunkSize = 5 * 1024 * 1024
@@ -215,22 +213,6 @@ const UploaderList = forwardRef(
         return ''
       }
     }
-    // 自定义延时任务
-
-    /*  const de = (fileUid: string) => {
-      const sourceFile = getFileByUid(fileUid)
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          sourceFile!.status = STATUS.upload_finish.value
-          resolve('')
-          setFileList((prev) => {
-            return prev.map((item) => {
-              return item.uid === sourceFile?.uid ? sourceFile : item
-            })
-          })
-        }, 500)
-      })
-    } */
     // chunkIndex当前上传的分片是第几片，来实现暂停后续传
     const uploadFile = async (fileUid: string, chunkIndex?: number) => {
       console.log(fileUid)

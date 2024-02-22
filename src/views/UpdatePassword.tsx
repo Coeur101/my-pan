@@ -1,12 +1,9 @@
 import GlobalModel, { ModelProps } from '@/components/GlobalModel'
-import { Button, Form, Input, Upload, UploadProps } from 'antd'
-import React, { RefAttributes, forwardRef, useEffect, useState } from 'react'
-import ImgCrop from 'antd-img-crop'
-import { avatarUpload } from '@/api'
-import { useLocation, useNavigate } from 'react-router-dom'
-import FormItem from 'antd/es/form/FormItem'
+import { Form, Input } from 'antd'
+import React, { useEffect } from 'react'
+
 import { LockOutlined } from '@ant-design/icons'
-import { FormInstance, useForm } from 'antd/es/form/Form'
+import { FormInstance } from 'antd/es/form/Form'
 
 export interface PasswordTypes {
   newPass: string

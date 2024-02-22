@@ -1,6 +1,6 @@
-import { adminGetFileInfo, getFile, getFileInfo } from '@/api'
+import { adminGetFileInfo, getFileInfo } from '@/api'
 import * as XLSX from 'xlsx'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import style from '../style/previewExcel.module.scss'
 const PreviewExcel: React.FC<{
   fileId: string

@@ -1,5 +1,4 @@
 import { DataList } from '@/views/Main/All'
-import { Image } from 'antd'
 import React, { useEffect, useRef, useState } from 'react'
 import { forwardRef } from 'react'
 import PreviewImage from './PreviewIamge'
@@ -11,7 +10,6 @@ import {
   createDownLoadUrl,
   downLoadFile,
   getFile,
-  getFileInfo,
   getVideoInfo,
   shareCreateDownLoadUrl,
   shareDownLoadFile,
@@ -39,8 +37,6 @@ const Preview = forwardRef(
       showPreview: (file: preivewDataList, type: previewType) => void
     }>
   ) => {
-    const [pdfData, setPdfData] = useState('')
-
     const file_url_map = {
       user: {
         file: (fileId: string) => {

@@ -1,6 +1,5 @@
-import { DataList } from '@/views/Main/All'
 import { Image } from 'antd'
-import React, { forwardRef, useEffect } from 'react'
+import React, { forwardRef } from 'react'
 interface privewImageProps {
   imageUrl: string
 }

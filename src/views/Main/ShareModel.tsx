@@ -1,12 +1,5 @@
 import GlobalModel, { ModelProps } from '@/components/GlobalModel'
-import {
-  ForwardedRef,
-  forwardRef,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react'
+import { forwardRef, useEffect, useState } from 'react'
 import { DataList } from './All'
 import { Button, Form, Input, Radio, RadioChangeEvent } from 'antd'
 import { shareFile } from '@/api/index'
@@ -81,7 +74,6 @@ const ShareModel = forwardRef(
         console.log(error)
       }
     }
-    const copyUrlAndCode = useCallback(() => {}, [])
     React.useImperativeHandle(ref, () => {
       return {
         createShareUrl,

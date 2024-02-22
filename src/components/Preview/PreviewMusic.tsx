@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { APlayer } from 'aplayer-react'
 import 'aplayer-react/dist/index.css'
 import { DataList } from '@/views/Main/All'

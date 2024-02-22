@@ -7,7 +7,6 @@ import {
 } from '@ant-design/icons'
 import {
   Button,
-  ConfigProvider,
   Input,
   Modal,
   TableColumnProps,
@@ -115,16 +114,6 @@ const All: React.FC<any> = (props) => {
     hasControlInside: false,
     capture: 'environment',
     multiple: true,
-    /* customRequest: (info) => {
-      fileSelectCount++
-      uploadFileList.push(info.file)
-      if (fileSelectCount === uploadFileList.length) {
-        parentProps.upLoadFile!(uploadFileList, currentFolder)
-        uploadFileList = []
-        fileSelectCount = 0
-        return
-      }
-    }, */
     beforeUpload: (file, fileList) => {
       // 如果是最后一个文件，则执行上传操作
       if (file === fileList[fileList.length - 1]) {

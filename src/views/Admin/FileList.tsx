@@ -1,28 +1,6 @@
-import RouterContent from '@/utils/RouterContent'
-import {
-  DeleteOutlined,
-  DragOutlined,
-  FolderAddOutlined,
-  UploadOutlined,
-} from '@ant-design/icons'
-import {
-  Button,
-  ConfigProvider,
-  Input,
-  Modal,
-  TableColumnProps,
-  Upload,
-  UploadProps,
-  message,
-} from 'antd'
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { DeleteOutlined } from '@ant-design/icons'
+import { Button, Input, Modal, TableColumnProps, message } from 'antd'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import style from '../style/all.module.scss'
 import GlobalTable, { OptionType } from '@/components/Table'
 import { PaginationProps } from 'antd/lib'
@@ -30,23 +8,16 @@ import {
   adminCreateDownLoadUrl,
   adminDelFile,
   adminDownLoadFile,
-  changeFileFolder,
-  createDownLoadUrl,
-  delFiles,
-  downLoadFile,
   getAllFileList,
-  getFileList,
-  newFoloder,
-  reFileName,
 } from '@/api'
 import { InputRef, SearchProps } from 'antd/es/input'
 import Icon from '@/components/Icon'
 import { formatFileSize } from '@/utils/format'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { ModelProps } from '@/components/GlobalModel'
+import { useLocation } from 'react-router-dom'
+
 import Navigation from '@/components/Navigation'
 import { flushSync } from 'react-dom'
-import NoData from '@/components/Nodata'
+
 import { useSelector } from 'react-redux'
 import Preview, { previewType } from '@/components/Preview/Preview'
 export interface DataList {
@@ -72,7 +43,7 @@ const FileList: React.FC<any> = (props) => {
   const location = useLocation()
   const [pageNo, setPageNo] = useState(1)
   const [pageSize, setPageSize] = useState(15)
-  const editInputRef = useRef<InputRef>(null)
+
   const [data, setData] = useState<DataList[]>([])
   const url = new URLSearchParams(location.search)
   const [selectedRowKeysA, setSelectedRowKeysA] = useState<React.Key[]>([])

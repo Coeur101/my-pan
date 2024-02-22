@@ -1,6 +1,6 @@
 import { Button, Modal } from 'antd'
 import style from './style/model.module.scss'
-import React, { ReactNode } from 'react'
+import { ReactNode } from 'react'
 import { ButtonType } from 'antd/es/button'
 export type ModelProps = {
   title?: string

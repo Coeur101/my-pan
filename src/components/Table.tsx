@@ -1,11 +1,6 @@
-import {
-  PaginationProps,
-  Table,
-  TableColumnType,
-  TablePaginationConfig,
-} from 'antd'
+import { PaginationProps, Table, TableColumnType } from 'antd'
 import { TableRowSelection } from 'antd/es/table/interface'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useLocation } from 'react-router-dom'
 export type OptionType = {
   selectType?: TableRowSelection<any>
@@ -22,10 +17,6 @@ interface TableProps {
   data: any
 }
 const GlobalTable: React.FC<TableProps> = ({ option, handleRowOption }) => {
-  const location = useLocation()
-  // useEffect(() => {
-  //   console.log(data)
-  // }, [data])
   return (
     <Table
       scroll={{ y: option.tableHeght || 260, scrollToFirstRowOnChange: true }}

@@ -1,11 +1,10 @@
 import GlobalModel, { ModelProps } from '@/components/GlobalModel'
 import message from '@/utils/message'
 import { UploadOutlined } from '@ant-design/icons'
-import { Button, Form, Input, Upload, UploadProps } from 'antd'
+import { Button, Form, Upload, UploadProps } from 'antd'
 import { useState } from 'react'
 import ImgCrop from 'antd-img-crop'
 import { avatarUpload } from '@/api'
-import { useLocation, useNavigate } from 'react-router-dom'
 type AvatarTypes = {
   nickName: string
   avatarUrl: string
@@ -21,8 +20,6 @@ const UpdateAvatar: React.FC<{
 }> = (props) => {
   const { userInfo, modelConfig } = props
   const [loadFile, setLoadFile] = useState<string>()
-  const navigate = useNavigate()
-  const location = useLocation()
   const upProps: UploadProps = {
     hasControlInside: true,
     customRequest: async ({ file, onSuccess, onError }) => {

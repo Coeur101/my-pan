@@ -39,9 +39,6 @@ const Navigation = forwardRef(
       navChange,
     } = props
     let [folderList, setFolderList] = useState<navigationFolder[]>([])
-    const [currentFolder, setCurrentFolder] = useState<{
-      fileId: string
-    }>({ fileId: '' })
 
     const [categroy, setCategroy] = useState<categroy>('all')
     const navigate = useNavigate()

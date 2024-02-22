@@ -49,10 +49,12 @@ const PreviewPdf: React.FC<{
   useEffect(() => {
     initPdf()
   }, [])
+  // 初始化pdf分页
   //@ts-ignore
   const onDocumentLoadSuccess = ({ numPages }) => {
     setPageInfo({ ...pageInfo, numPages: numPages })
   }
+  // 上一页
   const lastPage = () => {
     if (pageInfo.pageNumber == 1) {
       return
@@ -60,6 +62,7 @@ const PreviewPdf: React.FC<{
     const page = pageInfo.pageNumber - 1
     setPageInfo({ ...pageInfo, pageNumber: page, pageNumberInput: page })
   }
+  // 下一页
   const nextPage = () => {
     if (pageInfo.pageNumber == pageInfo.numPages) {
       return
@@ -67,9 +70,11 @@ const PreviewPdf: React.FC<{
     const page = pageInfo.pageNumber + 1
     setPageInfo({ ...pageInfo, pageNumber: page, pageNumberInput: page })
   }
+  // 输入框聚焦
   const onPageNumberFocus = () => {
     setPageInfo({ ...pageInfo, pageNumberFocus: true })
   }
+  // 输入框失焦
   const onPageNumberBlur = () => {
     setPageInfo({
       ...pageInfo,
@@ -77,6 +82,7 @@ const PreviewPdf: React.FC<{
       pageNumberInput: pageInfo.pageNumber,
     })
   }
+  // 输入框值改变时
   const onPageNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value
     value = (Number(value) <= 0 ? 1 : value) as string
@@ -85,10 +91,11 @@ const PreviewPdf: React.FC<{
     ) as string
     setPageInfo({ ...pageInfo, pageNumberInput: Number(value) })
   }
+  // 按下回车跳转页数
   const toPage = (e: any) => {
     setPageInfo({ ...pageInfo, pageNumber: Number(e.target.value) })
   }
-
+  // 缩放pdf预览
   const pageZoomOut = () => {
     if (pageInfo.pageWidth <= 600) {
       return
@@ -96,11 +103,12 @@ const PreviewPdf: React.FC<{
     const pageWidth = pageInfo.pageWidth * 0.8
     setPageInfo({ ...pageInfo, pageWidth: pageWidth })
   }
+  // 放大pdf预览
   const pageZoomIn = () => {
     const pageWidth = pageInfo.pageWidth * 1.2
     setPageInfo({ ...pageInfo, pageWidth: pageWidth })
   }
-
+  // 调整pdf预览适应窗口大小
   const pageFullscreen = () => {
     if (pageInfo.fullscreen) {
       setPageInfo({ ...pageInfo, fullscreen: false, pageWidth: 600 })

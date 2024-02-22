@@ -1,6 +1,6 @@
-import { adminGetFileInfo, getFile, getFileInfo } from '@/api'
+import { adminGetFileInfo, getFileInfo } from '@/api'
 import * as docx from 'docx-preview'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 const PreviewDoc: React.FC<{
   fileId: string
   previewType: 'user' | 'admin' | 'share'
