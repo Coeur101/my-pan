@@ -7,6 +7,7 @@ import React, { forwardRef, useState } from 'react'
 import { uploadChunkFile } from '@/api'
 import { useDispatch } from 'react-redux'
 import { setIsUploadFileList } from '@/store/reducer/globalLoading'
+import { flushSync } from 'react-dom'
 interface file extends File {
   uid: string
 }
@@ -27,13 +28,15 @@ type FileListType = {
   key?: number | string
   fileId: string
 }
+let uploadQueue: any[] = []
+let chunkSourceIndex = 0
+let isUploading = false
+let workCount = 0
 const UploaderList = forwardRef(
   (
     props: any,
     ref: React.ForwardedRef<{ addFileToList: (...args: any) => void }>
   ) => {
-    let isUploading = false
-    let workCount = 0
     // 5mb 进行分片
     let chunkSize = 5 * 1024 * 1024
     const STATUS = {
@@ -82,7 +85,7 @@ const UploaderList = forwardRef(
     }
     const [fileList, setFileList] = useState<FileListType[]>([])
     const [delFileList, setDelFileList] = useState<string[]>([])
-    let uploadQueue: any[] = []
+
     const dispatch = useDispatch()
     const addFileToList = async (files: any[], filePid: string) => {
       uploadQueue = []
@@ -215,7 +218,6 @@ const UploaderList = forwardRef(
     }
     // chunkIndex当前上传的分片是第几片，来实现暂停后续传
     const uploadFile = async (fileUid: string, chunkIndex?: number) => {
-      console.log(fileUid)
       chunkIndex = chunkIndex ? chunkIndex : 0
       const sourceFile = getFileByUid(fileUid)
       // 拿到转换完成的uid 查找文件
@@ -233,8 +235,13 @@ const UploaderList = forwardRef(
           // 且不进行上传
           break
         }
+        const pauseIndex = fileList.findIndex(
+          (item) => item.pause && item.uid === fileUid
+        )
+        console.log(pauseIndex)
+
         // 如果暂停则跳出循环上传
-        if (sourceFile?.pause) {
+        if (pauseIndex !== -1) {
           break
         }
         // 进行分片
@@ -264,7 +271,14 @@ const UploaderList = forwardRef(
             },
             // 获取上传进度
             (event) => {
-              sourceFile!.uploadProgress = Math.floor(event.progress * 100)
+              let loaded = event.loaded
+              if (event.loaded > fileSize!) {
+                loaded = fileSize
+              }
+              sourceFile!.uploadSize = i * chunkSize + loaded
+              sourceFile!.uploadProgress = Math.floor(
+                (sourceFile!.uploadSize / fileSize!) * 100
+              )
               setFileList((prev) => {
                 return prev.map((item) => {
                   return item.uid === sourceFile?.uid ? sourceFile : item
@@ -278,6 +292,8 @@ const UploaderList = forwardRef(
           sourceFile!.status = (STATUS as any)[res.data.status].value
           sourceFile!.fileId = res.data.fileId
           sourceFile!.chunkIndex = i
+          // 记录当前分片索引
+
           // 如果等于这两个状态，代表已经上传完毕
           if (
             sourceFile?.status === STATUS.upload_finish.value ||
@@ -289,6 +305,7 @@ const UploaderList = forwardRef(
                 return item.uid === sourceFile?.uid ? sourceFile : item
               })
             })
+            chunkSourceIndex = 0
             // 上传成功后 通过redux来尝试更新文件列表
             dispatch(setIsUploadFileList(null))
             break
@@ -315,6 +332,26 @@ const UploaderList = forwardRef(
       // 如果上传队列中仍有文件，则继续上传
       loopUpload()
     }
+
+    // 继续上传
+    const startUpload = (file: FileListType) => {
+      fileList.forEach((item) => {
+        if (item.uid === file.uid) {
+          item.pause = false
+        }
+      })
+      setFileList(fileList)
+      uploadFile(file.uid, file.chunkIndex)
+    }
+    // 暂停上传
+    const endUpload = (fileUid: string) => {
+      fileList.forEach((item) => {
+        if (item.uid === fileUid) {
+          item.pause = true
+        }
+      })
+      setFileList(fileList)
+    }
     // 获取文件
     const getFileByUid = (uid: string) => {
       const file = fileList.find((item) => item.uid === uid)
@@ -322,36 +359,6 @@ const UploaderList = forwardRef(
         chunkSize = 1 * 1024 * 1024
       }
       return file
-    }
-    // 继续上传
-    const startUpload = (fileUid: string) => {
-      setFileList((fileList) => {
-        return fileList.map((item) => {
-          if (item.uid === fileUid) {
-            return {
-              ...item,
-              pause: false,
-            }
-          } else {
-            return item
-          }
-        })
-      })
-    }
-    // 暂停上传
-    const endUpload = (fileUid: string) => {
-      setFileList((fileList) => {
-        return fileList.map((item) => {
-          if (item.uid === fileUid) {
-            return {
-              ...item,
-              pause: true,
-            }
-          } else {
-            return item
-          }
-        })
-      })
     }
     const delUpload = (file: FileListType) => {
       if (file.status !== STATUS.uploading.value) {
@@ -437,11 +444,19 @@ const UploaderList = forwardRef(
                 {item.status === STATUS.uploading.value ? (
                   <span className="w-[28px] h-[28px] ml-[5px] cursor-pointer text-center inline-block rounded overflow-hidden">
                     {item.pause ? (
-                      <div onClick={() => startUpload(item.uid)}>
+                      <div
+                        onClick={() => {
+                          startUpload(item)
+                        }}
+                      >
                         <Icon width={28} iconName="upload"></Icon>
                       </div>
                     ) : (
-                      <div onClick={() => endUpload(item.uid)}>
+                      <div
+                        onClick={() => {
+                          endUpload(item.uid)
+                        }}
+                      >
                         <Icon width={28} iconName="pause"></Icon>
                       </div>
                     )}
