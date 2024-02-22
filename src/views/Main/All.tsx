@@ -72,7 +72,6 @@ const All: React.FC<any> = (props) => {
     all: '',
     others: '',
   }
-  let [uploadFileList, setUploadFileList] = useState<any[]>([])
   const [modelConfig, setModelConfig] = useState<ModelProps>({
     show: false,
     title: '移动到',
@@ -113,21 +112,26 @@ const All: React.FC<any> = (props) => {
     upLoadFile?: (...args: any) => void
   }>(RouterContent)
   const upProps: UploadProps = {
-    hasControlInside: true,
+    hasControlInside: false,
     capture: 'environment',
     multiple: true,
-    customRequest: (info) => {
-      uploadFileList.unshift(info.file)
-      setUploadFileList(uploadFileList)
-      if (
-        (info.file as any).uid ===
-        uploadFileList[uploadFileList.length - 1]?.uid
-      ) {
+    /* customRequest: (info) => {
+      fileSelectCount++
+      uploadFileList.push(info.file)
+      if (fileSelectCount === uploadFileList.length) {
         parentProps.upLoadFile!(uploadFileList, currentFolder)
-
-        setUploadFileList([])
+        uploadFileList = []
+        fileSelectCount = 0
         return
       }
+    }, */
+    beforeUpload: (file, fileList) => {
+      // 如果是最后一个文件，则执行上传操作
+      if (file === fileList[fileList.length - 1]) {
+        parentProps.upLoadFile!(fileList, currentFolder)
+      }
+      // 返回 false 可以阻止上传
+      return false
     },
     showUploadList: false,
     withCredentials: true,

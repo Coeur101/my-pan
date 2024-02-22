@@ -33,7 +33,9 @@ const UploaderList = forwardRef(
     props: any,
     ref: React.ForwardedRef<{ addFileToList: (...args: any) => void }>
   ) => {
-    // const { loadFileList } = props
+    let isUploading = false
+    let fileListLength = 0
+    let workCount = 0
     // 5mb 进行分片
     let chunkSize = 5 * 1024 * 1024
     const STATUS = {
@@ -54,6 +56,12 @@ const UploaderList = forwardRef(
         desc: '解析中',
         color: '#e6a23c',
         icon: 'clock',
+      },
+      pause: {
+        value: 'pause',
+        desc: '暂停中',
+        color: '#e6a23c',
+        icon: 'pause',
       },
       uploading: {
         value: 'uploading',
@@ -78,8 +86,8 @@ const UploaderList = forwardRef(
     const [delFileList, setDelFileList] = useState<string[]>([])
     let uploadQueue: any[] = []
     const dispatch = useDispatch()
-    const md5FileUidList: Promise<string>[] = []
     const addFileToList = async (files: any[], filePid: string) => {
+      uploadQueue = []
       for (const file of files) {
         const fileItem: FileListType = {
           file,
@@ -87,7 +95,7 @@ const UploaderList = forwardRef(
           // MD5值
           md5: null,
           // md5进度
-          md5Progress: 10,
+          md5Progress: 0,
           //文件名
           fileName: file.name,
           // 上传状态
@@ -116,18 +124,30 @@ const UploaderList = forwardRef(
         }
         fileList.unshift(fileItem)
         setFileList([...fileList])
-        uploadQueue.push(file)
-        md5FileUidList.push(computeMd5(fileItem))
+        uploadQueue.push(fileItem)
       }
-      // uploadFile(md5FileUid, 0)
       loopUpload()
     }
     const loopUpload = async () => {
-      const filesToMd5 = md5FileUidList.slice(0, 6)
-      const md5FileIds = await Promise.all(filesToMd5)
-      for (const fileItem of md5FileIds) {
-        uploadFile(fileItem, 0)
+      if (!isUploading && uploadQueue.length > 0) {
+        workCount = 0
+        isUploading = true
+        // 正在有6个文件上传
+        const filesToUploadList = uploadQueue.slice(0, 6)
+        const uploadPromises = filesToUploadList.map(processFile)
+        await Promise.all(uploadPromises) // 并行处理文件上传
+        console.log('完成')
+
+        return
       }
+    }
+    const processFile = async (file: FileListType) => {
+      let md5FileUid = await computeMd5(file)
+      if (md5FileUid === '') {
+        return
+      }
+      // 上传文件
+      await uploadFile(md5FileUid)
     }
     /**
      * 解析文件,加密Md5
@@ -188,15 +208,32 @@ const UploaderList = forwardRef(
           fileReader.onerror = (e_1: any) => {
             resultFile!.md5Progress = -1
             resultFile!.status = STATUS.fail.value
-            resolve(fileItem.uid)
+            resolve('')
           }
         })
       } catch (error) {
         return ''
       }
     }
+    // 自定义延时任务
+
+    /*  const de = (fileUid: string) => {
+      const sourceFile = getFileByUid(fileUid)
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          sourceFile!.status = STATUS.upload_finish.value
+          resolve('')
+          setFileList((prev) => {
+            return prev.map((item) => {
+              return item.uid === sourceFile?.uid ? sourceFile : item
+            })
+          })
+        }, 500)
+      })
+    } */
     // chunkIndex当前上传的分片是第几片，来实现暂停后续传
     const uploadFile = async (fileUid: string, chunkIndex?: number) => {
+      console.log(fileUid)
       chunkIndex = chunkIndex ? chunkIndex : 0
       const sourceFile = getFileByUid(fileUid)
       // 拿到转换完成的uid 查找文件
@@ -283,14 +320,18 @@ const UploaderList = forwardRef(
           break
         }
       }
+
       const index = uploadQueue.findIndex((item) => item.uid === fileUid)
       if (index !== -1) {
         uploadQueue.splice(index, 1)
       }
-      // 如果上传队列中仍有文件，则继续上传
-      if (uploadQueue.length > 0) {
-        loopUpload()
+      workCount++
+      if (workCount === 6 || uploadQueue.length === 0) {
+        isUploading = false
+        console.log(123)
       }
+      // 如果上传队列中仍有文件，则继续上传
+      loopUpload()
     }
     // 获取文件
     const getFileByUid = (uid: string) => {
@@ -368,16 +409,28 @@ const UploaderList = forwardRef(
                 <div className="flex items-center mt-[5px]">
                   <span
                     className={`iconfont icon-${
-                      (STATUS as any)[item.status].icon
+                      item.pause
+                        ? STATUS.pause.icon
+                        : (STATUS as any)[item.status].icon
                     } mr-[3px]`}
-                    style={{ color: (STATUS as any)[item.status].color }}
+                    style={{
+                      color: item.pause
+                        ? STATUS.pause.color
+                        : (STATUS as any)[item.status].color,
+                    }}
                   ></span>
                   <span
                     className="text-[13px] text-[red]"
-                    style={{ color: (STATUS as any)[item.status].color }}
+                    style={{
+                      color: item.pause
+                        ? STATUS.pause.color
+                        : (STATUS as any)[item.status].color,
+                    }}
                   >
                     {item.status === 'fail'
                       ? item.errorMsg
+                      : item.pause
+                      ? STATUS.pause.desc
                       : (STATUS as any)[item.status].desc}
                   </span>
                   {item.status === STATUS.uploading.value ? (
@@ -411,20 +464,20 @@ const UploaderList = forwardRef(
                       </div>
                     )}
                   </span>
-                ) : (
-                  <span
-                    className="w-[28px] h-[28px] ml-[5px] cursor-pointer text-center inline-block rounded overflow-hidden"
-                    title="删除"
-                  >
-                    {item.status !== STATUS.init.value &&
-                    item.status !== STATUS.upload_finish.value &&
-                    item.status !== STATUS.upload_seconds.value ? (
-                      <div onClick={() => delUpload(item)}>
-                        <Icon width={28} iconName="clean"></Icon>
-                      </div>
-                    ) : null}
-                  </span>
-                )}
+                ) : null}
+                <span
+                  className="w-[28px] h-[28px] ml-[5px] cursor-pointer text-center inline-block rounded overflow-hidden"
+                  title="删除"
+                >
+                  {item.status !== STATUS.init.value &&
+                  item.status !== STATUS.upload_finish.value &&
+                  item.status !== STATUS.upload_seconds.value ? (
+                    <div onClick={() => delUpload(item)}>
+                      <Icon width={28} iconName="del"></Icon>
+                    </div>
+                  ) : null}
+                </span>
+
                 {item.status === STATUS.upload_finish.value ||
                 item.status === STATUS.upload_seconds.value ? (
                   <span
