@@ -257,7 +257,7 @@ const FreameWork = () => {
       navigate('/main/all', { replace: true })
     }
     const item = menuItems.filter((item) => {
-      return item.path === location.pathname
+      return item.path?.split('/')[1] === location.pathname.split('/')[1]
     })
     if (item.length > 0) {
       setSublist(item[0].children as MenuItems[])
