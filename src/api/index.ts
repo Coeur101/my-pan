@@ -709,3 +709,34 @@ export const getAllUserList = (
     })
   } catch (error) {}
 }
+/**
+ * 设置用户文件大小。
+ *
+ * @param {string} userId - 用户ID
+ * @param {number} changeSpace - 用户空间变化量
+ * @return {any} 请求的结果
+ */
+export const setUserFileSize = (userId: string, changeSpace: number) => {
+  try {
+    return request({
+      url: '/admin/updateUserSpace',
+      params: {
+        userId,
+        changeSpace,
+      },
+    })
+  } catch (error) {
+    console.log(error)
+  }
+}
+export const setUserStatusOp = (userId: string, status: string) => {
+  try {
+    return request({
+      url: '/admin/updateUserStatus',
+      params: {
+        userId,
+        status,
+      },
+    })
+  } catch (error) {}
+}

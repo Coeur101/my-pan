@@ -58,7 +58,9 @@ const GlobalModel = <T extends ModelProps>(props: T) => {
                     type={btn.type}
                     className="bg-btn-primary"
                     key={index}
-                    onClick={btn.click}
+                    onClick={() => {
+                      btn.click!()
+                    }}
                   >
                     {btn.text}
                   </Button>

@@ -1,6 +1,7 @@
 import {
   Button,
   Divider,
+  Form,
   Input,
   Modal,
   PaginationProps,
@@ -14,10 +15,11 @@ import style from '../style/all.module.scss'
 import GlobalTable, { OptionType } from '@/components/Table'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
-import { getAllUserList, getRecycleFileList } from '@/api'
+import { getAllUserList, setUserFileSize, setUserStatusOp } from '@/api'
 import { formatFileSize } from '@/utils/format'
-import _ from 'lodash'
 import Avatar from '@/components/Avatar'
+import GlobalModel, { ModelProps } from '@/components/GlobalModel'
+import { useCookies } from 'react-cookie'
 interface DataList {
   userId: string
   nickName: string
@@ -29,6 +31,10 @@ interface DataList {
   useSpace: number
   totalSpace: number
 }
+interface changeFileSizeFormType {
+  nickName: string
+  fileSize: number
+}
 const UserList = () => {
   const [pageNo, setPageNo] = useState(1)
   const [pageSize, setPageSize] = useState(15)
@@ -37,6 +43,31 @@ const UserList = () => {
   const [data, setData] = useState<DataList[]>([])
   const [userName, SetUserName] = useState('')
   const [userStatus, setUserStatus] = useState('')
+  const [changeFileSizeForm] = Form.useForm<changeFileSizeFormType>()
+  const [currentSelectUser, setCurrentSelectUser] = useState<DataList>()
+  let [cookie, setCookie, removeCookie] = useCookies(['userInfo', 'loginInfo'])
+  const [modelConfig, setModelConfig] = useState<ModelProps>({
+    title: '修改空间大小',
+    width: 450,
+    cancelBtn: true,
+    show: false,
+    close: () => {
+      setModelConfig({
+        ...modelConfig,
+        show: false,
+      })
+    },
+  })
+  const buttons: any = [
+    {
+      type: 'primary',
+      text: '确定',
+      click: () => {
+        console.log(currentSelectUser)
+        changeFileSize()
+      },
+    },
+  ]
   const colums: TableColumnProps<DataList>[] = [
     {
       key: 1,
@@ -136,11 +167,25 @@ const UserList = () => {
         return (
           <div>
             <Space size={0}>
-              <Button type="link">分配空间</Button>
-              <Divider type="vertical" />
-              <Button type="link">
-                {record.status === 1 ? '禁用' : '启用'}
+              <Button
+                type="link"
+                onClick={() => {
+                  changeUserFileSize(record)
+                }}
+              >
+                分配空间
               </Button>
+              <Divider type="vertical" />
+              {cookie.userInfo.userId === record.userId ? null : (
+                <Button
+                  type="link"
+                  onClick={() => {
+                    forbiddenUser(record)
+                  }}
+                >
+                  {record.status === 1 ? '禁用' : '启用'}
+                </Button>
+              )}
             </Space>
           </div>
         )
@@ -218,6 +263,47 @@ const UserList = () => {
   const handleSearch = () => {
     loadList()
   }
+  const changeUserFileSize = async (user: DataList) => {
+    setCurrentSelectUser(user)
+    setModelConfig({
+      ...modelConfig,
+      show: true,
+    })
+    ;(changeFileSizeForm as any).resetFields()
+  }
+  const changeFileSize = async () => {
+    try {
+      await (changeFileSizeForm as any).validateFields()
+      const res = await setUserFileSize(
+        currentSelectUser?.userId as string,
+        (changeFileSizeForm as any).getFieldsValue(['fileSize']).fileSize
+      )
+      if (res?.code !== 200) {
+        return
+      }
+      // 设置完后更新列表
+      loadList()
+      setModelConfig({
+        ...modelConfig,
+        show: false,
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  const forbiddenUser = async (user: DataList) => {
+    try {
+      const res = await setUserStatusOp(
+        user.userId,
+        user.status === 1 ? '0' : '1'
+      )
+      if (res?.code !== 200) {
+        return
+      }
+      // 设置完后更新列表
+      loadList()
+    } catch (error) {}
+  }
   useEffect(() => {
     loadList()
   }, [pageSize, pageNo])
@@ -253,6 +339,33 @@ const UserList = () => {
       <div className={`${style.wrapper}`}>
         <GlobalTable option={option} data={data}></GlobalTable>
       </div>
+      <GlobalModel {...modelConfig} buttons={buttons}>
+        <Form
+          name="basic"
+          labelCol={{ span: 5 }}
+          wrapperCol={{ span: 15 }}
+          style={{ maxWidth: 400 }}
+          form={changeFileSizeForm}
+          autoComplete="off"
+        >
+          <Form.Item<changeFileSizeFormType> label="昵称">
+            {currentSelectUser?.nickName || ''}
+          </Form.Item>
+
+          <Form.Item<changeFileSizeFormType>
+            rules={[
+              {
+                required: true,
+                message: '必填分配空间数',
+              },
+            ]}
+            label="分配空间："
+            name="fileSize"
+          >
+            <Input addonAfter="MB" type="number" />
+          </Form.Item>
+        </Form>
+      </GlobalModel>
     </div>
   )
 }
