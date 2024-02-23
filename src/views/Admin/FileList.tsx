@@ -43,13 +43,9 @@ const FileList: React.FC<any> = (props) => {
   const location = useLocation()
   const [pageNo, setPageNo] = useState(1)
   const [pageSize, setPageSize] = useState(15)
-
-  const [data, setData] = useState<DataList[]>([])
   const url = new URLSearchParams(location.search)
+  const [data, setData] = useState<DataList[]>([])
   const [selectedRowKeysA, setSelectedRowKeysA] = useState<React.Key[]>([])
-  const [currentFolder, setCurrentFolder] = useState(
-    url.get('path')?.split('/')[url.get('path')!.split('/')!.length - 1] || '0'
-  )
   const navigationRef = useRef<{ openCurrentFolder: (...args: any) => void }>(
     null
   )
@@ -224,10 +220,14 @@ const FileList: React.FC<any> = (props) => {
     }
   }, [pageNo, pageSize, total, data, tableLoading, selectedRowKeysA])
   useEffect(() => {
-    loadList('')
+    if (!url.get('path')) {
+      loadList('')
+      return
+    }
+    let pathArray = url.get('path')?.split('/')
+    loadList('', pathArray ? pathArray![pathArray!.length - 1] : '0')
     saveSelectedKeys(selectedRowKeysA)
-  }, [pageNo, pageSize, isUploadFileList])
-
+  }, [pageNo, pageSize, isUploadFileList, location])
   // 搜索
   const onSearch: SearchProps['onSearch'] = (value) => {
     loadList(value)
@@ -267,8 +267,6 @@ const FileList: React.FC<any> = (props) => {
   // 点击文件夹进行下钻,点击文件就进行预览
   const openCurrentFolder = (folder: DataList) => {
     if (!folder.fileType) {
-      setCurrentFolder(folder.fileId as string)
-      loadList('', folder.fileId)
       navigationRef.current?.openCurrentFolder(folder)
       return
     }

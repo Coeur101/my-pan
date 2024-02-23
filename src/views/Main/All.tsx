@@ -18,6 +18,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -360,7 +361,7 @@ const All: React.FC<any> = (props) => {
       cursor: 'all',
     })
   }, [data])
-  useEffect(() => {
+  useLayoutEffect(() => {
     setCatagory(location.pathname.split('/')[2] as any)
     // 判断分类来设置上传文件的类型
     setAccept(
@@ -370,9 +371,9 @@ const All: React.FC<any> = (props) => {
       url.get('path')?.split('/')[url.get('path')!.split('/')!.length - 1] ||
         '0'
     )
-  }, [location, pageNo, pageSize])
+  }, [location])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!url.get('path')) {
       loadList('')
       return

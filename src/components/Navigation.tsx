@@ -20,7 +20,6 @@ interface navigationFolder {
   fileId: string
   fileName: string
 }
-type categroy = 'all' | 'video' | 'image' | 'music' | 'others' | 'doc'
 // 判断是否存在
 const findCommonFile = (folderList: any[], currentFolder: any) => {
   return folderList.find((item) => item.fileId === currentFolder.fileId)
@@ -39,8 +38,7 @@ const Navigation = forwardRef(
       navChange,
     } = props
     let [folderList, setFolderList] = useState<navigationFolder[]>([])
-
-    const [categroy, setCategroy] = useState<categroy>('all')
+    let [navFolderList, setNavFolderList] = useState<navigationFolder[]>([])
     const navigate = useNavigate()
     const location = useLocation()
     const url = new URLSearchParams(location.search)
@@ -49,8 +47,6 @@ const Navigation = forwardRef(
       if (pCurrentFolder && (pCurrentFolder as Folder).fileId !== '0') {
         if (findCommonFile(folderList, pCurrentFolder)) {
         } else {
-          console.log(pCurrentFolder)
-
           folderList.push({
             fileId:
               pCurrentFolder !== '0'
@@ -58,18 +54,17 @@ const Navigation = forwardRef(
                 : '',
             fileName: (pCurrentFolder as Folder)?.fileName as string,
           })
+          setNavFolderList(folderList)
+          setFolderList(folderList)
         }
       }
     }, [pCurrentFolder])
     useEffect(() => {
-      if (isWatchPath) {
-        setCategroy(location.pathname.split('/')[2] as categroy)
-
-        if (!url.get('path')) {
-          setFolderList([])
-        } else {
-          getNavigationFolder(url.get('path'))
-        }
+      if (!url.get('path')) {
+        setFolderList([])
+        setNavFolderList([])
+      } else {
+        getNavigationFolder(url.get('path'))
       }
     }, [location])
     const openCurrentFolder = (folder: navigationFolder) => {
@@ -80,9 +75,12 @@ const Navigation = forwardRef(
           return
         }
 
-        if (!folder.fileId) {
+        if (!folder.fileId && !adminShow) {
           navigate(`${location.pathname}`)
           loadList!()
+          return
+        } else if (!folder.fileId && adminShow) {
+          navigate(`${location.pathname}`)
           return
         }
 
@@ -94,11 +92,8 @@ const Navigation = forwardRef(
         if (!folder.fileId) {
           setFolderList([])
           navChange!('all')
-          console.log(folderList)
-
           return
         }
-
         navChange!(folder)
         folderList = folderList.splice(
           folderList.findIndex((item) => item.fileId === folder.fileId),
@@ -132,10 +127,10 @@ const Navigation = forwardRef(
         } else {
           res = await getFolderInfo(path as string)
         }
-        setFolderList(res?.data)
         if (res?.code !== 200) {
           return
         }
+        setNavFolderList(res?.data)
       } catch (error) {
         console.log(error)
       }
@@ -159,6 +154,7 @@ const Navigation = forwardRef(
       } else {
         if (folderList.length - 2 <= 0) {
           setFolderList([])
+          setNavFolderList([])
           navChange!('all')
           return
         }
@@ -175,7 +171,7 @@ const Navigation = forwardRef(
     })
     return (
       <div className="text-[13px] flex items-center leading-10  ml-[10px]">
-        {folderList.length > 0 ? (
+        {navFolderList.length > 0 ? (
           <div>
             <span
               className="text-[#06a7ff] cursor-pointer"
@@ -190,7 +186,7 @@ const Navigation = forwardRef(
         ) : (
           <span className="font-bold">全部文件</span>
         )}
-        {folderList.length > 0 ? (
+        {navFolderList.length > 0 ? (
           <span
             className="text-[#06a7ff] cursor-pointer"
             onClick={() => openCurrentFolder({ fileId: '', fileName: '' })}
@@ -198,7 +194,7 @@ const Navigation = forwardRef(
             全部文件
           </span>
         ) : null}
-        {folderList.map((item, index) => {
+        {navFolderList.map((item, index) => {
           return (
             <div key={index}>
               <RightOutlined></RightOutlined>

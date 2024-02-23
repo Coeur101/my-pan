@@ -13,7 +13,13 @@ import {
   useNavigate,
 } from 'react-router-dom'
 import '@/views/style/Feame.scss'
-import { startTransition, useEffect, useRef, useState } from 'react'
+import {
+  startTransition,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 import { MenuProps } from 'antd/lib'
 import { useCookies } from 'react-cookie'
 import RouterContent from '@/utils/RouterContent'
@@ -252,7 +258,7 @@ const FreameWork = () => {
   const loginState = useSelector((state: any) => {
     return state.globalLoading.loginState
   })
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (location.pathname === '/') {
       navigate('/main/all', { replace: true })
     }
@@ -383,7 +389,7 @@ const FreameWork = () => {
               return item.allShow ? (
                 <div
                   className={`text-center text-[14px] font-bold p-[20px_0px] cursor-pointer hover:bg-[#f3f3f3]  ${
-                    item.children?.some(
+                    item.children?.every(
                       (el) => el.path === location.pathname
                     ) || item.path == location.pathname
                       ? activeClass

@@ -379,6 +379,7 @@ export const getAdminFolderInfo = (path: string) => {
       params: {
         path,
       },
+      showLoading: false,
     })
   } catch (error) {}
 }

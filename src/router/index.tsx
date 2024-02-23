@@ -5,16 +5,18 @@ import { useEffect } from 'react'
 import message from '@/utils/message'
 const RouterView = () => {
   const [cookie, setCookie] = useCookies(['userInfo'])
-  const Element = useRoutes(baseRouter)
+  const location = useLocation()
+  const Element = useRoutes(baseRouter, location)
   const navigate = useNavigate()
   const cookieUserInfo = cookie.userInfo
-  const location = useLocation()
   useEffect(() => {
     if (!cookieUserInfo && location.pathname !== '/login') {
       message.error('未登录')
       navigate('/login')
     }
-  }, [navigate])
+  }, [navigate, cookieUserInfo, location.pathname])
+
   return <>{Element}</>
 }
+
 export default RouterView

@@ -62,6 +62,7 @@ export const CreateAxiosInstance = (): AxiosInstance => {
         const cookie = new Cookies()
         cookie.remove('userInfo')
         store.dispatch(setLoginState(1))
+        message.error('登录超时')
         return Promise.reject({ showError: false, msg: '登录超时' })
       } else {
         if (errorCallback) {
