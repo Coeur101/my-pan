@@ -64,6 +64,12 @@ const UploaderList = forwardRef(
         color: '#e6a23c',
         icon: 'pause',
       },
+      wait: {
+        value: 'wait',
+        desc: '等待中',
+        color: '#409eff',
+        icon: 'pause',
+      },
       uploading: {
         value: 'uploading',
         desc: '上传中',
@@ -100,7 +106,7 @@ const UploaderList = forwardRef(
           //文件名
           fileName: file.name,
           // 上传状态
-          status: STATUS.init.value,
+          status: STATUS.wait.value,
           // 文件总大小
           totalSize: file.size,
           uploadSize: 0,
@@ -147,6 +153,18 @@ const UploaderList = forwardRef(
       if (md5FileUid === '') {
         return
       }
+      setFileList((prev) => {
+        return prev.map((item) => {
+          if (item.uid === file.uid) {
+            return {
+              ...item,
+              status: STATUS.init.value,
+            }
+          } else {
+            return item
+          }
+        })
+      })
       // 上传文件
       await uploadFile(md5FileUid)
     }
