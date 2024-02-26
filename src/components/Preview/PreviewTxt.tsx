@@ -1,4 +1,4 @@
-import { adminGetFileInfo, getFileInfo } from '@/api'
+import { adminGetFileInfo, getFileInfo, shareGetFileInfo } from '@/api'
 import message from '@/utils/message'
 import { Button, Select, SelectProps } from 'antd'
 import React, { useEffect, useRef, useState } from 'react'
@@ -9,8 +9,9 @@ const PreviewTxt: React.FC<{
   fileId: string
   previewType: 'user' | 'admin' | 'share'
   userId?: string
+  shareId?: string
 }> = (props) => {
-  const { fileId, previewType, userId } = props
+  const { fileId, previewType, userId, shareId } = props
   const [content, setContent] = useState('')
   const [originContent, setOriginContent] = useState('')
   const contentRef = useRef<HTMLDivElement | null>(null)
@@ -47,6 +48,8 @@ const PreviewTxt: React.FC<{
       res = await adminGetFileInfo(fileId, userId as string, 'arraybuffer')
     } else if (previewType === 'user') {
       res = await getFileInfo(fileId, userId)
+    } else if (previewType === 'share') {
+      res = await shareGetFileInfo(fileId, shareId as string)
     }
     setOriginContent(res as any)
     setContent(arrayBufferToString(res))

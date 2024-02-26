@@ -13,7 +13,7 @@ const contentTypeJson = 'application/json'
 const responseTypeJson = 'json'
 export const CreateAxiosInstance = (): AxiosInstance => {
   const http = axios.create({
-    baseURL: '/api',
+    baseURL: process.env.REACT_APP_BASE_URL,
     timeout: 10 * 1000,
   })
   // const [cookie, setCookie, removeCookie] = useCookies(['userInfo'])

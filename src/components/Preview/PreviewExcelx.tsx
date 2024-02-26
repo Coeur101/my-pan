@@ -1,4 +1,9 @@
-import { adminGetFileInfo, getFileInfo } from '@/api'
+import {
+  adminGetFileInfo,
+  getFileInfo,
+  shareGetFile,
+  shareGetFileInfo,
+} from '@/api'
 import * as XLSX from 'xlsx'
 import React, { useEffect, useState } from 'react'
 import style from '../style/previewExcel.module.scss'
@@ -6,8 +11,9 @@ const PreviewExcel: React.FC<{
   fileId: string
   previewType: 'user' | 'admin' | 'share'
   userId?: string
+  shareId?: string
 }> = (props) => {
-  const { fileId, previewType, userId } = props
+  const { fileId, previewType, userId, shareId } = props
   const [excelContent, setExcelContent] = useState('')
   useEffect(() => {
     initDoc()
@@ -20,6 +26,8 @@ const PreviewExcel: React.FC<{
         res = await adminGetFileInfo(fileId, userId as string, 'arraybuffer')
       } else if (previewType === 'user') {
         res = await getFileInfo(fileId, 'arraybuffer')
+      } else if (previewType === 'share') {
+        res = await shareGetFileInfo(fileId, shareId as string)
       }
       if (!res) {
         return

@@ -364,6 +364,7 @@ export const getShareFolderInfo = (shareId: string, path: string) => {
         shareId,
         path,
       },
+      showLoading: false,
     })
   } catch (error) {}
 }
@@ -468,26 +469,29 @@ export const adminDownLoadFile = (downloadId: string) => {
  * 外部分享获取文件信息
  * @returns
  */
-export const shareGetFile = (fileId: string) => {
-  return `/showShare/getFile/${fileId}`
+export const shareGetFile = (fileId: string, shareId: string) => {
+  return `/api/showShare/getFile/${shareId}/${fileId}`
 }
 /**
  * 外部分享获取视频信息
  * @returns
  */
-export const shareGetVideoInfo = (fileId: string) => {
-  return `/showShare/ts/getVideoInfo/${fileId}`
+export const shareGetVideoInfo = (fileId: string, shareId: string) => {
+  return `/showShare/ts/getVideoInfo/${shareId}/${fileId}`
 }
 /**
  * 外部分享创建下载链接
  * @returns
  */
-export const shareCreateDownLoadUrl = (fileId: string) => {
+export const shareCreateDownLoadUrl = (fileId: string, shareId: string) => {
   try {
-    return CreateAxiosInstance().get(`/showShare/createDownloadUrl/${fileId}`, {
-      //@ts-ignore
-      showLoading: true,
-    })
+    return CreateAxiosInstance().get(
+      `/showShare/createDownloadUrl/${shareId}/${fileId}`,
+      {
+        //@ts-ignore
+        showLoading: true,
+      }
+    )
   } catch (error) {}
 }
 /**
@@ -527,6 +531,20 @@ export const adminGetFileInfo = (
   try {
     return request({
       url: `/admin/getFile/${userId}/${fileId}`,
+      params: {},
+      responseType: responseType,
+      showLoading: false,
+    })
+  } catch (error) {}
+}
+export const shareGetFileInfo = (
+  fileId: string,
+  shareId: string,
+  responseType?: any
+) => {
+  try {
+    return request({
+      url: `/showShare/getFile/${shareId}/${fileId}`,
       params: {},
       responseType: responseType,
       showLoading: false,
@@ -737,6 +755,77 @@ export const setUserStatusOp = (userId: string, status: string) => {
         userId,
         status,
       },
+    })
+  } catch (error) {}
+}
+/**
+ * 获取共享文件信息。
+ *
+ * @param {string} shareId - 共享文件的ID
+ * @return {Promise} 请求的结果
+ */
+export const getShareFileInfo = (shareId: string) => {
+  try {
+    return request({
+      url: '/showShare/getShareInfo',
+      params: {
+        shareId,
+      },
+      showLoading: false,
+    })
+  } catch (error) {}
+}
+/**
+ * 验证分享ID和代码，通过向'/showShare/checkShareCode'端点发出请求。
+ *
+ * @param {string} shareId - 要验证的分享ID
+ * @param {string} code - 要验证的代码
+ * @return {Promise} 解析为验证请求的结果的Promise
+ */
+export const verifyShareId = (shareId: string, code: string) => {
+  try {
+    return request({
+      url: '/showShare/checkShareCode',
+      params: {
+        shareId,
+        code,
+      },
+    })
+  } catch (error) {}
+}
+/**
+ * 获取分享登录信息。
+ *
+ * @param {string} shareId - 分享ID
+ * @return {Promise<any>} 分享登录信息
+ */
+export const getShareLoginInfo = (shareId: string) => {
+  try {
+    return request({
+      url: '/showShare/getShareLoginInfo',
+      params: {
+        shareId,
+      },
+      showLoading: false,
+    })
+  } catch (error) {}
+}
+export const getShowShareFileList = (
+  shareId: string,
+  filePid: string = '0',
+  pageNo: number = 1,
+  pageSize: number = 15
+) => {
+  try {
+    return request({
+      url: '/showShare/loadFileList',
+      params: {
+        shareId,
+        filePid,
+        pageNo,
+        pageSize,
+      },
+      showLoading: false,
     })
   } catch (error) {}
 }

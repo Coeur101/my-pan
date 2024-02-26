@@ -341,7 +341,6 @@ const LoginView = (props: any) => {
             expires: expirationDate,
           })
         } else {
-          console.log('123', cookies.loginInfo)
           removeCookie('loginInfo')
         }
         dispatch(setLoginState(0))

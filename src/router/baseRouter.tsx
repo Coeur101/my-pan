@@ -1,4 +1,4 @@
-import React, { LazyExoticComponent, lazy } from 'react'
+import React, { LazyExoticComponent, Suspense, lazy } from 'react'
 import { RouteObject } from 'react-router-dom'
 // 定义懒加载路由组件的porps类型
 const LoginLazy: LazyExoticComponent<any> = lazy(
@@ -28,6 +28,12 @@ const UserSettingViewLazy: LazyExoticComponent<any> = lazy(
 const SysSettingViewLazy: LazyExoticComponent<any> = lazy(
   () => import('@/views/Admin/Settings')
 )
+const ShareCheckFielLazy: LazyExoticComponent<any> = lazy(
+  () => import('@/views/WebShare/ShareCheckFile')
+)
+const ShareViewFielLazy: LazyExoticComponent<any> = lazy(
+  () => import('@/views/WebShare/ShareView')
+)
 const baseRouter: RouteObject[] = [
   {
     path: '/',
@@ -35,7 +41,12 @@ const baseRouter: RouteObject[] = [
     children: [
       {
         path: '/main/all',
-        element: <AllViewLazy />,
+        element: (
+          <Suspense>
+            {' '}
+            <AllViewLazy />
+          </Suspense>
+        ),
       },
       {
         path: '/myshare',
@@ -59,27 +70,60 @@ const baseRouter: RouteObject[] = [
       },
       {
         path: '/main/video',
-        element: <AllViewLazy />,
+        element: (
+          <Suspense>
+            {' '}
+            <AllViewLazy />
+          </Suspense>
+        ),
       },
       {
         path: '/main/music',
-        element: <AllViewLazy />,
+        element: (
+          <Suspense>
+            {' '}
+            <AllViewLazy />
+          </Suspense>
+        ),
       },
       {
         path: '/main/image',
-        element: <AllViewLazy />,
+        element: (
+          <Suspense>
+            {' '}
+            <AllViewLazy />
+          </Suspense>
+        ),
       },
       {
         path: '/main/doc',
-        element: <AllViewLazy />,
+        element: (
+          <Suspense>
+            {' '}
+            <AllViewLazy />
+          </Suspense>
+        ),
       },
       {
         path: '/main/others',
-        element: <AllViewLazy />,
+        element: (
+          <Suspense>
+            {' '}
+            <AllViewLazy />
+          </Suspense>
+        ),
       },
     ],
   },
   { path: '/login', element: <LoginLazy /> },
   { path: '/qqlogincallback', element: <QqView /> },
+  {
+    path: '/share/:shareId',
+    element: <ShareCheckFielLazy />,
+  },
+  {
+    path: '/shareView/:shareId',
+    element: <ShareViewFielLazy />,
+  },
 ]
 export default baseRouter

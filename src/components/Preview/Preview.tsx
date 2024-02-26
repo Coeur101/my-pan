@@ -25,6 +25,7 @@ import PreviewTxt from './PreviewTxt'
 import PreviewPdf from './PreviewPdf'
 import PreviewMusic from './PreviewMusic'
 import PreviewNotFound from './PreviewNotFound'
+import { useParams } from 'react-router-dom'
 export type previewType = 'user' | 'share' | 'admin'
 export interface preivewDataList extends DataList {
   userId?: string
@@ -67,14 +68,14 @@ const Preview = forwardRef(
         },
       },
       share: {
-        file: (fileId: string) => {
-          return shareGetFile(fileId)
+        file: (fileId: string, shareId: string) => {
+          return shareGetFile(fileId, shareId)
         },
-        video: (fileId: string) => {
-          return shareGetVideoInfo(fileId)
+        video: (fileId: string, shareId: string) => {
+          return shareGetVideoInfo(fileId, shareId)
         },
-        createFileUrl: async (fileId: string) => {
-          return await shareCreateDownLoadUrl(fileId)
+        createFileUrl: async (fileId: string, shareId: string) => {
+          return await shareCreateDownLoadUrl(fileId, shareId)
         },
         downloadFile: (downloadId: string) => {
           return shareDownLoadFile(downloadId)
@@ -83,6 +84,7 @@ const Preview = forwardRef(
     }
     const [prviewType, setPriewTtpe] = useState<previewType>('user')
     const [fileInfo, setFileInfo] = useState<preivewDataList | null>()
+    const params = useParams()
     const [maskShow, setMaskShow] = useState(false)
     const [maskTitle, setMaskTitle] = useState('')
     const imagePriviewRef = useRef<{ show: () => void }>(null)
@@ -106,7 +108,11 @@ const Preview = forwardRef(
       setImageUrl(
         file_url_map[prviewType].file(
           fileInfo?.fileId as string,
-          fileInfo?.userId as string
+          prviewType === 'admin'
+            ? (fileInfo?.userId as string)
+            : prviewType === 'share'
+            ? (params.shareId as string)
+            : ''
         )
       )
     }, [fileInfo])
@@ -128,7 +134,11 @@ const Preview = forwardRef(
             <PreviewVideo
               videoUrl={file_url_map[prviewType].video(
                 fileInfo.fileId as string,
-                fileInfo.userId as string
+                prviewType === 'admin'
+                  ? (fileInfo?.userId as string)
+                  : prviewType === 'share'
+                  ? (params.shareId as string)
+                  : ''
               )}
             />
           </>
@@ -140,7 +150,11 @@ const Preview = forwardRef(
             <PreviewMusic
               musicUrl={file_url_map[prviewType].file(
                 fileInfo.fileId as string,
-                fileInfo.userId as string
+                prviewType === 'admin'
+                  ? (fileInfo?.userId as string)
+                  : prviewType === 'share'
+                  ? (params.shareId as string)
+                  : ''
               )}
               fileInfo={fileInfo}
             />
@@ -165,6 +179,7 @@ const Preview = forwardRef(
               fileId={fileInfo.fileId as string}
               previewType={prviewType}
               userId={fileInfo.userId}
+              shareId={params.shareId as string}
             ></PreviewDoc>
           </>
         )
@@ -176,6 +191,7 @@ const Preview = forwardRef(
               fileId={fileInfo.fileId as string}
               previewType={prviewType}
               userId={fileInfo.userId}
+              shareId={params.shareId as string}
             ></PreviewExcel>
           </>
         )
@@ -190,6 +206,7 @@ const Preview = forwardRef(
               fileId={fileInfo.fileId as string}
               previewType={prviewType}
               userId={fileInfo.userId}
+              shareId={params.shareId as string}
             ></PreviewMd>
           </>
         )
@@ -201,6 +218,7 @@ const Preview = forwardRef(
               fileId={fileInfo.fileId as string}
               previewType={prviewType}
               userId={fileInfo.userId}
+              shareId={params.shareId as string}
             ></PreviewTxt>
           </>
         )

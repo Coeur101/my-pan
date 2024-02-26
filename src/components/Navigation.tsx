@@ -121,7 +121,7 @@ const Navigation = forwardRef(
       try {
         let res = null
         if (shareId) {
-          res = await getShareFolderInfo(path as string, shareId)
+          res = await getShareFolderInfo(shareId, path as string)
         } else if (adminShow) {
           res = await getAdminFolderInfo(path as string)
         } else {
