@@ -560,6 +560,7 @@ const All: React.FC<any> = (props) => {
         ...modelConfig,
         show: false,
       })
+      setCurrentFile(undefined)
       setSelectedRow([])
       setSelectedRowKeysA([])
       if (url.get('path') || location.pathname === '/main/all') {

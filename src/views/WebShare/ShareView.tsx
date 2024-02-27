@@ -4,6 +4,7 @@ import {
   getAllFileList,
   getShareLoginInfo,
   getShowShareFileList,
+  saveShareFile,
   shareCreateDownLoadUrl,
 } from '@/api'
 import Avatar from '@/components/Avatar'
@@ -25,6 +26,8 @@ import Icon from '@/components/Icon'
 import { formatFileSize } from '@/utils/format'
 import { flushSync } from 'react-dom'
 import message from '@/utils/message'
+import FolderSelect from '../Main/FolderSelect'
+import { ModelProps } from '@/components/GlobalModel'
 
 interface shareInfoType {
   shareTime: string
@@ -45,6 +48,20 @@ const ShareView = () => {
   const [pageSize, setPageSize] = useState(15)
   const url = new URLSearchParams(location.search)
   const [data, setData] = useState<DataList[]>([])
+  const [currentFile, setCurrentFile] = useState<DataList>()
+  const [modelConfig, setModelConfig] = useState<ModelProps>({
+    show: false,
+    title: '移动到',
+    width: 600,
+    destroy: true,
+    close() {
+      setModelConfig({
+        ...modelConfig,
+        show: false,
+      })
+    },
+    cancelBtn: true,
+  })
   const [selectedRowKeysA, setSelectedRowKeysA] = useState<React.Key[]>([])
   const navigationRef = useRef<{ openCurrentFolder: (...args: any) => void }>(
     null
@@ -107,7 +124,7 @@ const ShareView = () => {
               ) : null}
             </span>
 
-            {record.fileId && record.status === 2 ? (
+            {record.fileId && record.status === 2 && !shareInfo?.currentUser ? (
               <div className="w-[160px]    flex items-center justify ">
                 {record.folderType !== 1 ? (
                   <span
@@ -117,7 +134,12 @@ const ShareView = () => {
                     <span className="ml-[5px]"> 下载</span>
                   </span>
                 ) : null}
-                <span className="iconfont cursor-pointer text-blue-400 icon-import text-[12px] ml-[10px]">
+                <span
+                  className="iconfont cursor-pointer text-blue-400 icon-import text-[12px] ml-[10px]"
+                  onClick={() => {
+                    saveMyPan(record)
+                  }}
+                >
                   <span className="ml-[5px]">保存到网盘</span>
                 </span>
               </div>
@@ -169,7 +191,11 @@ const ShareView = () => {
         })
       )
       setTotal(res.data.totalCount)
-    } catch (error) {
+    } catch (error: any) {
+      if (error.showError) {
+        message.error(error.msg)
+        navigate(`/share/${params.shareId}`)
+      }
     } finally {
       setTbaleLoading(false)
     }
@@ -219,7 +245,7 @@ const ShareView = () => {
     let pathArray = url.get('path')?.split('/')
     loadList(pathArray ? pathArray![pathArray!.length - 1] : '0')
     saveSelectedKeys(selectedRowKeysA)
-  }, [pageNo, pageSize, isUploadFileList, location])
+  }, [pageNo, pageSize, isUploadFileList, url.get('path')])
 
   // 点击文件夹进行下钻,点击文件就进行预览
   const openCurrentFolder = (folder: DataList) => {
@@ -270,11 +296,52 @@ const ShareView = () => {
       }
     }
   }
+  const saveMyPan = (file?: DataList) => {
+    setCurrentFile(file)
+    setModelConfig({
+      ...modelConfig,
+      show: true,
+    })
+  }
+  const moveFolderDone = async (currentChildFolder: DataList) => {
+    let fileIdsList: any[] = []
+    if (selectedRow.length > 0) {
+      fileIdsList = selectedRow.map((item) => item.fileId)
+    } else if (currentFile) {
+      fileIdsList = []
+      fileIdsList.push(currentFile.fileId)
+    }
+    try {
+      const res = await saveShareFile(
+        params.shareId as string,
+        fileIdsList,
+        currentChildFolder.fileId
+      )
+      if (res?.code !== 200) {
+        return
+      }
+      setModelConfig({
+        ...modelConfig,
+        show: false,
+      })
+      setCurrentFile(undefined)
+      setSelectedRow([])
+      setSelectedRowKeysA([])
+      message.success('保存成功')
+    } catch (error: any) {
+      if (error.showError) {
+        message.error(error.msg)
+      }
+    }
+  }
   return (
     <div>
       <div className="w-full fixed bg-blue-400 h-[50px]">
         <div className="w-[70%] m-auto text-[#fff] leading-[50px]">
-          <div className="flex items-center cursor-pointer">
+          <div
+            className="flex items-center cursor-pointer"
+            onClick={() => navigate('/')}
+          >
             <span className="iconfont icon-pan text-[40px] text-[#fff]"></span>
             <div className="font-bold ml-[5px] text-[25px] text-[#fff]">
               Pan
@@ -305,11 +372,20 @@ const ShareView = () => {
           </div>
           <div>
             {shareInfo?.currentUser ? (
-              <Button type="primary" icon={<StopOutlined />}>
+              <Button
+                type="primary"
+                disabled={selectedRow.length === 0}
+                icon={<StopOutlined />}
+              >
                 取消分享
               </Button>
             ) : (
-              <Button type="primary" icon={<LogoutOutlined />}>
+              <Button
+                type="primary"
+                onClick={() => saveMyPan()}
+                icon={<LogoutOutlined />}
+                disabled={selectedRow.length === 0}
+              >
                 保存到网盘中
               </Button>
             )}
@@ -326,7 +402,11 @@ const ShareView = () => {
         <div className={`${style.wrapper}`}>
           <GlobalTable option={option} data={data}></GlobalTable>
         </div>
-
+        <FolderSelect
+          modelConfig={modelConfig}
+          files={selectedRow.length > 0 ? selectedRow : currentFile}
+          moveFolderDone={moveFolderDone}
+        ></FolderSelect>
         <Preview ref={previewRef as any}></Preview>
       </div>
     </div>

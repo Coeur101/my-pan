@@ -37,7 +37,11 @@ const ShareViewFielLazy: LazyExoticComponent<any> = lazy(
 const baseRouter: RouteObject[] = [
   {
     path: '/',
-    element: <FeameWorkLazy />,
+    element: (
+      <Suspense>
+        <FeameWorkLazy />{' '}
+      </Suspense>
+    ),
     children: [
       {
         path: '/main/all',

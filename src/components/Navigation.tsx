@@ -60,11 +60,13 @@ const Navigation = forwardRef(
       }
     }, [pCurrentFolder])
     useEffect(() => {
-      if (!url.get('path')) {
-        setFolderList([])
-        setNavFolderList([])
-      } else {
-        getNavigationFolder(url.get('path'))
+      if (isWatchPath) {
+        if (!url.get('path')) {
+          setFolderList([])
+          setNavFolderList([])
+        } else {
+          getNavigationFolder(url.get('path'))
+        }
       }
     }, [location])
     const openCurrentFolder = (folder: navigationFolder) => {
@@ -171,7 +173,19 @@ const Navigation = forwardRef(
     })
     return (
       <div className="text-[13px] flex items-center leading-10  ml-[10px]">
-        {navFolderList.length > 0 ? (
+        {navFolderList.length > 0 && isWatchPath ? (
+          <div>
+            <span
+              className="text-[#06a7ff] cursor-pointer"
+              onClick={() => {
+                handleRouteBack()
+              }}
+            >
+              返回上一级
+            </span>
+            <Divider type="vertical" className="border-[black]"></Divider>
+          </div>
+        ) : folderList.length > 0 ? (
           <div>
             <span
               className="text-[#06a7ff] cursor-pointer"
@@ -186,7 +200,14 @@ const Navigation = forwardRef(
         ) : (
           <span className="font-bold">全部文件</span>
         )}
-        {navFolderList.length > 0 ? (
+        {navFolderList.length > 0 && isWatchPath ? (
+          <span
+            className="text-[#06a7ff] cursor-pointer"
+            onClick={() => openCurrentFolder({ fileId: '', fileName: '' })}
+          >
+            全部文件
+          </span>
+        ) : folderList.length > 0 ? (
           <span
             className="text-[#06a7ff] cursor-pointer"
             onClick={() => openCurrentFolder({ fileId: '', fileName: '' })}
@@ -194,23 +215,42 @@ const Navigation = forwardRef(
             全部文件
           </span>
         ) : null}
-        {navFolderList.map((item, index) => {
-          return (
-            <div key={index}>
-              <RightOutlined></RightOutlined>
-              {index < folderList.length - 1 ? (
-                <span
-                  className="text-[#06a7ff] cursor-pointer"
-                  onClick={() => openCurrentFolder(item)}
-                >
-                  {formatName(item.fileName)}
-                </span>
-              ) : (
-                <span>{formatName(item.fileName)}</span>
-              )}
-            </div>
-          )
-        })}
+        {isWatchPath
+          ? navFolderList.map((item, index) => {
+              return (
+                <div key={index}>
+                  <RightOutlined></RightOutlined>
+                  {index < folderList.length - 1 ? (
+                    <span
+                      className="text-[#06a7ff] cursor-pointer"
+                      onClick={() => openCurrentFolder(item)}
+                    >
+                      {formatName(item.fileName)}
+                    </span>
+                  ) : (
+                    <span>{formatName(item.fileName)}</span>
+                  )}
+                </div>
+              )
+            })
+          : folderList.map((item, index) => {
+              return (
+                <div key={index}>
+                  <RightOutlined></RightOutlined>
+                  {index < folderList.length - 1 ? (
+                    <span
+                      className="text-[#06a7ff] cursor-pointer"
+                      onClick={() => openCurrentFolder(item)}
+                    >
+                      {formatName(item.fileName)}
+                    </span>
+                  ) : (
+                    <span>{formatName(item.fileName)}</span>
+                  )}
+                </div>
+              )
+            })}
+        {}
       </div>
     )
   }

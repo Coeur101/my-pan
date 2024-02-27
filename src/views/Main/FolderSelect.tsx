@@ -2,7 +2,7 @@ import { getAllFolder } from '@/api'
 import GlobalModel, { ModelProps } from '@/components/GlobalModel'
 import Icon from '@/components/Icon'
 import Navigation from '@/components/Navigation'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 export interface Folder {
   fileId: string
   filePid: string
@@ -24,6 +24,9 @@ const FolderSelect: React.FC<{
 }> = (props) => {
   const { modelConfig, files, moveFolderDone } = props
   const [folderList, setFolder] = useState<Folder[] | never[]>([])
+  const navigationRef = useRef<{ openCurrentFolder: (...args: any) => void }>(
+    null
+  )
   const [currentFolder, setCurrentFolder] = useState<
     | Folder
     | {
@@ -44,9 +47,6 @@ const FolderSelect: React.FC<{
     },
   ]
   useEffect(() => {
-    if (modelConfig.show) {
-      loadAllFolder()
-    }
     setCurrentFolder({
       fileId: '0',
       fileName: '',
@@ -90,9 +90,10 @@ const FolderSelect: React.FC<{
     }
   }
   useEffect(() => {
-    if (currentFolder.fileId !== '0') {
-      loadAllFolder()
+    if (!modelConfig.show) {
+      return
     }
+    loadAllFolder()
   }, [currentFolder])
   const navChange = async (data: any) => {
     if (data === 'all') {
@@ -106,6 +107,7 @@ const FolderSelect: React.FC<{
   }
   const selectFolder = (item: Folder) => {
     setCurrentFolder(item)
+    navigationRef.current?.openCurrentFolder(item)
   }
   return (
     <GlobalModel {...modelConfig} buttons={buttons}>
@@ -114,6 +116,7 @@ const FolderSelect: React.FC<{
           <Navigation
             isWatchPath={false}
             pCurrentFolder={currentFolder as Folder}
+            ref={navigationRef}
             navChange={navChange}
           ></Navigation>
         </div>

@@ -44,6 +44,36 @@ type MenuItems = {
 }
 
 const FreameWork = () => {
+  const [avatarModelConfig, setAvatarModelConfig] = useState<ModelProps>({
+    show: false,
+    title: '上传头像',
+    buttons: [
+      {
+        type: 'primary',
+        text: '确定',
+        click: () => {
+          setAvatarModelConfig({
+            ...avatarModelConfig,
+            show: false,
+          })
+        },
+      },
+    ],
+    close() {
+      setAvatarModelConfig({
+        ...avatarModelConfig,
+        show: false,
+      })
+    },
+    cancelBtn: false,
+  })
+  const UploaderListRef = useRef<{ addFileToList: (...args: any) => void }>(
+    null
+  )
+  const location = useLocation()
+  const navigate = useNavigate()
+  let [popoverVisible, setPopoverVisible] = useState(false)
+  let [cookie, setCookie, removeCookie] = useCookies(['userInfo', 'loginInfo'])
   const menuItems: MenuItems[] = [
     {
       icon: 'cloude',
@@ -139,37 +169,11 @@ const FreameWork = () => {
         },
       ],
     },
-  ]
-  const [avatarModelConfig, setAvatarModelConfig] = useState<ModelProps>({
-    show: false,
-    title: '上传头像',
-    buttons: [
-      {
-        type: 'primary',
-        text: '确定',
-        click: () => {
-          setAvatarModelConfig({
-            ...avatarModelConfig,
-            show: false,
-          })
-        },
-      },
-    ],
-    close() {
-      setAvatarModelConfig({
-        ...avatarModelConfig,
-        show: false,
-      })
-    },
-    cancelBtn: false,
+  ].filter((item) => {
+    return cookie.userInfo && cookie.userInfo.admin
+      ? true
+      : item.menuCode !== 'settings'
   })
-  const UploaderListRef = useRef<{ addFileToList: (...args: any) => void }>(
-    null
-  )
-  const location = useLocation()
-  const navigate = useNavigate()
-  let [popoverVisible, setPopoverVisible] = useState(false)
-  let [cookie, setCookie, removeCookie] = useCookies(['userInfo', 'loginInfo'])
   let [subList, setSublist] = useState<MenuItems[]>(
     menuItems[0].children as MenuItems[]
   )

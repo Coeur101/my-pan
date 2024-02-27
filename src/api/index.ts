@@ -829,3 +829,19 @@ export const getShowShareFileList = (
     })
   } catch (error) {}
 }
+export const saveShareFile = (
+  shareId: string,
+  shareFileIds: string[],
+  myFolderId: string
+) => {
+  try {
+    return request({
+      url: '/showShare/saveShare',
+      params: {
+        shareId,
+        shareFileIds,
+        myFolderId,
+      },
+    })
+  } catch (error) {}
+}

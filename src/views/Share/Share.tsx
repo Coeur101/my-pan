@@ -163,7 +163,7 @@ const Share = () => {
   }
   const copyUrl = (file: DataList) => {
     const domain = window.location.origin // 获取当前页面的域名部分
-    const fullShareUrl = `${domain}/share/${file.shareId}`
+    const fullShareUrl = `${domain}/shareView/${file.shareId}`
     const copyText = `链接:${fullShareUrl}\n提取码:${file.code}`
     navigator.clipboard.writeText(copyText).then(() => {
       message.success('复制链接成功')
