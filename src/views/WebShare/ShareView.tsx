@@ -19,7 +19,12 @@ import {
 } from '@ant-design/icons'
 import { Button, PaginationProps, TableColumnProps } from 'antd'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import {
+  NavigateFunction,
+  useLocation,
+  useNavigate,
+  useParams,
+} from 'react-router-dom'
 import { DataList } from '../Admin/FileList'
 import { useSelector } from 'react-redux'
 import Icon from '@/components/Icon'
@@ -72,6 +77,16 @@ const ShareView = () => {
   const isUploadFileList = useSelector((state: any) => {
     return state.globalLoading.isUploadFileList
   })
+  const loginState = useSelector((state: any) => {
+    return state.globalLoading.loginState
+  })
+  useEffect(() => {
+    if (loginState === 1) {
+      ;(navigate as NavigateFunction)(
+        '/login?redirectUrl=' + encodeURI(location!.pathname)
+      )
+    }
+  }, [loginState])
   const DisplayIcon = (
     status: number,
     iconName: string,

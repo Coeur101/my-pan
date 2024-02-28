@@ -845,3 +845,39 @@ export const saveShareFile = (
     })
   } catch (error) {}
 }
+/**
+ * 获取默认系统配置
+ * @returns
+ */
+export const getAdminSetting = () => {
+  try {
+    return request({
+      url: '/admin/getSysSettings',
+      params: {},
+    })
+  } catch (error) {}
+}
+/**
+ * 设置默认系统配置
+ * @param registerEmailTitle 邮箱内容标题
+ * @param registerEmailContent 邮箱内容
+ * @param userInitUseSpace 用户配额
+ * @returns
+ */
+export const setAdminSetting = (
+  registerEmailTitle: string,
+  registerEmailContent: string,
+  userInitUseSpace: number
+) => {
+  try {
+    return request({
+      url: '/admin/saveSysSettings',
+      params: {
+        registerEmailContent,
+        registerEmailTitle,
+        userInitUseSpace,
+      },
+      showLoading: false,
+    })
+  } catch (error) {}
+}

@@ -395,7 +395,8 @@ const FreameWork = () => {
                   className={`text-center text-[14px] font-bold p-[20px_0px] cursor-pointer hover:bg-[#f3f3f3]  ${
                     item.children?.every(
                       (el) => el.path === location.pathname
-                    ) || item.path == location.pathname
+                    ) ||
+                    item.path?.split('/')[1] == location.pathname.split('/')[1]
                       ? activeClass
                       : 'text-[#636d7e]'
                   }`}
