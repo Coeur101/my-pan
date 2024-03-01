@@ -12,7 +12,7 @@ const RouterView = () => {
   useEffect(() => {
     if (!cookieUserInfo && location.pathname !== '/login') {
       message.error('未登录')
-      navigate('/login')
+      navigate(`/login?redirectUrl${location.pathname}`)
     }
   }, [navigate, cookieUserInfo, location.pathname])
 

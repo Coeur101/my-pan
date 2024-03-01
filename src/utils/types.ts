@@ -1,4 +1,4 @@
-import { ResponseType } from 'axios'
+import { AxiosHeaders, ResponseType } from 'axios'
 export interface RequestType {
   url: string
   params: any
@@ -8,4 +8,5 @@ export interface RequestType {
   uploadProgressCallback?: (event: any) => void
   errorCallback?: (info: string) => void
   showError?: boolean
+  headers?: Record<string, any>
 }

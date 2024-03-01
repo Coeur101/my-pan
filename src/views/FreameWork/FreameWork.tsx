@@ -138,7 +138,6 @@ const FreameWork = () => {
       icon: 'del',
       name: '回收站',
       menuCode: 'recycle',
-
       allShow: true,
       children: [
         {
@@ -149,11 +148,24 @@ const FreameWork = () => {
       ],
     },
     {
+      icon: 'all',
+      name: 'AI',
+      menuCode: 'AI',
+      path: '/AI',
+      allShow: true,
+      children: [
+        {
+          name: '对话窗口',
+          path: '/AI',
+        },
+      ],
+    },
+    {
       icon: 'settings',
       path: '/settings/fileList',
       name: '设置',
       menuCode: 'settings',
-      allShow: true,
+      allShow: cookie.userInfo && cookie.userInfo.admin ? true : false,
       children: [
         {
           name: '用户文件',
@@ -169,11 +181,7 @@ const FreameWork = () => {
         },
       ],
     },
-  ].filter((item) => {
-    return cookie.userInfo && cookie.userInfo.admin
-      ? true
-      : item.menuCode !== 'settings'
-  })
+  ]
   let [subList, setSublist] = useState<MenuItems[]>(
     menuItems[0].children as MenuItems[]
   )

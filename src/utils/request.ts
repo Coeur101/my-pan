@@ -1,6 +1,6 @@
 import { RequestType } from './types'
 import message from './message'
-import axios, { AxiosInstance, AxiosResponse } from 'axios'
+import axios, { AxiosHeaders, AxiosInstance, AxiosResponse } from 'axios'
 import {
   hideLoading,
   setLoginState,
@@ -52,7 +52,11 @@ export const CreateAxiosInstance = (): AxiosInstance => {
         store.dispatch(hideLoading(null))
       }
       const data = response.data
-      if (responseType === 'arraybuffer' || responseType === 'blob') {
+      if (
+        responseType === 'arraybuffer' ||
+        responseType === 'blob' ||
+        responseType === 'stream'
+      ) {
         return data
       }
       if (data.code === 200) {
@@ -97,6 +101,7 @@ const request = (
     dataType,
     showLoading = true,
     responseType = responseTypeJson,
+    headers,
   } = config
   let contentType = contentTypeForm
   let formData = new FormData()
@@ -106,9 +111,14 @@ const request = (
   if (dataType !== null && dataType === 'json') {
     contentType = contentTypeJson
   }
-  let headers = {
+  let headerss: Record<string, any> = {
     'Content-Type': contentType,
     'X-Requestted-With': 'XMLHttpRequest',
+  }
+  if (headers) {
+    for (const key in headers) {
+      headerss[key] = headers[key]
+    }
   }
   const http = CreateAxiosInstance()
   try {
@@ -120,7 +130,7 @@ const request = (
         }
       },
       responseType: responseType,
-      headers: headers,
+      headers: headerss,
       // @ts-ignore
       showLoading: showLoading,
       errorCallback: config.errorCallback,

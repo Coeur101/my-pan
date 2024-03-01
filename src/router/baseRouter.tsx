@@ -34,6 +34,9 @@ const ShareCheckFielLazy: LazyExoticComponent<any> = lazy(
 const ShareViewFielLazy: LazyExoticComponent<any> = lazy(
   () => import('@/views/WebShare/ShareView')
 )
+const AIConfirmViewLazy: LazyExoticComponent<any> = lazy(
+  () => import('@/views/AI/AIConfirm')
+)
 const baseRouter: RouteObject[] = [
   {
     path: '/',
@@ -67,6 +70,10 @@ const baseRouter: RouteObject[] = [
       {
         path: '/settings/userList',
         element: <UserSettingViewLazy />,
+      },
+      {
+        path: '/AI',
+        element: <AIConfirmViewLazy />,
       },
       {
         path: '/settings/sysSetting',
@@ -125,6 +132,7 @@ const baseRouter: RouteObject[] = [
     path: '/share/:shareId',
     element: <ShareCheckFielLazy />,
   },
+
   {
     path: '/shareView/:shareId',
     element: <ShareViewFielLazy />,

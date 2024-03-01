@@ -881,3 +881,17 @@ export const setAdminSetting = (
     })
   } catch (error) {}
 }
+export const sendTongyiMessage = (apiKey: string, params: any) => {
+  try {
+    return request({
+      url: '/v1/services/aigc/text-generation/generation',
+      params: params,
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'X-DashScope-SSE': 'enable',
+      },
+      showLoading: false,
+    })
+  } catch (error) {}
+}

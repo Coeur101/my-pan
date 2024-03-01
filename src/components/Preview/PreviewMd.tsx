@@ -1,12 +1,7 @@
 import { adminGetFileInfo, getFileInfo, shareGetFileInfo } from '@/api'
 import React, { useEffect, useState } from 'react'
-import ReactMarkDown from 'react-markdown'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import {
-  vscDarkPlus,
-  dracula,
-} from 'react-syntax-highlighter/dist/esm/styles/prism'
-import remarkGfm from 'remark-gfm'
+import MdPreview from '../MdPreview'
+
 const PreviewMd: React.FC<{
   fileId: string
   previewType: 'user' | 'admin' | 'share'
@@ -35,33 +30,7 @@ const PreviewMd: React.FC<{
   }
   return (
     <div className="bg-[#fafafa]">
-      <ReactMarkDown
-        remarkPlugins={[remarkGfm]}
-        components={{
-          //@ts-ignore
-          code({ node, className, children, ...props }) {
-            const match = /language-(\w+)/.exec(className || '')
-            return match ? (
-              <SyntaxHighlighter
-                showLineNumbers={true}
-                //@ts-ignore
-                style={dracula}
-                language={match[1]}
-                PreTag="div"
-                {...props}
-              >
-                {String(children).replace(/\n$/, '')}
-              </SyntaxHighlighter>
-            ) : (
-              <code className={className} {...props}>
-                {children}
-              </code>
-            )
-          },
-        }}
-      >
-        {content}
-      </ReactMarkDown>
+      <MdPreview content={content}></MdPreview>
     </div>
   )
 }
