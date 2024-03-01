@@ -57,19 +57,19 @@ const AIConfirm = () => {
           messageList.pop()
         }
         setMessageContent('')
-        messageList.push(
-          cloneDeep({
+        setMessageList((prevMessageList) => [
+          ...prevMessageList,
+          {
             key: Date.now() + Math.random(),
             role: 'user',
             content: messageContent,
-          }),
-          cloneDeep({
+          },
+          {
             key: Date.now() + Math.random(),
             role: 'assistant',
             content: '',
-          })
-        )
-        setMessageList(messageList)
+          },
+        ])
         const apiKey = getAPIKey()
         await callQwen({
           text: content,
@@ -150,6 +150,8 @@ const AIConfirm = () => {
       localStorage.getItem('messageHistory') &&
       JSON.parse(localStorage.getItem('messageHistory') as string)
     setMessageList(localMessageList)
+  }, [])
+  useEffect(() => {
     return () => {
       localStorage.setItem(
         'messageHistory',
@@ -167,20 +169,20 @@ const AIConfirm = () => {
                   role: 'assistant',
                   content: `你好，我是AI语言模型，我可以提供一些常用服务和信息，例如：
       
-      1. 翻译：我可以把中文翻译成英文，英文翻译成中文，还有其他一些语言翻译，比如法语、日语、西班牙语等。
-      
-      2. 咨询服务：如果你有任何问题需要咨询，例如健康、法律、投资等方面，我可以尽可能为你提供帮助。
-      
-      3. 闲聊：如果你感到寂寞或无聊，我们可以聊一些有趣的话题，以减轻你的压力。
-      
-      请告诉我你需要哪方面的帮助，我会根据你的需求给你提供相应的信息和建议。`,
+                      1. 翻译：我可以把中文翻译成英文，英文翻译成中文，还有其他一些语言翻译，比如法语、日语、西班牙语等。
+                      
+                      2. 咨询服务：如果你有任何问题需要咨询，例如健康、法律、投资等方面，我可以尽可能为你提供帮助。
+                      
+                      3. 闲聊：如果你感到寂寞或无聊，我们可以聊一些有趣的话题，以减轻你的压力。
+                      
+                      请告诉我你需要哪方面的帮助，我会根据你的需求给你提供相应的信息和建议。`,
                 },
               ]
             : messageList
         )
       )
     }
-  }, [])
+  }, [messageList])
   const getSecretKey = () => 'lianginx'
   return (
     <div className=" flex-col z-50 relative">
