@@ -22,9 +22,9 @@ const PreviewDoc: React.FC<{
       if (previewType === 'admin') {
         res = await adminGetFileInfo(fileId, userId as string, 'blob')
       } else if (previewType === 'user') {
-        res = await getFileInfo(fileId, userId)
+        res = await getFileInfo(fileId, 'blob')
       } else if (previewType === 'share') {
-        res = await shareGetFileInfo(fileId, shareId as string)
+        res = await shareGetFileInfo(fileId, shareId as string, 'blob')
       }
 
       if (!res) {

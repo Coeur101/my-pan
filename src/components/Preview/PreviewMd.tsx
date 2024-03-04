@@ -18,9 +18,9 @@ const PreviewMd: React.FC<{
     if (previewType === 'admin') {
       res = await adminGetFileInfo(fileId, userId as string, 'arraybuffer')
     } else if (previewType === 'user') {
-      res = await getFileInfo(fileId, userId)
+      res = await getFileInfo(fileId, 'arraybuffer')
     } else if (previewType === 'share') {
-      res = await shareGetFileInfo(fileId, shareId as string)
+      res = await shareGetFileInfo(fileId, shareId as string, 'arraybuffer')
     }
     setContent(arrayBufferToString(res))
   }

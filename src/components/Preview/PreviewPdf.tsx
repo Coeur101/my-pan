@@ -1,4 +1,4 @@
-import { adminGetFileInfo, getFile, getFileInfo } from '@/api'
+import { adminGetFileInfo, getFile, getFileInfo, shareGetFileInfo } from '@/api'
 import { pdfjs, Page, Document } from 'react-pdf'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Input, Spin, Tooltip } from 'antd'
@@ -18,9 +18,10 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 const PreviewPdf: React.FC<{
   fileId: string
   previewType: 'user' | 'admin' | 'share'
+  shareId?: string
   userId?: string
 }> = (props) => {
-  const { fileId, previewType, userId } = props
+  const { fileId, previewType, userId, shareId } = props
   const [pageInfo, setPageInfo] = useState({
     pageNumber: 1,
     pageNumberInput: 1,
@@ -38,7 +39,9 @@ const PreviewPdf: React.FC<{
       if (previewType === 'admin') {
         res = await adminGetFileInfo(fileId, userId as string, 'arraybuffer')
       } else if (previewType === 'user') {
-        res = await getFileInfo(fileId, userId)
+        res = await getFileInfo(fileId, 'arraybuffer')
+      } else if (previewType === 'share') {
+        res = await shareGetFileInfo(fileId, shareId as string, 'arraybuffer')
       }
       if (!res) {
         return

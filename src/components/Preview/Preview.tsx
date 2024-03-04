@@ -168,6 +168,7 @@ const Preview = forwardRef(
               fileId={fileInfo.fileId as string}
               previewType={prviewType}
               userId={fileInfo.userId}
+              shareId={params.shareId as string}
             ></PreviewPdf>
           </>
         )

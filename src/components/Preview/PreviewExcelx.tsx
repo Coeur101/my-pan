@@ -27,7 +27,7 @@ const PreviewExcel: React.FC<{
       } else if (previewType === 'user') {
         res = await getFileInfo(fileId, 'arraybuffer')
       } else if (previewType === 'share') {
-        res = await shareGetFileInfo(fileId, shareId as string)
+        res = await shareGetFileInfo(fileId, shareId as string, 'arraybuffer')
       }
       if (!res) {
         return
