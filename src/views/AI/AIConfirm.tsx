@@ -1,5 +1,13 @@
 import MdPreview from '@/components/MdPreview'
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  FC,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import cryptoJS from 'crypto-js'
 import message from '@/utils/message'
 import { callQwen } from '@/hooks/index'
@@ -38,7 +46,6 @@ const AIConfirm = () => {
     },
   ])
   const [apiKey, setApiKey] = useState('')
-  const isButtonClicked = useRef(false)
   const [isTalking, setIsTalking] = useState(false)
   const [isConfig, setIsConfig] = useState(false)
   const clickConfig = () => {
@@ -76,13 +83,7 @@ const AIConfirm = () => {
           history: messageList,
           apiKey,
           onMessage: (msg: string) => {
-            setMessageList((prev) => {
-              // 拷贝前一个状态数组
-              const updatedList = [...prev]
-              // 将消息添加到最后一条消息的内容中
-              updatedList[updatedList.length - 1].content += msg
-              return updatedList
-            })
+            appendLastMessageContent(msg)
           },
         })
       } catch (error: any) {
@@ -111,6 +112,10 @@ const AIConfirm = () => {
       }
       setMessageContent('')
     } else {
+      if (!getAPIKey()) {
+        message.warning('请将APIkey填写完整,再使用聊天功能')
+        return
+      }
       sendChatMessage(messageContent)
     }
   }
@@ -128,9 +133,13 @@ const AIConfirm = () => {
     )
   }
   const appendLastMessageContent = (content: string) => {
-    /* messageList[messageList.length - 1].content = content
-    setMessageList(messageList)
-    // cloneDeep(messageList)[messageList.length - 1].content += content */
+    setMessageList((prev) => {
+      // 拷贝前一个状态数组
+      const updatedList = [...prev]
+      // 将消息添加到最后一条消息的内容中
+      updatedList[updatedList.length - 1].content += content
+      return updatedList
+    })
   }
   const handleInputChange = (e: any) => {
     setMessageContent(e.target.value)
@@ -144,6 +153,7 @@ const AIConfirm = () => {
       handleButtonClick()
     }
   }
+
   useEffect(() => {
     // 从本地获取聊天记录，解决切换组件导致记录被删除
     const localMessageList =
@@ -183,6 +193,7 @@ const AIConfirm = () => {
       )
     }
   }, [messageList])
+
   const getSecretKey = () => 'lianginx'
   return (
     <div className=" flex-col z-50 relative">
@@ -244,6 +255,13 @@ const Message: FC<{
 }> = (props) => {
   const { messageList } = props
   const chatListDom = useRef<HTMLDivElement>(null)
+  const scrollToBottom = () => {
+    if (!chatListDom.current) return
+    chatListDom.current.scrollTo(0, chatListDom.current.scrollHeight)
+  }
+  useLayoutEffect(() => {
+    scrollToBottom()
+  }, [messageList])
   return (
     <div
       className="flex-1 mx-2  h-[500px] overflow-auto scroll-p-0 "
