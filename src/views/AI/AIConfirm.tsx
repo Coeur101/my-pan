@@ -152,9 +152,9 @@ const AIConfirm = () => {
 
   useEffect(() => {
     // 从本地获取聊天记录，解决切换组件导致记录被删除
-    const localMessageList =
-      localStorage.getItem('messageHistory') &&
-      JSON.parse(localStorage.getItem('messageHistory') as string)
+    const localMessageList = localStorage.getItem('messageHistory')
+      ? JSON.parse(localStorage.getItem('messageHistory') as string)
+      : messageList
     setMessageList(localMessageList)
   }, [])
   useEffect(() => {

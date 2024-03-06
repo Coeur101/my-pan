@@ -10,7 +10,7 @@ export const callQwen = async ({
   apiKey: string
 }) => {
   const response = await fetch(
-    `${process.env.REACT_APP_BASE_URL}/v1/services/aigc/text-generation/generation`,
+    `${process.env.GPT_APP_BASE_URL}/v1/services/aigc/text-generation/generation`,
     {
       method: 'POST',
       headers: {
