@@ -1,7 +1,5 @@
 import {
-  adminCreateDownLoadUrl,
   adminDownLoadFile,
-  getAllFileList,
   getShareLoginInfo,
   getShowShareFileList,
   saveShareFile,

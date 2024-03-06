@@ -1,10 +1,7 @@
 import { FC } from 'react'
 import ReactMarkDown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import {
-  vscDarkPlus,
-  dracula,
-} from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import remarkGfm from 'remark-gfm'
 const MdPreview: FC<{
   content: string

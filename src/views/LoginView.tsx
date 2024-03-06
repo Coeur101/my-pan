@@ -501,7 +501,7 @@ const LoginView = (props: any) => {
           >
             {opType === 0 ? '注册' : opType === 1 ? '登录' : '重置密码'}
           </Button>
-          {opType === 1 ? (
+          {/* {opType === 1 ? (
             <div className=" text-center flex justify-center mx-auto mt-[20px]">
               <Button
                 type="link"
@@ -517,7 +517,7 @@ const LoginView = (props: any) => {
                 />
               </Button>
             </div>
-          ) : null}
+          ) : null} */}
         </Form>
       </div>
       <GlobalModel

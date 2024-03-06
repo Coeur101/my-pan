@@ -4,17 +4,13 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react'
 import cryptoJS from 'crypto-js'
 import message from '@/utils/message'
 import { callQwen } from '@/hooks/index'
-import { flushSync } from 'react-dom'
-import { cloneDeep } from 'lodash'
-import { useLocation } from 'react-router-dom'
-import { Button, Input } from 'antd'
+import { Input } from 'antd'
 import ChatLoading from '@/components/ChatLoading'
 import ChatCopy from '@/components/ChatCopy'
 interface ChatMessage {

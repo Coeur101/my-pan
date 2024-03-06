@@ -7,7 +7,6 @@ import React, { forwardRef, useState } from 'react'
 import { uploadChunkFile } from '@/api'
 import { useDispatch } from 'react-redux'
 import { setIsUploadFileList } from '@/store/reducer/globalLoading'
-import { flushSync } from 'react-dom'
 interface file extends File {
   uid: string
 }

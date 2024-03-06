@@ -1,7 +1,3 @@
-import { sendTongyiMessage } from '@/api'
-import { CreateAxiosInstance } from '@/utils/request'
-import { Readable } from 'stream'
-import readline from 'readline'
 export const callQwen = async ({
   text,
   history,

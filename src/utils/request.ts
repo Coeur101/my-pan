@@ -1,6 +1,6 @@
 import { RequestType } from './types'
 import message from './message'
-import axios, { AxiosHeaders, AxiosInstance, AxiosResponse } from 'axios'
+import axios, { AxiosInstance, AxiosResponse } from 'axios'
 import {
   hideLoading,
   setLoginState,

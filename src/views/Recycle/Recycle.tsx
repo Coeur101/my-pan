@@ -1,17 +1,11 @@
-import { Button, Modal, PaginationProps, TableColumnProps } from 'antd'
+import { Button, PaginationProps, TableColumnProps } from 'antd'
 import style from '../style/all.module.scss'
-import { DeleteFilled, ReloadOutlined, StopOutlined } from '@ant-design/icons'
+import { DeleteFilled, ReloadOutlined } from '@ant-design/icons'
 import GlobalTable, { OptionType } from '@/components/Table'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { flushSync } from 'react-dom'
 import Icon from '@/components/Icon'
-import {
-  cancelShareUrl,
-  completelyDelFile,
-  getRecycleFileList,
-  getShareFileList,
-  handleRecoverFile,
-} from '@/api'
+import { completelyDelFile, getRecycleFileList, handleRecoverFile } from '@/api'
 import message from '@/utils/message'
 import { formatFileSize } from '@/utils/format'
 interface DataList {
