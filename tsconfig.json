@@ -27,6 +27,7 @@
     "src/**/*.d.ts",
     "src/utils/request.ts",
     "src/components/*.tsx",
-    "src/hooks/*.ts"
+    "src/hooks/useSendMessage.ts",
+    "src/hooks/index.ts"
   ]
 }
