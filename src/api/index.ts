@@ -408,7 +408,7 @@ export const getFile = (fileId: string) => {
  * @returns
  */
 export const getVideoInfo = (fileId: string) => {
-  return `/file/ts/getVideoInfo/${fileId}`
+  return `file/ts/getVideoInfo/${fileId}`
 }
 /**
  * 创建下载链接
@@ -441,7 +441,7 @@ export const adminGetFile = (fileId: string, userId: string) => {
  * @returns
  */
 export const adminGetVideoInfo = (fileId: string, userId: string) => {
-  return `/admin/ts/getVideoInfo/${userId}/${fileId}`
+  return `admin/ts/getVideoInfo/${userId}/${fileId}`
 }
 /**
  * 管理员创建下载链接
@@ -477,7 +477,7 @@ export const shareGetFile = (fileId: string, shareId: string) => {
  * @returns
  */
 export const shareGetVideoInfo = (fileId: string, shareId: string) => {
-  return `/showShare/ts/getVideoInfo/${shareId}/${fileId}`
+  return `showShare/ts/getVideoInfo/${shareId}/${fileId}`
 }
 /**
  * 外部分享创建下载链接
