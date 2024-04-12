@@ -17,7 +17,7 @@ const ChatCopy: FC<{
   }
   const copy = () => {
     setBtnStatus('loading')
-    navigator.clipboard
+    window.navigator.clipboard
       .writeText(content)
       .then(() => setTimeout(() => setBtnStatus('success'), 150))
       .catch(() => setBtnStatus('error'))

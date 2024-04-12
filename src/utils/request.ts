@@ -14,7 +14,7 @@ const responseTypeJson = 'json'
 export const CreateAxiosInstance = (): AxiosInstance => {
   const http = axios.create({
     baseURL: process.env.REACT_APP_BASE_URL,
-    timeout: 10 * 1000,
+    timeout: 30 * 1000,
   })
   // const [cookie, setCookie, removeCookie] = useCookies(['userInfo'])
   http.interceptors.request.use(
